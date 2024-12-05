@@ -8,9 +8,9 @@ public class ConfigMigration_V2_1_V2_2 : IConfigMigration
     public string FromVersion => "2.1";
     public string ToVersion => "2.2";
 
-    public IConfigView Migrate(IConfigView src)
+    public ConfigView Migrate(ConfigView src)
     {
-        var dst = src.Clone();
+        var dst = (ConfigView)src.Clone();
         dst.SetValue("Version", ToVersion);
 
         if (src.IsSectionEnabled("GameSystem.Assets.UseJacketAsDummyMovie"))

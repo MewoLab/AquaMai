@@ -10,7 +10,7 @@ public class ConfigMigration_V1_0_V2_0 : IConfigMigration
     public string FromVersion => "1.0";
     public string ToVersion => "2.0";
 
-    public IConfigView Migrate(IConfigView src)
+    public ConfigView Migrate(ConfigView src)
     {
         var dst = new ConfigView();
 

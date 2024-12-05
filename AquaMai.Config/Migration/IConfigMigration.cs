@@ -6,5 +6,5 @@ public interface IConfigMigration
 {
     public string FromVersion { get; }
     public string ToVersion { get; }
-    public IConfigView Migrate(IConfigView config);
+    public ConfigView Migrate(ConfigView config);
 }

@@ -38,7 +38,7 @@ public class ConfigMigrationManager : IConfigMigrationManager
         {
             var migration = migrationMap[currentVersion];
             Utility.Log($"Migrating config from v{migration.FromVersion} to v{migration.ToVersion}");
-            config = migration.Migrate(config);
+            config = migration.Migrate((ConfigView)config);
             currentVersion = migration.ToVersion;
         }
 
