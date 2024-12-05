@@ -12,7 +12,7 @@ public class ConfigView : IConfigView
 
     public ConfigView()
     {
-        root = new TomlTable();
+        root = TomlDocument.CreateEmpty();
     }
 
     public ConfigView(TomlTable root)
