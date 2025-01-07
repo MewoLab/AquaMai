@@ -42,7 +42,7 @@ public class QuickEndPlay
                 break;
         }
 
-        if (_timer > 60 && (InputManager.GetTouchPanelAreaDown(InputManager.TouchPanelArea.B4) || InputManager.GetTouchPanelAreaDown(InputManager.TouchPanelArea.E4)))
+        if (_timer > 60 && InputManager.GetTouchPanelAreaDown(InputManager.TouchPanelArea.A4))
         {
             var traverse = Traverse.Create(__instance);
             ___container.processManager.SendMessage(____message[0]);
@@ -53,18 +53,27 @@ public class QuickEndPlay
 
     private class Ui : MonoBehaviour
     {
+        //button position(x,y) topleft point
+        public float topleftx = Screen.width / 2 - GuiSizes.PlayerWidth * 0.097f;
+        public float toplefty = Screen.height - GuiSizes.PlayerWidth * 0.09f;
+        //button size(w,h)
+        public float width = GuiSizes.PlayerWidth * .50f;
+        public float height = GuiSizes.PlayerWidth * .23f;
+
         public void OnGUI()
         {
             if (_timer < 60) return;
 
-            // 这里重新 setup 一下 style 也可以
-            var x = GuiSizes.PlayerCenter;
-            var y = Screen.height - GuiSizes.PlayerWidth * .37f;
-            var width = GuiSizes.PlayerWidth * .25f;
-            var height = GuiSizes.PlayerWidth * .13f;
-
-            GUI.Box(new Rect(x, y, width, height), "");
-            GUI.Button(new Rect(x, y, width, height), Locale.Skip);
+            // get button texture 4 -> SKIP
+            Texture2D buttonTexture = ButtonControllerBase.GetFlatButtonParam(4).Image.texture;
+            // set button background to transparent
+            GUIStyle buttonBG = new GUIStyle(GUI.skin.button);
+            buttonBG.normal.background = null;
+            // rotate -22.5°
+            Vector2 topLeftPosition = new Vector2(topleftx, toplefty);
+            GUIUtility.RotateAroundPivot((float)-22.5, topLeftPosition);
+            // draw button
+            GUI.Button(new Rect(topleftx, toplefty, width, height), buttonTexture, buttonBG);
         }
     }
 }
