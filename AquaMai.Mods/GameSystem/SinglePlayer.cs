@@ -37,9 +37,9 @@ public class SinglePlayer
 
         public static void Prefix(MonoBehaviour gameMainObject, ref Transform left, ref Transform right)
         {
-            left.transform.position = Vector3.zero;
+            Vector3 position = Camera.main.gameObject.transform.position;
+            Camera.main.gameObject.transform.position = new Vector3(position.x - 540f, position.y, position.z);
             right.localScale = Vector3.zero;
-            GameObject.Find("Mask").transform.position = new Vector3(540f, 0f, 0f);
         }
     }
 
