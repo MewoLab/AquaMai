@@ -42,7 +42,7 @@ public class QuickEndPlay
                 break;
         }
 
-        if (_timer > 60 && InputManager.GetTouchPanelAreaDown(InputManager.TouchPanelArea.A4))
+        if (_timer > 60 && (InputManager.GetTouchPanelAreaDown(InputManager.TouchPanelArea.A4) || InputManager.GetButtonDown(0, InputManager.ButtonSetting.Button04)))
         {
             var traverse = Traverse.Create(__instance);
             ___container.processManager.SendMessage(____message[0]);
@@ -69,6 +69,7 @@ public class QuickEndPlay
             // set button background to transparent
             GUIStyle buttonBG = new GUIStyle(GUI.skin.button);
             buttonBG.normal.background = null;
+            buttonBG.hover.background = null;
             // rotate -22.5°
             Vector2 topLeftPosition = new Vector2(topleftx, toplefty);
             GUIUtility.RotateAroundPivot((float)-22.5, topLeftPosition);
