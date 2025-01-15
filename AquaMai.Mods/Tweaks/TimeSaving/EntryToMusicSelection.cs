@@ -95,4 +95,14 @@ public class EntryToMusicSelection
             }
         }
     }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(ContinueProcess), "OnStart")]
+    public static void ContinueProcessOnStart()
+    {
+        for (var i = 0; i < 2; i++)
+        {
+            _volumeFadeInState[i] = false;
+        }
+    }
 }
