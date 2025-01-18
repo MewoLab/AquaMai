@@ -97,8 +97,8 @@ public class EntryToMusicSelection
     }
 
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(ContinueProcess), "OnStart")]
-    public static void ContinueProcessOnStart()
+    [HarmonyPatch(typeof(GameOverProcess), "OnStart")]
+    public static void GameOverProcessOnStart()
     {
         for (var i = 0; i < 2; i++)
         {
