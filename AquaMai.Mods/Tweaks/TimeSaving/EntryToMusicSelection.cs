@@ -1,9 +1,12 @@
-﻿using AquaMai.Config.Attributes;
+﻿using System.Collections;
+using AquaMai.Config.Attributes;
+using AquaMai.Core.Helpers;
 using DB;
 using HarmonyLib;
 using MAI2.Util;
 using Manager;
 using Monitor;
+using Monitor.ModeSelect;
 using Process;
 using Process.Information;
 
@@ -25,16 +28,7 @@ public class EntryToMusicSelection
     public static bool OnUpdate(InformationProcess __instance, ProcessDataContainer ___container)
     {
         GameManager.SetMaxTrack();
-        // Set headphone volume
-        for (var i = 0; i < 2; i++)
-        {
-            var userData = UserDataManager.Instance.GetUserData(i);
-            if (userData.IsEntry)
-            {
-                OptionHeadphonevolumeID headPhoneVolume = userData.Option.HeadPhoneVolume;
-                SoundManager.SetHeadPhoneVolume(i, headPhoneVolume.GetValue());
-            }
-        }
+        SharedInstances.GameMainObject.StartCoroutine(GraduallyIncreaseHeadphoneVolumeCoroutine());
         ___container.processManager.AddProcess(new MusicSelectProcess(___container));
         ___container.processManager.ReleaseProcess(__instance);
         return false;
@@ -48,5 +42,53 @@ public class EntryToMusicSelection
         var index = userData.MapList.FindIndex((m) => m.ID == userData.Detail.SelectMapID);
         if (index >= 0) return;
         userData.MapList.Clear();
+    }
+
+    // Gradually increase headphone volume
+    private static IEnumerator GraduallyIncreaseHeadphoneVolumeCoroutine()
+    {
+        CommonValue[] _volumeFadeIns = [null, null];
+
+        for (var i = 0; i < 2; i++)
+        {
+            var userData = UserDataManager.Instance.GetUserData(i);
+            if (!userData.IsEntry) continue;
+            _volumeFadeIns[i] = new CommonValue();
+            var value = userData.Option.HeadPhoneVolume.GetValue();
+            if (GameManager.IsSelectContinue[i])
+            {
+                _volumeFadeIns[i].start = value;
+                _volumeFadeIns[i].current = value;
+            }
+            else
+            {
+                _volumeFadeIns[i].start = 0.05f;
+                _volumeFadeIns[i].current = 0.05f;
+            }
+
+            _volumeFadeIns[i].end = value;
+            _volumeFadeIns[i].diff = (_volumeFadeIns[i].end - _volumeFadeIns[i].start) / 90f;
+        }
+
+        yield return null;
+
+
+        for (var timer = 90; timer >= 0; timer--)
+        {
+            for (var i = 0; i < 2; i++)
+            {
+                if (_volumeFadeIns[i] == null) continue;
+                if (timer == 0)
+                {
+                    SoundManager.SetHeadPhoneVolume(i, _volumeFadeIns[i].end);
+                }
+                else if (!_volumeFadeIns[i].UpdateValue())
+                {
+                    SoundManager.SetHeadPhoneVolume(i, _volumeFadeIns[i].current);
+                }
+            }
+
+            yield return null;
+        }
     }
 }
