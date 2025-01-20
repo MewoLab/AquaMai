@@ -30,7 +30,7 @@ jobs:
         shell: cmd
         run: |
           copy /y build-assets\SDEZ\* Libs
-          powershell build.ps1
+          powershell ./build.ps1
 
       - name: Prepare artifact
         shell: cmd
