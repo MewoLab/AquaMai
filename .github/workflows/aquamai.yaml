@@ -30,7 +30,7 @@ jobs:
         shell: cmd
         run: |
           copy /y build-assets\SDEZ\* Libs
-          dotnet build -c Release /p:DefineConstants="CI"
+          powershell build.ps1
 
       - name: Prepare artifact
         shell: cmd
