@@ -14,10 +14,10 @@ Task("Restore")
 Task("PreBuild")
     .Does(() =>
 {
-    var gitDescribe = GitDescribe(".", GitDescribeStrategy.Tags); // 获取 git describe 的输出
+    var gitDescribe = GitDescribe(".", GitDescribeStrategy.Tags).Substring(1); // 获取 git describe 的输出
     var buildDate = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
 
-    var shortVers = gitDescribe.Substring(1).Split('-');
+    var shortVers = gitDescribe.Split('-');
     string shortVer;
     if (shortVers.Length > 1)
     {
@@ -43,8 +43,8 @@ Task("PreBuild")
 });
 
 Task("Build")
-    .IsDependentOn("Restore")
     .IsDependentOn("PreBuild")
+    .IsDependentOn("Restore")
     .Does(() =>
 {
     // 使用 dotnet build 进行构建
