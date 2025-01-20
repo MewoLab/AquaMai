@@ -3,11 +3,7 @@ name: AquaMai Build
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
   pull_request_target:
-    branches:
-      - main
 
 jobs:
   build:
@@ -50,7 +46,7 @@ jobs:
           path: Output\Upload
 
       - name: Send to Telegram
-        if: github.event_name != 'pull_request_target'
+        if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
         run: |
           $Uri = "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMediaGroup"
           $Form = @{

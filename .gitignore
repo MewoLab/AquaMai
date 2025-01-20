@@ -371,4 +371,5 @@ MigrationBackup/
 # End of https://www.toptal.com/developers/gitignore/api/git,visualstudio
 
 Output
-.idea
+tools
+AquaMai/BuildInfo.g.cs

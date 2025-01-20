@@ -41,11 +41,10 @@ This mod is heavily WIP. More details will be added as the development progresse
 ## Development
 
 1. Copy `Assembly-CSharp.dll` to `Libs` folder.
-2. Install [.NET Framework 4.7.2 Developer Pack](https://dotnet.microsoft.com/en-us/download/dotnet-framework/thank-you/net472-developer-pack-offline-installer)
-3. Open `AquaMai.sln` in JetBrains Rider.
-4. Build the solution.
-5. Copy `Output/AquaMai.dll` to `Mods` folder.
-6. Configure and copy `AquaMai.toml` to the same folder as your game executable: `Sinmai.exe`
+1. Install [.NET Framework 4.7.2 Developer Pack](https://dotnet.microsoft.com/en-us/download/dotnet-framework/thank-you/net472-developer-pack-offline-installer)
+1. Run `build.ps1`.
+1. Copy `Output/AquaMai.dll` to `Mods` folder.
+1. Configure and copy `AquaMai.toml` to the same folder as your game executable: `Sinmai.exe`
 
 ## Relevant Links
 
