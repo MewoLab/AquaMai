@@ -1,6 +1,6 @@
 ﻿using AquaMai.Config.Attributes;
 using HarmonyLib;
-using Monitor;
+using Process;
 
 namespace AquaMai.Mods.Tweaks.TimeSaving;
 
@@ -9,11 +9,19 @@ namespace AquaMai.Mods.Tweaks.TimeSaving;
     zh: "跳过乐曲开始界面")]
 public class SkipTrackStart
 {
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof (TrackStartMonitor), "IsEnd")]
-    public static bool IsEnd(ref bool __result)
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof (TrackStartProcess), "OnStart")]
+    public static void OnStart(ref uint ____state)
     {
-        __result = true;
+        ____state = 3;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof (MusicSelectProcess), "GameStart")]
+    public static bool GameStart(MusicSelectProcess __instance, ProcessDataContainer ___container)
+    {
+        ___container.processManager.AddProcess(new TrackStartProcess(___container), 50);
+        ___container.processManager.ReleaseProcess(__instance);
         return false;
     }
 }
