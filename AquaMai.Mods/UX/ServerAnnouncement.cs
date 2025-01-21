@@ -51,14 +51,14 @@ public static class ServerAnnouncement
 
     public static void OnBeforePatch()
     {
-        NetPacketExtension.OnNetPacketResponse += OnNetPacketResponse;
+        NetPacketHook.OnNetPacketResponse += OnNetPacketResponse;
     }
 
-    private static void OnNetPacketResponse(string api, Variant json)
+    private static Variant OnNetPacketResponse(string api, Variant json)
     {
-        if (api != "GetGameSettingApi" || json is not ProxyObject obj) return;
+        if (api != "GetGameSettingApi" || json is not ProxyObject obj) return null;
         var serverAnnouncementJson = obj.Keys.Contains(FieldName) ? obj[FieldName] : null;
-        if (serverAnnouncementJson == null) return;
+        if (serverAnnouncementJson == null) return null;
 
         var serverAnnouncementData = serverAnnouncementJson.Make<ServerAnnouncementData>();
         ServerAnnouncementEntry chosenAnnouncement = null;
@@ -88,6 +88,8 @@ public static class ServerAnnouncement
         }
 
         _announcement = chosenAnnouncement;
+
+        return null;
     }
 
     private static bool ShouldShowAnnouncement(ServerAnnouncementEntry announcement)

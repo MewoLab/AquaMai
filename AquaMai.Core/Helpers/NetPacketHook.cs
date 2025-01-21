@@ -6,15 +6,16 @@ using MelonLoader;
 using MelonLoader.TinyJSON;
 using HarmonyLib;
 using AquaMai.Core.Helpers;
-using System.Linq;
+using System.IO;
 
 namespace AquaMai.Mods.Utils;
 
-public class NetPacketExtension
+public class NetPacketHook
 {
-    public delegate void NetPacketResponseHandler(string api, Variant json);
+    // Returns true if the packet was modified
+    public delegate Variant NetPacketResponseHook(string api, Variant json);
 
-    public static event NetPacketResponseHandler OnNetPacketResponse;
+    public static event NetPacketResponseHook OnNetPacketResponse;
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(Packet), "ProcImpl")]
@@ -32,16 +33,30 @@ public class NetPacketExtension
                 var response = client.GetResponse().ToArray();
                 var decryptedResponse = Shim.NetHttpClientDecryptsResponse ? response : Shim.DecryptNetPacketBody(response);
                 var json = JSON.Load(Encoding.UTF8.GetString(decryptedResponse));
+                var modified = false;
                 foreach (var handler in OnNetPacketResponse?.GetInvocationList())
                 {
                     try
                     {
-                        handler.DynamicInvoke(api, json);
+                        if (handler.DynamicInvoke(api, json) is Variant result)
+                        {
+                            json = result;
+                        }
                     }
                     catch (Exception e)
                     {
                         MelonLogger.Error($"[NetPacketExtension] Error in handler: {e}");
                     }
+                }
+                if (
+                    modified &&
+                    Traverse.Create(client).Field("_memoryStream").GetValue() is MemoryStream memoryStream)
+                {
+                    var modifiedResponse = Encoding.UTF8.GetBytes(json.ToString());
+                    memoryStream.SetLength(0);
+                    memoryStream.Write(modifiedResponse, 0, modifiedResponse.Length);
+                    memoryStream.Seek(0, SeekOrigin.Begin);
+                    MelonLogger.Msg($"[NetPacketExtension] Modified response for {api}");
                 }
             }
         }
