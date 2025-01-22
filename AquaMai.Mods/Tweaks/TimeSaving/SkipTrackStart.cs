@@ -12,9 +12,9 @@ public class SkipTrackStart
 {
     [HarmonyPostfix]
     [HarmonyPatch(typeof (TrackStartProcess), "OnStart")]
-    public static void OnStart(ref uint ____state)
+    public static void OnStart(ref TrackStartProcess.TrackStartSequence ____state)
     {
-        ____state = 3;
+        ____state = TrackStartProcess.TrackStartSequence.DispEnd;
     }
 
     [HarmonyPrefix]
