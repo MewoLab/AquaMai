@@ -13,9 +13,9 @@ namespace AquaMai.Mods.Utils;
 public class NetPacketHook
 {
     // Returns true if the packet was modified
-    public delegate Variant NetPacketResponseHook(string api, Variant json);
+    public delegate Variant NetPacketCompleteHook(string api, Variant request, Variant response);
 
-    public static event NetPacketResponseHook OnNetPacketResponse;
+    public static event NetPacketCompleteHook OnNetPacketComplete;
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(Packet), "ProcImpl")]
@@ -30,17 +30,19 @@ public class NetPacketHook
             {
                 var netQuery = __instance.Query;
                 var api = Shim.RemoveApiSuffix(netQuery.Api);
-                var response = client.GetResponse().ToArray();
-                var decryptedResponse = Shim.NetHttpClientDecryptsResponse ? response : Shim.DecryptNetPacketBody(response);
-                var json = JSON.Load(Encoding.UTF8.GetString(decryptedResponse));
+                var responseBytes = client.GetResponse().ToArray();
+                var decryptedResponse = Shim.NetHttpClientDecryptsResponse ? responseBytes : Shim.DecryptNetPacketBody(responseBytes);
+                var responseJson = JSON.Load(Encoding.UTF8.GetString(decryptedResponse));
+                var requestJson = JSON.Load(netQuery.GetRequest());
                 var modified = false;
-                foreach (var handler in OnNetPacketResponse?.GetInvocationList())
+                foreach (var handler in OnNetPacketComplete?.GetInvocationList())
                 {
                     try
                     {
-                        if (handler.DynamicInvoke(api, json) is Variant result)
+                        if (handler.DynamicInvoke(api, requestJson, responseJson) is Variant result)
                         {
-                            json = result;
+                            responseJson = result;
+                            modified = true;
                         }
                     }
                     catch (Exception e)
@@ -52,7 +54,7 @@ public class NetPacketHook
                     modified &&
                     Traverse.Create(client).Field("_memoryStream").GetValue() is MemoryStream memoryStream)
                 {
-                    var modifiedResponse = Encoding.UTF8.GetBytes(json.ToString());
+                    var modifiedResponse = Encoding.UTF8.GetBytes(responseJson.ToString());
                     memoryStream.SetLength(0);
                     memoryStream.Write(modifiedResponse, 0, modifiedResponse.Length);
                     memoryStream.Seek(0, SeekOrigin.Begin);

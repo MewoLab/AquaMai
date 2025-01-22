@@ -51,12 +51,12 @@ public static class ServerAnnouncement
 
     public static void OnBeforePatch()
     {
-        NetPacketHook.OnNetPacketResponse += OnNetPacketResponse;
+        NetPacketHook.OnNetPacketComplete += OnNetPacketComplete;
     }
 
-    private static Variant OnNetPacketResponse(string api, Variant json)
+    private static Variant OnNetPacketComplete(string api, Variant _, Variant response)
     {
-        if (api != "GetGameSettingApi" || json is not ProxyObject obj) return null;
+        if (api != "GetGameSettingApi" || response is not ProxyObject obj) return null;
         var serverAnnouncementJson = obj.Keys.Contains(FieldName) ? obj[FieldName] : null;
         if (serverAnnouncementJson == null) return null;
 
