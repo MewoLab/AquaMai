@@ -8,8 +8,8 @@ using MelonLoader;
 [assembly: AssemblyCopyright("Created by " + AquaMai.BuildInfo.Author)]
 [assembly: AssemblyTrademark(AquaMai.BuildInfo.Company)]
 [assembly: AssemblyVersion(AquaMai.BuildInfo.Version)]
-[assembly: AssemblyFileVersion(AquaMai.BuildInfo.Version)]
-[assembly: MelonInfo(typeof(AquaMai.AquaMai), AquaMai.BuildInfo.Name, AquaMai.BuildInfo.Version, AquaMai.BuildInfo.Author, AquaMai.BuildInfo.DownloadLink)]
+[assembly: AssemblyFileVersion(AquaMai.BuildInfo.GitVersion)]
+[assembly: MelonInfo(typeof(AquaMai.AquaMai), AquaMai.BuildInfo.Name, AquaMai.BuildInfo.GitVersion, AquaMai.BuildInfo.Author, AquaMai.BuildInfo.DownloadLink)]
 [assembly: MelonColor()]
 [assembly: HarmonyDontPatchAll]
 

@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="build.cake: Build" type="CAKE_CONFIGURATION" factoryName="Cake configuration factory">
+    <option name="additionalArguments" />
+    <option name="taskName" value="Build" />
+    <method v="2" />
+  </configuration>
+</component>
