@@ -1,5 +1,6 @@
 ﻿using AquaMai.Config.Attributes;
 using HarmonyLib;
+using Manager;
 using Process;
 
 namespace AquaMai.Mods.Tweaks.TimeSaving;
@@ -22,6 +23,7 @@ public class SkipTrackStart
     {
         ___container.processManager.AddProcess(new TrackStartProcess(___container), 50);
         ___container.processManager.ReleaseProcess(__instance);
+        SoundManager.PreviewEnd();
         return false;
     }
 }
