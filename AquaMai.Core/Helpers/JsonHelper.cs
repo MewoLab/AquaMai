@@ -17,6 +17,10 @@ public static class JsonHelper
             catch
             {}
         }
+        else if (variant is ProxyString proxyString)
+        {
+            return int.TryParse(proxyString.ToString(), out result);
+        }
         result = 0;
         return false;
     }
@@ -32,6 +36,10 @@ public static class JsonHelper
             }
             catch
             {}
+        }
+        else if (variant is ProxyString proxyString)
+        {
+            return long.TryParse(proxyString.ToString(), out result);
         }
         result = 0;
         return false;

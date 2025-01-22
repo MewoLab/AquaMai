@@ -54,7 +54,7 @@ public class NetPacketHook
                     modified &&
                     Traverse.Create(client).Field("_memoryStream").GetValue() is MemoryStream memoryStream)
                 {
-                    var modifiedResponse = Encoding.UTF8.GetBytes(responseJson.ToString());
+                    var modifiedResponse = Encoding.UTF8.GetBytes(responseJson.ToJSON());
                     memoryStream.SetLength(0);
                     memoryStream.Write(modifiedResponse, 0, modifiedResponse.Length);
                     memoryStream.Seek(0, SeekOrigin.Begin);

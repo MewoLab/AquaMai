@@ -2,10 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using AquaMai.Config.Attributes;
 using AquaMai.Core.Helpers;
 using AquaMai.Mods.Utils;
-using HarmonyLib;
 using Manager;
 using MelonLoader;
 using MelonLoader.TinyJSON;
@@ -102,7 +102,8 @@ public class SanitizeUserData
         var userExtend = GetObjectOrSetDefault(response, "userExtend");
         SanitizeItemIdField(userExtend, "selectMusicId", "GetMusics");
         SanitizeItemIdField(userExtend, "selectDifficultyId", "GetMusicDifficultys");
-        SanitizeItemIdField(userExtend, "categoryIndex", "GetMusicGenres");
+        // categoryIndex?
+        // musicIndex?
         SanitizeEnumFieldIfDefined(userExtend, "selectScoreType", ResolveEnumType("ConstParameter.ScoreKind"));
         SanitizeEnumFieldIfDefined(userExtend, "selectResultScoreViewType", ResolveEnumType("Process.ResultProcess.ResultScoreViewType"));
         SanitizeEnumFieldIfDefined(userExtend, "sortCategorySetting", ResolveEnumType("DB.SortTabID"));
@@ -144,12 +145,11 @@ public class SanitizeUserData
         var itemIdList = GetArrayOrSetDefault(userFavorite, "itemIdList");
         var validItemIdList = itemIdList
             .Select(itemIdVariant =>
-                itemIdVariant is ProxyNumber itemIdNumber &&
-                JsonHelper.TryToInt32(itemIdNumber, out var itemId) &&
+                JsonHelper.TryToInt32(itemIdVariant, out var itemId) &&
                 SafelyCheckItemIdByKind(requestKind, itemId)
-                    ? itemIdNumber
+                    ? itemIdVariant
                     : null)
-            .Where(itemIdNumber => itemIdNumber != null)
+            .Where(itemIdVariant => itemIdVariant != null)
             .ToList();
 
         var filteredOutCount = itemIdList.Count - validItemIdList.Count;
@@ -247,71 +247,65 @@ public class SanitizeUserData
             listFieldName,
             listEntry =>
                 listEntry.TryGetValue(idFieldName, out var idVariant) &&
-                idVariant is ProxyNumber idNumber &&
-                JsonHelper.TryToInt32(idNumber, out var idInt) &&
+                JsonHelper.TryToInt32(idVariant, out var idInt) &&
                 SafelyCheckItemId(dataManagerGetDictionaryMethod, idInt));
 
-    private static void SanitizeNumberField(ProxyObject response, string fieldName, Func<ProxyNumber, bool> isValid, ProxyNumber defaultValue)
+    private static void SanitizeInt32Field(ProxyObject obj, string fieldName, Func<int, bool> isValid, int defaultValue)
     {
         if (
-            !response.TryGetValue(fieldName, out var fieldVariant) ||
-            fieldVariant is not ProxyNumber fieldNumber ||
-            !isValid(fieldNumber))
+            !obj.TryGetValue(fieldName, out var fieldVariant) ||
+            !JsonHelper.TryToInt32(fieldVariant, out var fieldValue) ||
+            !isValid(fieldValue))
         {
-            MelonLogger.Warning($"[SanitizeUserData] Set value of invalid number field {fieldName} from {fieldVariant?.ToJSON() ?? "null"} to {defaultValue.ToJSON()}");
-            response[fieldName] = defaultValue;
+            MelonLogger.Warning($"[SanitizeUserData] Set value of invalid int32 field {fieldName} from {fieldVariant?.ToJSON() ?? "null"} to {defaultValue}");
+            obj[fieldName] = new ProxyNumber(defaultValue);
         }
     }
 
-    private static void SanitizeInt32Field(ProxyObject response, string fieldName, Func<int, bool> isValid, int defaultValue) =>
-        SanitizeNumberField(
-            response,
-            fieldName,
-            field => JsonHelper.TryToInt32(field, out var value) && isValid(value),
-            new ProxyNumber(defaultValue));
-
-    private static void SanitizeEnumFieldIfDefined(ProxyObject response, string fieldName, System.Type enumType) =>
+    private static void SanitizeEnumFieldIfDefined(ProxyObject obj, string fieldName, System.Type enumType) =>
         SanitizeInt32Field(
-            response,
+            obj,
             fieldName,
             value => enumType == null || Enum.IsDefined(enumType, value),
             enumType == null ? 0 : (int)enumType.GetEnumValues().GetValue(0));
 
-    private static void SanitizeItemIdField(ProxyObject response, string fieldName, string dataManagerGetDictionaryMethod) =>
+    private static void SanitizeItemIdField(ProxyObject obj, string fieldName, string dataManagerGetDictionaryMethod) =>
         SanitizeInt32Field(
-            response,
+            obj,
             fieldName,
             itemId => SafelyCheckItemId(dataManagerGetDictionaryMethod, itemId),
             SafelyGetDefaultItemId(dataManagerGetDictionaryMethod));
 
+    // The corresponding DataManager methods may not exist in all game versions
+    private static object SafelyGetDataMangerDictionary(string dataManagerGetDictionaryMethod)
+    {
+        return typeof(DataManager)
+            .GetMethod(dataManagerGetDictionaryMethod, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            .Invoke(DataManager.Instance, []);
+    }
+
     private static int SafelyGetDefaultItemId(string dataManagerGetDictionaryMethod)
     {
-        var dictionary = Traverse
-            .Create(DataManager.Instance)
-            .Method(dataManagerGetDictionaryMethod)
-            .GetValue();
-        var enumerator = Traverse
-            .Create(dictionary)
-            .Method("GetEnumerator")
-            .GetValue<IEnumerator>();
+        var dictionary = SafelyGetDataMangerDictionary(dataManagerGetDictionaryMethod);
+        var enumerator = dictionary
+            .GetType()
+            .GetMethod("GetEnumerator", BindingFlags.Instance | BindingFlags.Public)
+            .Invoke(dictionary, []) as IEnumerator;
         return !enumerator.MoveNext()
             ? 0
-            : Traverse
-                .Create(enumerator.Current)
-                .Property("Key")
-                .GetValue<int>();
+            : enumerator.Current
+                .GetType()
+                .GetProperty("Key", BindingFlags.Instance | BindingFlags.Public)
+                .GetValue(enumerator.Current) as int? ?? 0;
     }
 
     private static bool SafelyCheckItemId(string dataManagerGetDictionaryMethod, int itemId)
     {
-        var dictionary = Traverse
-            .Create(DataManager.Instance)
-            .Method(dataManagerGetDictionaryMethod, itemId)
-            .GetValue();
-        return Traverse
-            .Create(dictionary)
-            .Method("ContainsKey", itemId)
-            .GetValue<bool>();
+        var dictionary = SafelyGetDataMangerDictionary(dataManagerGetDictionaryMethod);
+        return dictionary
+            .GetType()
+            .GetMethod("ContainsKey", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            .Invoke(dictionary, [itemId]) as bool? ?? false;
     }
 
     private static bool SafelyCheckItemIdByKind(ItemKind itemKind, int itemId) =>
