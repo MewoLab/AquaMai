@@ -19,7 +19,7 @@ jobs:
           fetch-depth: 0
 
       - name: Get Git Describe
-        run: echo "GIT_DESCRIBE=$(git describe --tags --always)" >> $GITHUB_ENV
+        run: echo "GIT_DESCRIBE=$(git describe --tags --always)" >> $env:GITHUB_ENV
 
       - name: Checkout Assets
         uses: clansty/checkout@main
