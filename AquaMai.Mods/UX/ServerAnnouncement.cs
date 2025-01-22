@@ -2,7 +2,6 @@
 using System.Linq;
 using AquaMai.Config.Attributes;
 using AquaMai.Core.Helpers;
-using AquaMai.Mods.Utils;
 using DB;
 using HarmonyLib;
 using JetBrains.Annotations;
