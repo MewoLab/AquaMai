@@ -32,7 +32,8 @@ public class NetPacketHook
                 var api = Shim.RemoveApiSuffix(netQuery.Api);
                 var responseBytes = client.GetResponse().ToArray();
                 var decryptedResponse = Shim.NetHttpClientDecryptsResponse ? responseBytes : Shim.DecryptNetPacketBody(responseBytes);
-                var responseJson = JSON.Load(Encoding.UTF8.GetString(decryptedResponse));
+                var decodedResponse = Encoding.UTF8.GetString(decryptedResponse);
+                var responseJson = JSON.Load(decodedResponse);
                 var requestJson = JSON.Load(netQuery.GetRequest());
                 var modified = false;
                 foreach (var handler in OnNetPacketComplete?.GetInvocationList())
@@ -52,13 +53,14 @@ public class NetPacketHook
                 }
                 if (
                     modified &&
-                    Traverse.Create(client).Field("_memoryStream").GetValue() is MemoryStream memoryStream)
+                    Traverse.Create(client).Field("_memoryStream").GetValue() is MemoryStream memoryStream &&
+                    !JsonHelper.DeepEqual(responseJson, JSON.Load(decodedResponse)))
                 {
                     var modifiedResponse = Encoding.UTF8.GetBytes(responseJson.ToJSON());
                     memoryStream.SetLength(0);
                     memoryStream.Write(modifiedResponse, 0, modifiedResponse.Length);
                     memoryStream.Seek(0, SeekOrigin.Begin);
-                    MelonLogger.Msg($"[NetPacketExtension] Modified response for {api}");
+                    MelonLogger.Msg($"[NetPacketExtension] Modified response for {api} ({decodedResponse.Length} bytes -> {modifiedResponse.Length} bytes)");
                 }
             }
         }

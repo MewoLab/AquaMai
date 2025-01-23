@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using MelonLoader.TinyJSON;
 
 namespace AquaMai.Core.Helpers;
@@ -44,4 +46,24 @@ public static class JsonHelper
         result = 0;
         return false;
     }
+
+    public class DeepEqualityComparer : IEqualityComparer<Variant>
+    {
+        public bool Equals(Variant a, Variant b) => DeepEqual(a, b);
+        public int GetHashCode(Variant a) => a.ToJSON().GetHashCode();
+    }
+
+
+    public static bool DeepEqual(Variant a, Variant b) =>
+        (a, b) switch {
+            (ProxyArray arrayA, ProxyArray arrayB) => Enumerable.SequenceEqual(arrayA, arrayB, new DeepEqualityComparer()),
+            (ProxyObject objectA, ProxyObject objectB) =>
+                objectA.Keys.Count == objectB.Keys.Count &&
+                objectA.All(pair => objectB.TryGetValue(pair.Key, out var valueB) && DeepEqual(pair.Value, valueB)),
+            (ProxyBoolean booleanA, ProxyBoolean booleanB) => booleanA.ToBoolean(null) == booleanB.ToBoolean(null),
+            (ProxyNumber numberA, ProxyNumber numberB) => numberA.ToString() == numberB.ToString(),
+            (ProxyString stringA, ProxyString stringB) => stringA.ToString() == stringB.ToString(),
+            (null, null) => true,
+            _ => false
+        };
 }
