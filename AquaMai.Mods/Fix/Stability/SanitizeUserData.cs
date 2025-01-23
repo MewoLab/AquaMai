@@ -168,10 +168,10 @@ public class SanitizeUserData
 
         var requestKind = Enum.ToObject(
             enumType,
-                request.TryGetValue("kind", out var kindVariant) &&
-                JsonHelper.TryToInt64(kindVariant, out var kind)
-                    ? kind
-                    : 0);
+            request.TryGetValue("kind", out var kindVariant) &&
+            JsonHelper.TryToInt64(kindVariant, out var kind)
+                ? kind
+                : 0);
 
         var userFavoriteItemList = GetArrayOrSetDefault(response, "userFavoriteItemList");
         var validItemList = userFavoriteItemList
