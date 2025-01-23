@@ -5,10 +5,9 @@ using Net.Packet;
 using MelonLoader;
 using MelonLoader.TinyJSON;
 using HarmonyLib;
-using AquaMai.Core.Helpers;
 using System.IO;
 
-namespace AquaMai.Mods.Utils;
+namespace AquaMai.Core.Helpers;
 
 public class NetPacketHook
 {

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using AquaMai.Config.Attributes;
 using AquaMai.Core.Helpers;
-using AquaMai.Mods.Utils;
 using Manager;
 using MelonLoader;
 using MelonLoader.TinyJSON;
