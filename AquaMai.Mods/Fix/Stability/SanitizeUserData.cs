@@ -62,8 +62,8 @@ public class SanitizeUserData
         };
         if (handlerMap.TryGetValue(api, out var handler))
         {
-            var requestObject = request is ProxyObject reqObj ? reqObj : new ProxyObject();
-            var responseObject = response is ProxyObject resObj ? resObj : new ProxyObject();
+            var requestObject = request is ProxyObject reqObj ? reqObj : [];
+            var responseObject = response is ProxyObject resObj ? resObj : [];
             handler(requestObject, responseObject);
             return responseObject;
         }
