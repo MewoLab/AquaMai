@@ -144,7 +144,7 @@ public class Common
     }
 
     [ConfigEntry]
-    private readonly static bool enableAllEvent = true;
+    private readonly static bool enableAllEvent = false; // 如果这个值是true，则段位认定无法使用（会崩溃）
 
     [EnableIf(nameof(enableAllEvent))]
     [HarmonyPrefix]
