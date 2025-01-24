@@ -150,6 +150,7 @@ public class SanitizeUserData
                     : null)
             .Where(itemIdVariant => itemIdVariant != null)
             .ToList();
+        userFavorite["itemIdList"] = ToProxyArray(validItemIdList);
 
         var filteredOutCount = itemIdList.Count - validItemIdList.Count;
         if (filteredOutCount > 0)
@@ -190,6 +191,7 @@ public class SanitizeUserData
             })
             .Select(tuple => tuple.itemObject)
             .ToList();
+        response["userFavoriteItemList"] = ToProxyArray(validItemList);
 
         var filteredOutCount = userFavoriteItemList.Count - validItemList.Count;
         if (filteredOutCount > 0)
