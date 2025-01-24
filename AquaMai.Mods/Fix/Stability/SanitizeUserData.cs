@@ -57,7 +57,6 @@ public class SanitizeUserData
             // ["GetUserScoreRankingApi"] = /* no need */,
             // ["GetUserNewItemApi"] = /* no need */,
             // ["GetUserNewItemListApi"] = /* no need */,
-
         };
         if (handlerMap.TryGetValue(api, out var handler))
         {
