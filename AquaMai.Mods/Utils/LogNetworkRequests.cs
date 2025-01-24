@@ -59,6 +59,7 @@ public class LogNetworkRequests
     }
 
     [EnableIf(nameof(url))]
+    [HarmonyPriority(Priority.First)]
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Packet), "Create")]
     public static void PostCreate(Packet __instance)
@@ -80,6 +81,7 @@ public class LogNetworkRequests
     }
 
     // Record the error responses of NetHttpClient to display. These responses could not be acquired in other ways.
+    [HarmonyPriority(Priority.First)]
     [HarmonyPrefix]
     [HarmonyPatch(typeof(NetHttpClient), "SetError")]
     public static void PreSetError(NetHttpClient __instance, HttpWebResponse response)
@@ -90,6 +92,7 @@ public class LogNetworkRequests
         }
     }
 
+    [HarmonyPriority(Priority.First)]
     [HarmonyPrefix]
     [HarmonyPatch(typeof(Packet), "ProcImpl")]
     public static void PreProcImpl(Packet __instance)
