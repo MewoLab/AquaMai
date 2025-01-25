@@ -227,7 +227,6 @@ public class Unlock
                 target.userDataProperty != null &&
                 target.dataManagerMethod != null)
             .ToList();
-        MelonLogger.Msg($"[Unlock.CollectionHook] Collection hooks generated = {collectionHooks.Count()}");
     }
 
     private static bool CollectionHookEnabled => collectionHooks.Count > 0;
@@ -262,7 +261,6 @@ public class Unlock
                                   })
                     .ToList();
             allUnlockedItemsCache[dataManagerMethod] = result;
-            MelonLogger.Msg($"[Unlock.CollectionHook] {dataManagerMethod.Name} generated = {result.Count}");
             return result;
         }
 
@@ -310,7 +308,6 @@ public class Unlock
                         backup[userDataProperty] = new(From: currentValue, To: allUnlockedItems);
                         userDataProperty.SetValue(userData, allUnlockedItems);
                     }
-                    MelonLogger.Msg($"[Unlock.CollectionHook] {userDataProperty.Name} {(restore ? "restored" : "modified")}.");
                 }
             }
         }
