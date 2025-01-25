@@ -29,6 +29,13 @@ public class MovieLoader
             """)]
     private static bool jacketAsMovie = true;
 
+
+    [ConfigEntry(
+        en: "Load Movie from game source",
+        zh: "加载游戏自带的 PV")]
+    private static bool loadSourceMovie = true;
+    
+
     [ConfigEntry(
         en: "Load MP4 files from LocalAssets",
         zh: "从 LocalAssets 中加载 MP4 文件作为 PV")]
@@ -62,20 +69,39 @@ public class MovieLoader
     [HarmonyPatch(typeof(GameCtrl), "Initialize")]
     public static void LoadLocalBgaAwake(GameObject ____movieMaskObj, int ___monitorIndex)
     {
+        // 优先级：首先读游戏自带的bga, 然后读本地mp4 bga, 最后读jacket
+
         var music = Singleton<DataManager>.Instance.GetMusic(GameManager.SelectMusicID[0]);
         if (music is null) return;
-
-        var moviePath = Singleton<OptionDataManager>.Instance.GetMovieDataPath($"{music.movieName.id:000000}") + ".dat";
-        if (!moviePath.Contains("dummy")) return;
-
-        var resolvedDir = FileSystem.ResolvePath(movieAssetsDir);
-        if (!optionFileMap.TryGetValue($"{music.movieName.id:000000}.mp4", out var mp4Path))
-        {
-            mp4Path = Path.Combine(resolvedDir, $"{music.movieName.id:000000}.mp4");
+        
+        // Load source bga
+        if (loadSourceMovie) {
+            var moviePath = Singleton<OptionDataManager>.Instance.GetMovieDataPath($"{music.movieName.id:000000}") + ".dat";
+            if (!moviePath.Contains("dummy")) return;
         }
 
-        var mp4Exists = File.Exists(mp4Path);
-        var jacket = LoadLocalImages.GetJacketTexture2D(music.movieName.id);
+        // Load localasset mp4 bga
+        var mp4Exists = false;
+        var mp4Path = "";
+        if (loadMp4Movie) {
+            var resolvedDir = FileSystem.ResolvePath(movieAssetsDir);
+            if (!optionFileMap.TryGetValue($"{music.movieName.id:000000}.mp4", out mp4Path))
+            {
+                mp4Path = Path.Combine(resolvedDir, $"{music.movieName.id:000000}.mp4");
+            }
+            mp4Exists = File.Exists(mp4Path);
+        }
+
+        // Load jacket
+        Texture2D jacket = null;
+        if (jacketAsMovie) {
+            jacket = LoadLocalImages.GetJacketTexture2D(music.movieName.id);
+            if (jacket is null) {
+                var filename = $"Jacket/UI_Jacket_{music.movieName.id:000000}.png";
+                jacket = AssetManager.Instance().GetJacketTexture2D(filename);
+            }
+        }
+
         if (!mp4Exists && jacket is null)
         {
             MelonLogger.Msg("No jacket found for music " + music);
