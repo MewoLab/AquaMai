@@ -4,6 +4,11 @@ using MAI2System;
 using Manager;
 using Manager.MaiStudio;
 using HarmonyLib;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Linq;
+using MelonLoader;
+using System.Collections;
 
 namespace AquaMai.Mods.GameSystem;
 
@@ -12,6 +17,11 @@ namespace AquaMai.Mods.GameSystem;
     zh: "解锁原本锁定（包括正常途径无法解锁）的游戏内容")]
 public class Unlock
 {
+    public static void OnBeforeEnableCheck()
+    {
+        InitializeCollectionHooks();
+    }
+
     [ConfigEntry(
         en: "Unlock maps that are not in this version.",
         zh: "解锁游戏里所有的区域，包括非当前版本的（并不会帮你跑完）")]
@@ -100,5 +110,167 @@ public class Unlock
         result1P = ConstParameter.ResultOfUnlockUtageJudgement.Unlocked;
         result2P = ConstParameter.ResultOfUnlockUtageJudgement.Unlocked;
         return false;
+    }
+
+    private static readonly List<
+    (
+        string configField,
+        string collectionProcessMethod,
+        string userDataProperty,
+        string dataManagerMethod
+    )> collectionHookSpecification =
+    [
+        (nameof(titles), "CreateTitleData", "TitleList", "GetTitles"),
+        (nameof(icons), "CreateIconData", "IconList", "GetIcons"),
+        (nameof(plates), "CreatePlateData", "PlateList", "GetPlates"),
+        (nameof(frames), "CreateFrameData", "FrameList", "GetFrames"),
+        (nameof(partners), "CreatePartnerData", "PartnerList", "GetPartners"),
+    ];
+
+    [ConfigEntry(
+        en: "Unlock all titles in collection settings (Won't upload to user data. You'll still \"get\" those collections by normal plays.)",
+        zh: "在收藏品设置界面解锁所有称号（不会上传至账户，不影响正常结算获取）"
+    )]
+    private static readonly bool titles = true;
+
+    [ConfigEntry(
+        en: "Unlock all icons in collection settings (Won't upload to user data. You'll still \"get\" those collections by normal plays.)",
+        zh: "在收藏品设置界面解锁所有头像（不会上传至账户，不影响正常结算获取）"
+    )]
+    private static readonly bool icons = true;
+
+    [ConfigEntry(
+        en: "Unlock all plates in collection settings (Won't upload to user data. You'll still \"get\" those collections by normal plays.)",
+        zh: "在收藏品设置界面解锁所有姓名框（不会上传至账户，不影响正常结算获取）"
+    )]
+    private static readonly bool plates = true;
+
+    [ConfigEntry(
+        en: "Unlock all frames in collection settings (Won't upload to user data. You'll still \"get\" those collections by normal plays.)",
+        zh: "在收藏品设置界面解锁所有背景（不会上传至账户，不影响正常结算获取）"
+    )]
+    private static readonly bool frames = true;
+
+    [ConfigEntry(
+        en: "Unlock all partners in collection settings (Won't upload to user data. You'll still \"get\" those collections by normal plays.)",
+        zh: "在收藏品设置界面解锁所有搭档（不会上传至账户，不影响正常结算获取）"
+    )]
+    private static readonly bool partners = true;
+
+    private static List<
+    (
+        MethodInfo collectionProcessMethod,
+        PropertyInfo userDataProperty,
+        MethodInfo dataManagerMethod
+    )> collectionHooks;
+
+    private static void InitializeCollectionHooks()
+    {
+        collectionHooks = collectionHookSpecification
+            .Where(spec =>
+                typeof(Unlock)
+                    .GetField(spec.configField, BindingFlags.Static | BindingFlags.NonPublic)
+                    .GetValue(null) as bool? ?? false)
+            .Select(spec =>
+            (
+                collectionProcessMethod: typeof(CollectionProcess)
+                    .GetMethod(spec.collectionProcessMethod, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic),
+                userDataProperty: typeof(UserData)
+                    .GetProperty(spec.userDataProperty, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic),
+                dataManagerMethod: typeof(DataManager)
+                    .GetMethod(spec.dataManagerMethod, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            ))
+            .Where(target =>
+                target.collectionProcessMethod != null &&
+                target.userDataProperty != null &&
+                target.dataManagerMethod != null)
+            .ToList();
+        MelonLogger.Msg($"[Unlock.CollectionHook] Collection hooks generated = {collectionHooks.Count()}");
+    }
+
+    private static bool CollectionHookEnabled => collectionHooks.Count > 0;
+
+    [EnableIf(typeof(Unlock), nameof(CollectionHookEnabled))]
+    [HarmonyPatch]
+    public class CollectionHook
+    {
+        private static readonly Dictionary<MethodInfo, List<Manager.UserDatas.UserItem>> allUnlockedItemsCache = [];
+
+        public static List<Manager.UserDatas.UserItem> GetAllUnlockedItemList(MethodInfo dataManagerMethod)
+        {
+            if (allUnlockedItemsCache.TryGetValue(dataManagerMethod, out var result))
+            {
+                return result;
+            }
+            result = dataManagerMethod.Invoke(DataManager.Instance, null) is not IEnumerable dictionary
+                ? []
+                : dictionary
+                    .Cast<object>()
+                    .Select(pair =>
+                        pair
+                            .GetType()
+                            .GetProperty("Key")
+                            .GetValue(pair) is not int id
+                                ? null
+                                : new Manager.UserDatas.UserItem
+                                  {
+                                      itemId = id,
+                                      stock = 1,
+                                      isValid = true
+                                  })
+                    .ToList();
+            allUnlockedItemsCache[dataManagerMethod] = result;
+            MelonLogger.Msg($"[Unlock.CollectionHook] {dataManagerMethod.Name} generated = {result.Count}");
+            return result;
+        }
+
+        public static IEnumerable<MethodBase> TargetMethods() => collectionHooks.Select(target => target.collectionProcessMethod);
+
+        public record PropertyChangeLog(object From, object To);
+
+        public static void Prefix(out Dictionary<PropertyInfo, PropertyChangeLog> __state)
+        {
+            __state = [];
+            ModifyUserData(false, ref __state);
+        }
+
+        public static void Postfix(Dictionary<PropertyInfo, PropertyChangeLog> __state)
+        {
+            ModifyUserData(false, ref __state);
+        }
+
+        private static void ModifyUserData(bool restore, ref Dictionary<PropertyInfo, PropertyChangeLog> backup)
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                var userData = UserDataManager.Instance.GetUserData(i);
+                if (!userData.IsEntry) continue;
+                foreach (var (_, userDataProperty, dataManagerMethod) in collectionHooks)
+                {
+                    var currentValue = userDataProperty.GetValue(userData);
+                    if (restore)
+                    {
+                        if (!backup.TryGetValue(userDataProperty, out var backupData))
+                        {
+                            MelonLogger.Error($"[Unlock.CollectionHook] Failed to restore {userDataProperty.Name} to the original value. Backup data not found.");
+                            continue;
+                        }
+                        else if (currentValue != backupData.From)
+                        {
+                            MelonLogger.Error($"[Unlock.CollectionHook] Failed to restore {userDataProperty.Name} to the original value. Value changed unexpectedly, incompatible mods loaded?");
+                            continue;
+                        }
+                        userDataProperty.SetValue(userData, backupData.From);
+                    }
+                    else
+                    {
+                        var allUnlockedItems = GetAllUnlockedItemList(dataManagerMethod);
+                        backup[userDataProperty] = new(From: currentValue, To: allUnlockedItems);
+                        userDataProperty.SetValue(userData, allUnlockedItems);
+                    }
+                    MelonLogger.Msg($"[Unlock.CollectionHook] {userDataProperty.Name} {(restore ? "restored" : "modified")}.");
+                }
+            }
+        }
     }
 }

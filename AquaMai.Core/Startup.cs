@@ -20,6 +20,9 @@ public class Startup
 
     private enum ModLifecycleMethod
     {
+        // Invoked when collecting enabled patches, before the current class is checked
+        // Fields used in [EnableIf(...)] should be initialized here
+        OnBeforeEnableCheck,
         // Invoked before all patches are applied, including core patches
         OnBeforeAllPatch,
         // Invoked after all patches are applied
@@ -80,6 +83,8 @@ public class Startup
 
     private static void CollectWantedPatches(List<Type> wantedPatches, Type type)
     {
+        InvokeLifecycleMethod(type, ModLifecycleMethod.OnBeforeEnableCheck);
+
         if (EnableConditionHelper.ShouldSkipClass(type))
         {
             return;
@@ -88,6 +93,7 @@ public class Startup
         wantedPatches.Add(type);
         foreach (var nested in type.GetNestedTypes())
         {
+            if (nested.GetCustomAttributes().Count() == 0) continue; // Skip data / helper classes
             CollectWantedPatches(wantedPatches, nested);
         }
     }
