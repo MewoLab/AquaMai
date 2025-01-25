@@ -13,8 +13,16 @@ using System.Collections;
 namespace AquaMai.Mods.GameSystem;
 
 [ConfigSection(
-    en: "Unlock normally locked (including normally non-unlockable) game content.",
-    zh: "解锁原本锁定（包括正常途径无法解锁）的游戏内容")]
+    en: """
+        Unlock normally locked (including normally non-unlockable) game content.
+        Anything unlocked (except the characters you selected) by this mod will not be uploaded your account.
+        You'll still "get" those musics/collections/courses by normal plays.
+        """,
+    zh: """
+        解锁原本锁定（包括正常途径无法解锁）的游戏内容
+        由本 Mod 解锁的内容（除了被你选择的角色以外）不会上传到你的账户
+        你仍然可以通过正常游玩来「获得」那些乐曲/收藏品/段位
+        """)]
 public class Unlock
 {
     public static void OnBeforeEnableCheck()
@@ -97,6 +105,40 @@ public class Unlock
     }
 
     [ConfigEntry(
+        en: "Unlock all course-mode courses (no need to reach 10th dan to play \"real\" dan).",
+        zh: "解锁所有段位模式的段位（不需要十段就可以打真段位）")]
+    private static readonly bool courses = true;
+
+    [EnableIf(nameof(courses))]
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(CourseData), "get_eventId")]
+    public static void get_eventId(ref StringID __result)
+    {
+        if (__result.id == 0) return; // Should not be unlocked
+
+        // Return the event ID 1 to unlock it
+        var id = new Manager.MaiStudio.Serialize.StringID
+        {
+            id = 1,
+            str = "無期限常時解放"
+        };
+
+        var sid = new StringID();
+        sid.Init(id);
+
+        __result = sid;
+    }
+
+    [EnableIf(nameof(courses))]
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(CourseData), "get_isLock")]
+    public static bool get_isLock(ref bool __result)
+    {
+        __result = false;
+        return false;
+    }
+
+    [ConfigEntry(
         en: "Unlock Utage without the need of DXRating 10000.",
         zh: "不需要万分也可以进宴会场")]
     private static readonly bool utage = true;
@@ -128,32 +170,32 @@ public class Unlock
     ];
 
     [ConfigEntry(
-        en: "Unlock all titles in collection settings (Won't upload to user data. You'll still \"get\" those collections by normal plays.)",
-        zh: "在收藏品设置界面解锁所有称号（不会上传至账户，不影响正常结算获取）"
+        en: "Unlock all titles.",
+        zh: "解锁所有称号"
     )]
     private static readonly bool titles = true;
 
     [ConfigEntry(
-        en: "Unlock all icons in collection settings (Won't upload to user data. You'll still \"get\" those collections by normal plays.)",
-        zh: "在收藏品设置界面解锁所有头像（不会上传至账户，不影响正常结算获取）"
+        en: "Unlock all icons.",
+        zh: "解锁所有头像"
     )]
     private static readonly bool icons = true;
 
     [ConfigEntry(
-        en: "Unlock all plates in collection settings (Won't upload to user data. You'll still \"get\" those collections by normal plays.)",
-        zh: "在收藏品设置界面解锁所有姓名框（不会上传至账户，不影响正常结算获取）"
+        en: "Unlock all plates.",
+        zh: "解锁所有姓名框"
     )]
     private static readonly bool plates = true;
 
     [ConfigEntry(
-        en: "Unlock all frames in collection settings (Won't upload to user data. You'll still \"get\" those collections by normal plays.)",
-        zh: "在收藏品设置界面解锁所有背景（不会上传至账户，不影响正常结算获取）"
+        en: "Unlock all frames.",
+        zh: "解锁所有背景"
     )]
     private static readonly bool frames = true;
 
     [ConfigEntry(
-        en: "Unlock all partners in collection settings (Won't upload to user data. You'll still \"get\" those collections by normal plays.)",
-        zh: "在收藏品设置界面解锁所有搭档（不会上传至账户，不影响正常结算获取）"
+        en: "Unlock all partners.",
+        zh: "解锁所有搭档"
     )]
     private static readonly bool partners = true;
 
