@@ -251,14 +251,14 @@ public class Unlock
                         pair
                             .GetType()
                             .GetProperty("Key")
-                            .GetValue(pair) is not int id
-                                ? null
-                                : new Manager.UserDatas.UserItem
-                                  {
-                                      itemId = id,
-                                      stock = 1,
-                                      isValid = true
-                                  })
+                            .GetValue(pair))
+                    .Select(id =>
+                        new Manager.UserDatas.UserItem
+                        {
+                            itemId = (int)id,
+                            stock = 1,
+                            isValid = true
+                        })
                     .ToList();
             allUnlockedItemsCache[dataManagerMethod] = result;
             return result;
@@ -268,34 +268,38 @@ public class Unlock
 
         public record PropertyChangeLog(object From, object To);
 
-        public static void Prefix(out Dictionary<PropertyInfo, PropertyChangeLog> __state)
+        public static void Prefix(out Dictionary<UserData, Dictionary<PropertyInfo, PropertyChangeLog>> __state)
         {
             __state = [];
             ModifyUserData(false, ref __state);
         }
 
-        public static void Postfix(Dictionary<PropertyInfo, PropertyChangeLog> __state)
+        public static void Postfix(Dictionary<UserData, Dictionary<PropertyInfo, PropertyChangeLog>> __state)
         {
-            ModifyUserData(false, ref __state);
+            ModifyUserData(true, ref __state);
         }
 
-        private static void ModifyUserData(bool restore, ref Dictionary<PropertyInfo, PropertyChangeLog> backup)
+        private static void ModifyUserData(bool restore, ref Dictionary<UserData, Dictionary<PropertyInfo, PropertyChangeLog>> backup)
         {
             for (int i = 0; i < 2; i++)
             {
                 var userData = UserDataManager.Instance.GetUserData(i);
                 if (!userData.IsEntry) continue;
+                if (!backup.TryGetValue(userData, out var userBackup))
+                {
+                    backup[userData] = userBackup = [];
+                }
                 foreach (var (_, userDataProperty, dataManagerMethod) in collectionHooks)
                 {
                     var currentValue = userDataProperty.GetValue(userData);
                     if (restore)
                     {
-                        if (!backup.TryGetValue(userDataProperty, out var backupData))
+                        if (!userBackup.TryGetValue(userDataProperty, out var backupData))
                         {
                             MelonLogger.Error($"[Unlock.CollectionHook] Failed to restore {userDataProperty.Name} to the original value. Backup data not found.");
                             continue;
                         }
-                        else if (currentValue != backupData.From)
+                        else if (currentValue != backupData.To)
                         {
                             MelonLogger.Error($"[Unlock.CollectionHook] Failed to restore {userDataProperty.Name} to the original value. Value changed unexpectedly, incompatible mods loaded?");
                             continue;
@@ -305,7 +309,7 @@ public class Unlock
                     else
                     {
                         var allUnlockedItems = GetAllUnlockedItemList(dataManagerMethod);
-                        backup[userDataProperty] = new(From: currentValue, To: allUnlockedItems);
+                        userBackup[userDataProperty] = new(From: currentValue, To: allUnlockedItems);
                         userDataProperty.SetValue(userData, allUnlockedItems);
                     }
                 }
