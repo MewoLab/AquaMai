@@ -12,7 +12,7 @@ using System.Collections;
 using Manager.UserDatas;
 using Net.VO.Mai2;
 using Process;
-using System;
+using Util;
 
 namespace AquaMai.Mods.GameSystem;
 
@@ -39,23 +39,42 @@ public class Unlock
         zh: "解锁游戏里所有的区域，包括非当前版本的（并不会帮你跑完）")]
     private static readonly bool maps = true;
 
-    [EnableIf(nameof(maps))]
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(MapData), "get_OpenEventId")]
-    public static bool get_OpenEventId(ref StringID __result)
+    [EnableIf(typeof(Unlock), nameof(maps))]
+    public class MapHook
     {
-        // For any map, return the event ID 1 to unlock it
-        var id = new Manager.MaiStudio.Serialize.StringID
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(MapData), "get_OpenEventId")]
+        public static bool get_OpenEventId(ref StringID __result)
         {
-            id = 1,
-            str = "無期限常時解放"
-        };
-        
-        var sid = new StringID();
-        sid.Init(id);
-        
-        __result = sid;
-        return false;
+            // For any map, return the event ID 1 to unlock it
+            var id = new Manager.MaiStudio.Serialize.StringID
+            {
+                id = 1,
+                str = "無期限常時解放"
+            };
+
+            var sid = new StringID();
+            sid.Init(id);
+
+            __result = sid;
+            return false;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(UserMapData), "get_IsLock")]
+        public static bool get_IsLock(ref bool __result)
+        {
+            __result = false;
+            return false;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(MapMaster), "IsLock")]
+        public static bool PreIsLock(ref bool __result)
+        {
+            __result = false;
+            return false;
+        }
     }
 
     [ConfigEntry(
@@ -63,13 +82,16 @@ public class Unlock
         zh: "解锁所有乐曲（和 mai2.ini 里面设置 AllOpen=1 是一样的效果）")]
     private static readonly bool songs = true;
 
-    [EnableIf(nameof(songs))]
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(MAI2System.Config), "IsAllOpen", MethodType.Getter)]
-    public static bool IsAllOpen(ref bool __result)
+    [EnableIf(typeof(Unlock), nameof(songs))]
+    public class SongHook
     {
-        __result = true;
-        return false;
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(MAI2System.Config), "IsAllOpen", MethodType.Getter)]
+        public static bool IsAllOpen(ref bool __result)
+        {
+            __result = true;
+            return false;
+        }
     }
 
     [ConfigEntry(
@@ -77,35 +99,37 @@ public class Unlock
         zh: "解锁游戏里所有可能的跑图券")]
     private static readonly bool tickets = true;
 
-    [EnableIf(nameof(tickets))]
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(TicketData), "get_ticketEvent")]
-    public static bool get_ticketEvent(ref StringID __result)
+    [EnableIf(typeof(Unlock), nameof(tickets))]
+    public class TicketHook
     {
-        // For any ticket, return the event ID 1 to unlock it
-        var id = new Manager.MaiStudio.Serialize.StringID
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(TicketData), "get_ticketEvent")]
+        public static bool get_ticketEvent(ref StringID __result)
         {
-            id = 1,
-            str = "無期限常時解放"
-        };
+            // For any ticket, return the event ID 1 to unlock it
+            var id = new Manager.MaiStudio.Serialize.StringID
+            {
+                id = 1,
+                str = "無期限常時解放"
+            };
 
-        var sid = new StringID();
-        sid.Init(id);
+            var sid = new StringID();
+            sid.Init(id);
 
-        __result = sid;
-        return false;
-    }
+            __result = sid;
+            return false;
+        }
 
-    [EnableIf(nameof(tickets))]
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(TicketData), "get_maxCount")]
-    public static bool get_maxCount(ref int __result)
-    {
-        // Modify the maxTicketNum to 0
-        // this is because TicketManager.GetTicketData adds the ticket to the list if either
-        // the player owns at least one ticket or the maxTicketNum = 0
-        __result = 0;
-        return false;
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(TicketData), "get_maxCount")]
+        public static bool get_maxCount(ref int __result)
+        {
+            // Modify the maxTicketNum to 0
+            // this is because TicketManager.GetTicketData adds the ticket to the list if either
+            // the player owns at least one ticket or the maxTicketNum = 0
+            __result = 0;
+            return false;
+        }
     }
 
     [ConfigEntry(
@@ -113,33 +137,35 @@ public class Unlock
         zh: "解锁所有段位模式的段位（不需要十段就可以打真段位）")]
     private static readonly bool courses = true;
 
-    [EnableIf(nameof(courses))]
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(CourseData), "get_eventId")]
-    public static void get_eventId(ref StringID __result)
+    [EnableIf(typeof(Unlock), nameof(courses))]
+    public class CourseHook
     {
-        if (__result.id == 0) return; // Should not be unlocked
-
-        // Return the event ID 1 to unlock it
-        var id = new Manager.MaiStudio.Serialize.StringID
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(CourseData), "get_eventId")]
+        public static void get_eventId(ref StringID __result)
         {
-            id = 1,
-            str = "無期限常時解放"
-        };
+            if (__result.id == 0) return; // Should not be unlocked
 
-        var sid = new StringID();
-        sid.Init(id);
+            // Return the event ID 1 to unlock it
+            var id = new Manager.MaiStudio.Serialize.StringID
+            {
+                id = 1,
+                str = "無期限常時解放"
+            };
 
-        __result = sid;
-    }
+            var sid = new StringID();
+            sid.Init(id);
 
-    [EnableIf(nameof(courses))]
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(CourseData), "get_isLock")]
-    public static bool get_isLock(ref bool __result)
-    {
-        __result = false;
-        return false;
+            __result = sid;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(CourseData), "get_isLock")]
+        public static bool get_isLock(ref bool __result)
+        {
+            __result = false;
+            return false;
+        }
     }
 
     [ConfigEntry(
@@ -147,15 +173,18 @@ public class Unlock
         zh: "不需要万分也可以进宴会场")]
     private static readonly bool utage = true;
 
-    [EnableIf(nameof(utage))]
+    [EnableIf(typeof(Unlock), nameof(utage))]
     [EnableGameVersion(24000)]
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(GameManager), "CanUnlockUtageTotalJudgement")]
-    public static bool CanUnlockUtageTotalJudgement(out ConstParameter.ResultOfUnlockUtageJudgement result1P, out ConstParameter.ResultOfUnlockUtageJudgement result2P)
+    public class UtageHook
     {
-        result1P = ConstParameter.ResultOfUnlockUtageJudgement.Unlocked;
-        result2P = ConstParameter.ResultOfUnlockUtageJudgement.Unlocked;
-        return false;
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(GameManager), "CanUnlockUtageTotalJudgement")]
+        public static bool CanUnlockUtageTotalJudgement(out ConstParameter.ResultOfUnlockUtageJudgement result1P, out ConstParameter.ResultOfUnlockUtageJudgement result2P)
+        {
+            result1P = ConstParameter.ResultOfUnlockUtageJudgement.Unlocked;
+            result2P = ConstParameter.ResultOfUnlockUtageJudgement.Unlocked;
+            return false;
+        }
     }
 
     private static readonly List<
