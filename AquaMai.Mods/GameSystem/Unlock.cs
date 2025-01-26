@@ -9,6 +9,10 @@ using System.Reflection;
 using System.Linq;
 using MelonLoader;
 using System.Collections;
+using Manager.UserDatas;
+using Net.VO.Mai2;
+using Process;
+using System;
 
 namespace AquaMai.Mods.GameSystem;
 
@@ -231,6 +235,9 @@ public class Unlock
 
     private static bool CollectionHookEnabled => collectionHooks.Count > 0;
 
+    // The data in collection process is initialized in CreateXXXData() methods
+    // Hook those method, set corrsponding UserData property to the all unlocked list and restore it after the method call
+    // So the all unlocked items list will not be uploaded to the server
     [EnableIf(typeof(Unlock), nameof(CollectionHookEnabled))]
     [HarmonyPatch]
     public class CollectionHook
@@ -314,6 +321,129 @@ public class Unlock
                     }
                 }
             }
+        }
+    }
+
+    [ConfigEntry(
+        en: "Unlock all characters.",
+        zh: "解锁所有旅行伙伴"
+    )]
+    private static readonly bool characters = true;
+
+    [EnableIf(typeof(Unlock), nameof(characters))]
+    public class CharacterHook
+    {
+        private enum StateFlag
+        {
+            InInitializeMethod = 1,
+            InRestoreCharadataMethod = 2,
+            InAddCollectionsMethod = 4,
+            InExportUserAllMethod = 8,
+        }
+
+        private static StateFlag stateFlags = 0;
+
+        // State flag manipulations -- I don't know a better way to do this in Harmony
+        [HarmonyPatch(typeof(UserData), "Initialize")] [HarmonyPrefix] public static void PreInitialize() { stateFlags |= StateFlag.InInitializeMethod; }
+        [HarmonyPatch(typeof(UserData), "Initialize")] [HarmonyPostfix] public static void PostInitialize() { stateFlags &= ~StateFlag.InInitializeMethod; }
+        [HarmonyPatch(typeof(PlInformationProcess), "RestoreCharadata")] [HarmonyPrefix] public static void PreRestoreCharadata() { stateFlags |= StateFlag.InRestoreCharadataMethod; }
+        [HarmonyPatch(typeof(PlInformationProcess), "RestoreCharadata")] [HarmonyPostfix] public static void PostRestoreCharadata() { stateFlags &= ~StateFlag.InRestoreCharadataMethod; }
+        [HarmonyPatch(typeof(UserData), "AddCollections")] [HarmonyPrefix] public static void PreAddCollections() { stateFlags |= StateFlag.InAddCollectionsMethod; }
+        [HarmonyPatch(typeof(UserData), "AddCollections")] [HarmonyPostfix] public static void PostAddCollections() { stateFlags &= ~StateFlag.InAddCollectionsMethod; }
+        [HarmonyPatch(typeof(VOExtensions), "ExportUserAll")] [HarmonyPrefix] public static void PreExportUserAll() { stateFlags |= StateFlag.InExportUserAllMethod; }
+        [HarmonyPatch(typeof(VOExtensions), "ExportUserAll")] [HarmonyPostfix] public static void PostExportUserAll() { stateFlags &= ~StateFlag.InExportUserAllMethod; }
+
+        // Ideally, the all unlocked list should be computed every time based on the user's owned characters
+        // to avoid one character id being referenced by multiple UserChara instances
+        // to ensure leveling-up characters is saved correctly
+        private readonly static Dictionary<UserData, (int originalCount, List<UserChara> overrideList)> allUnlockedCharaCache = [];
+
+        [HarmonyPatch(typeof(UserData), "Initialize")]
+        [HarmonyPostfix]
+        public static void PostInitialize(ref UserData __instance)
+        {
+            allUnlockedCharaCache[__instance] =
+            (
+                originalCount: -1,
+                overrideList: DataManager.Instance
+                    .GetCharas()
+                    .Select(pair => pair.Value)
+                    .Select(chara => new UserChara(chara.GetID()))
+                    .ToList()
+            );
+        }
+
+        // Since we cache the all unlocked list for each user, we need to merge the original list with the override list
+        // each time when the original list is changed, judged by the count of the original list
+        // (assuming the references in two lists always consistent, except in the skip methods)
+
+        [HarmonyPatch(typeof(UserData), "get_CharaList")]
+        [HarmonyPostfix]
+        public static void get_CharaList(ref UserData __instance, ref List<UserChara> __result)
+        {
+            if (// The original list is being cleared and initialized in these methods
+                (stateFlags & StateFlag.InInitializeMethod) != 0 ||
+                (stateFlags & StateFlag.InRestoreCharadataMethod) != 0 ||
+                // When adding a character to the user's list, let the game add it to the original list
+                (stateFlags & StateFlag.InAddCollectionsMethod) != 0)
+            {
+                return;
+            }
+            else if ((stateFlags & StateFlag.InExportUserAllMethod) != 0)
+            {
+                // Return a list of characters that should be saved to the server, i.e.
+                // 1. Characters in the original list
+                // 2. Characters NOT in the original list, but leveled-up
+                Dictionary<int, UserChara> originalDict = __result.ToDictionary(chara => chara.ID);
+                __result = MaybeMergeUserCharaList(__instance, __result)
+                    .Where(chara => originalDict.ContainsKey(chara.ID) || chara.Level > 1)
+                    .ToList();
+            }
+            else
+            {
+                __result = MaybeMergeUserCharaList(__instance, __result);
+            }
+        }
+
+        private static List<UserChara> MaybeMergeUserCharaList(UserData userData, List<UserChara> originalList)
+        {
+            var cache = allUnlockedCharaCache[userData];
+            if (cache.originalCount == originalList.Count)
+            {
+                // The original list is not changed, return the cached override list
+                return cache.overrideList;
+            }
+
+            // The original list is changed, merge the original list with the override list
+            Dictionary<int, UserChara> originalDict = originalList.ToDictionary(chara => chara.ID);
+            Dictionary<int, UserChara> cachedDict = cache.overrideList.ToDictionary(chara => chara.ID);
+            
+            // Apply leveling-ups of the all unlocked characters to the original ones (if present)
+            // (if not present, they'll be finally added to the user's list in ExportUserAll() hook)
+            foreach (var (id, chara) in cachedDict)
+            {
+                if (originalDict.TryGetValue(id, out var originalChara) &&
+                    originalChara != chara &&
+                    originalChara.Level < chara.Level)
+                {
+                    foreach (var property in typeof(UserChara).GetProperties())
+                    {
+                        if (property.CanWrite)
+                        {
+                            property.SetValue(originalChara, property.GetValue(chara));
+                        }
+                    }
+                }
+            }
+
+            cache.overrideList = cachedDict
+                .Select(pair =>
+                    originalDict.TryGetValue(pair.Key, out var originalChara)
+                    ? originalChara
+                    : pair.Value)
+                .ToList();
+            cache.originalCount = originalList.Count;
+            return cache.overrideList;
         }
     }
 }
