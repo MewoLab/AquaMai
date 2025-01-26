@@ -6,7 +6,6 @@ using System.Reflection;
 using AquaMai.Core.Attributes;
 using AquaMai.Core.Helpers;
 using AquaMai.Core.Resources;
-using AquaMai.Mods.Utils;
 using MelonLoader;
 using UnityEngine;
 
@@ -162,7 +161,7 @@ public class Startup
         CollectWantedPatches(wantedPatches, typeof(GuiSizes));
         CollectWantedPatches(wantedPatches, typeof(KeyListener));
         CollectWantedPatches(wantedPatches, typeof(Shim));
-        CollectWantedPatches(wantedPatches, typeof(NetPacketExtension));
+        CollectWantedPatches(wantedPatches, typeof(NetPacketHook));
 
         // Collect patches based on the config
         var config = ConfigLoader.Config;
