@@ -25,6 +25,7 @@ public class FixMissingCharaCrash
     {
         if (__result != null) return;
 
+        // NOTE: should not reach here.
         // Fall back to the first map's color if the color is missing.
         var firstMapId = DataManager.Instance.GetMapDatas().First().Key;
         MelonLogger.Warning($"[FixMissingCharaCrash] CharacterMapColorData for [MapId={colorID}] is missing, falling back to [MapId={firstMapId}]");
@@ -33,7 +34,7 @@ public class FixMissingCharaCrash
         __result = mapColorData;
     }
 
-    // This is called when loading the music selection screen, to display characters on the top screen
+    // This is called when loading the music selection screen, to display characters on the top screen.
     [HarmonyPrefix]
     [HarmonyPatch(typeof(CommonMonitor), "SetCharacterSlot", [typeof(MessageCharactorInfomationData)])]
     public static bool SetCharacterSlot(ref MessageCharactorInfomationData data, Dictionary<int, CharacterSlotData> ____characterSlotData)
@@ -41,6 +42,7 @@ public class FixMissingCharaCrash
         // Some characters are not found in this dictionary. We simply skip loading those characters
         if (!____characterSlotData.ContainsKey(data.MapKey))
         {
+            // NOTE: should not reach here.
             MelonLogger.Warning($"[FixMissingCharaCrash] Could not get CharacterSlotData for character [Index={data.Index}, MapKey={data.MapKey}], ignoring");
             return false;
         }
