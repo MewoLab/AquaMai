@@ -92,4 +92,14 @@ public class DisableTimeout
             ____director.extrapolationMode = DirectorWrapMode.Loop;
         }
     }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(ContinueMonitor), "PlayContinue")]
+    public static void ContinueMonitorPlayContinue(PlayableDirector ____director)
+    {
+        if (____director != null)
+        {
+            ____director.extrapolationMode = DirectorWrapMode.Hold;
+        }
+    }
 }
