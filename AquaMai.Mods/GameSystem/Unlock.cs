@@ -21,12 +21,12 @@ namespace AquaMai.Mods.GameSystem;
     en: """
         Unlock normally locked (including normally non-unlockable) game content.
         Anything unlocked (except the characters you leveled-up) by this mod will not be uploaded your account.
-        You'll still "get" those musics/collections/courses by normal plays.
+        You'll still "get" those musics/collections/courses just like in normal plays.
         """,
     zh: """
         解锁原本锁定（包括正常途径无法解锁）的游戏内容
         由本 Mod 解锁的内容（除了被你升级过的角色以外）不会上传到你的账户
-        你仍然可以通过正常游玩来「获得」那些乐曲/收藏品/段位
+        游玩时仍会像未开启解锁一样「获得」那些乐曲/收藏品/段位
         """)]
 public class Unlock
 {
