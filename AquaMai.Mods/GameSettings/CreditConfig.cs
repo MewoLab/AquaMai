@@ -16,7 +16,7 @@ public class CreditConfig
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(Manager.Credit), "IsFreePlay")]
-    private static bool PreIsFreePlay(ref bool __result)
+    public static bool PreIsFreePlay(ref bool __result)
     {
         __result = isFreePlay;
         return false;
@@ -32,7 +32,7 @@ public class CreditConfig
     [EnableIf(nameof(ShouldLockCredits))]
     [HarmonyPrefix]
     [HarmonyPatch(typeof(Manager.Credit), "IsGameCostEnough")]
-    private static bool PreIsGameCostEnough(ref bool __result)
+    public static bool PreIsGameCostEnough(ref bool __result)
     {
         __result = true;
         return false;
@@ -41,9 +41,30 @@ public class CreditConfig
     [EnableIf(nameof(ShouldLockCredits))]
     [HarmonyPrefix]
     [HarmonyPatch(typeof(AMDaemon.CreditUnit), "Credit", MethodType.Getter)]
-    private static bool PreCredit(ref uint __result)
+    public static bool PreCredit(ref uint __result)
     {
         __result = lockCredits;
         return false;
+    }
+
+    [ConfigEntry(
+        en: "Hide the \"CREDIT(s)\" text.",
+        zh: "隐藏游戏画面上可用点数数量的文本")]
+    private static readonly bool hideCreditsText = true;
+
+    [EnableIf(nameof(hideCreditsText))]
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(Monitor.CreditController), "SetFreePlayMode")]
+    public static void PostSetFreePlayMode(TMPro.TextMeshProUGUI ____creditText)
+    {
+        ____creditText.text = "";
+    }
+
+    [EnableIf(nameof(hideCreditsText))]
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(Monitor.CreditController), "SetCredits")]
+    public static void PostSetCredits(TMPro.TextMeshProUGUI ____creditText)
+    {
+        ____creditText.text = "";
     }
 }
