@@ -132,9 +132,9 @@ public class Unlock
             }
         }
 
-        [HarmonyPostfix]
+        [HarmonyFinalizer]
         [HarmonyPatch(typeof(ResultProcess), "ToNextProcess")]
-        public static void PostToNextProcess()
+        public static void FinToNextProcess()
         {
             for (var i = 0; i < 2; i++)
             {
@@ -396,7 +396,7 @@ public class Unlock
             ModifyUserData(false, ref __state);
         }
 
-        public static void Postfix(Dictionary<UserData, Dictionary<PropertyInfo, PropertyChangeLog>> __state)
+        public static void Finalizer(Dictionary<UserData, Dictionary<PropertyInfo, PropertyChangeLog>> __state)
         {
             ModifyUserData(true, ref __state);
         }
@@ -482,9 +482,9 @@ public class Unlock
 
         private static void TryInitializeUserState(UserData userData)
         {
-            if (userStateMap.TryGetValue(userData, out var existing) && existing != null)
+            if (userStateMap.TryGetValue(userData, out _))
             {
-                return;
+                userStateMap.Remove(userData);
             }
             // The game data may not be initialized yet, so we can't get the all unlocked list here.
             var allUnlockedListCache = new List<UserChara>();
