@@ -71,12 +71,12 @@ public class SanitizeUserData
     private static void OnUserDataResponse(ProxyObject _, ProxyObject response)
     {
         var userData = GetObjectOrSetDefault(response, "userData");
-        SanitizeItemIdField(userData, "iconId", "GetIcons");
-        SanitizeItemIdField(userData, "plateId", "GetPlates");
-        SanitizeItemIdField(userData, "titleId", "GetTitles");
-        SanitizeItemIdField(userData, "partnerId", "GetPartners");
-        SanitizeItemIdField(userData, "frameId", "GetFrames");
-        SanitizeItemIdField(userData, "selectMapId", "GetMapDatas");
+        SanitizeItemIdField(userData, "iconId", "GetIcons", false);
+        SanitizeItemIdField(userData, "plateId", "GetPlates", false);
+        SanitizeItemIdField(userData, "titleId", "GetTitles", false);
+        SanitizeItemIdField(userData, "partnerId", "GetPartners", false);
+        SanitizeItemIdField(userData, "frameId", "GetFrames", false);
+        SanitizeItemIdField(userData, "selectMapId", "GetMapDatas", false);
         var charaSlot = GetArrayOrSetDefault(userData, "charaSlot");
         for (var i = 0; i < 5; i++)
         {
@@ -98,8 +98,8 @@ public class SanitizeUserData
     private static void OnUserExtendResponse(ProxyObject _, ProxyObject response)
     {
         var userExtend = GetObjectOrSetDefault(response, "userExtend");
-        SanitizeItemIdField(userExtend, "selectMusicId", "GetMusics");
-        SanitizeItemIdField(userExtend, "selectDifficultyId", "GetMusicDifficultys");
+        SanitizeItemIdField(userExtend, "selectMusicId", "GetMusics", true);
+        SanitizeItemIdField(userExtend, "selectDifficultyId", "GetMusicDifficultys", true);
         // categoryIndex?
         // musicIndex?
         SanitizeEnumFieldIfDefined(userExtend, "selectScoreType", ResolveEnumType("ConstParameter.ScoreKind"));
@@ -269,12 +269,12 @@ public class SanitizeUserData
             value => enumType == null || Enum.IsDefined(enumType, value),
             enumType == null ? 0 : (int)enumType.GetEnumValues().GetValue(0));
 
-    private static void SanitizeItemIdField(ProxyObject obj, string fieldName, string dataManagerGetDictionaryMethod) =>
+    private static void SanitizeItemIdField(ProxyObject obj, string fieldName, string dataManagerGetDictionaryMethod, bool defaultZero) =>
         SanitizeInt32Field(
             obj,
             fieldName,
-            itemId => SafelyCheckItemId(dataManagerGetDictionaryMethod, itemId),
-            SafelyGetDefaultItemId(dataManagerGetDictionaryMethod));
+            itemId => (itemId == 0 && defaultZero) || SafelyCheckItemId(dataManagerGetDictionaryMethod, itemId),
+            defaultZero ? 0 : SafelyGetDefaultItemId(dataManagerGetDictionaryMethod));
 
     // The corresponding DataManager methods may not exist in all game versions
     private static object SafelyGetDataMangerDictionary(string dataManagerGetDictionaryMethod)
