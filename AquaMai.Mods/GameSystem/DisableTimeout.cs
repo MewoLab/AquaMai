@@ -9,6 +9,7 @@ using Monitor;
 using Process;
 using Process.Entry.State;
 using Process.ModeSelect;
+using UnityEngine.Playables;
 
 namespace AquaMai.Mods.GameSystem;
 
@@ -80,5 +81,25 @@ public class DisableTimeout
         SoundManager.PlaySE(Mai2.Mai2Cue.Cue.SE_SYS_SKIP, 0);
         ____monitors[0].SetButtonPressed(InputManager.ButtonSetting.Button04);
         Traverse.Create(__instance).Method("OnTimeUp").GetValue();
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(ContinueMonitor), "Initialize")]
+    public static void ContinueMonitorInitialize(PlayableDirector ____director)
+    {
+        if (____director != null)
+        {
+            ____director.extrapolationMode = DirectorWrapMode.Loop;
+        }
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(ContinueMonitor), "PlayContinue")]
+    public static void ContinueMonitorPlayContinue(PlayableDirector ____director)
+    {
+        if (____director != null)
+        {
+            ____director.extrapolationMode = DirectorWrapMode.Hold;
+        }
     }
 }
