@@ -13,8 +13,6 @@ using Manager.UserDatas;
 using Net.VO.Mai2;
 using Process;
 using Util;
-using System;
-using Monitor;
 using System.Runtime.CompilerServices;
 
 namespace AquaMai.Mods.GameSystem;
@@ -81,8 +79,8 @@ public class Unlock
     }
 
     [ConfigEntry(
-        en: "Unlock all songs (Same as setting AllOpen=1 in mai2.ini).",
-        zh: "解锁所有乐曲（和 mai2.ini 里面设置 AllOpen=1 是一样的效果）")]
+        en: "Unlock all songs, and skip the Master/ReMaster unlock screen (still save the unlock status).",
+        zh: "解锁所有乐曲，并跳过紫/白解锁画面（会正常保存解锁状态）")]
     private static readonly bool songs = true;
 
     [EnableIf(typeof(Unlock), nameof(songs))]
@@ -96,12 +94,89 @@ public class Unlock
             return false;
         }
 
+        // Skip the UnlockProcess but still save the music Master/ReMaster unlock status normally.
+
+        private static List<int> allUnlockedList = null;
+
+        private static readonly Dictionary<UserData,
+        (
+            List<int> masterList,
+            List<int> reMasterList
+        )> userDataBackupMap = [];
+
         [HarmonyPrefix]
-        [HarmonyPatch(typeof(UnlockMonitor), "IsUnlock")]
-        public static bool PreIsUnlock(ref bool __result)
+        [HarmonyPatch(typeof(ResultProcess), "ToNextProcess")]
+        public static void PreToNextProcess() {
+            allUnlockedList ??= DataManager.Instance
+                .GetMusics()
+                .Select(pair => pair.Key)
+                .ToList();
+            for (var i = 0; i < 2; i++)
+            {
+                var userData = UserDataManager.Instance.GetUserData(i);
+                if (!userData.IsEntry) continue;
+                if (!userDataBackupMap.ContainsKey(userData))
+                {
+                    userDataBackupMap[userData] =
+                    (
+                        masterList: userData.MusicUnlockMasterList,
+                        reMasterList: userData.MusicUnlockReMasterList
+                    );
+                }
+                else
+                {
+                    MelonLogger.Error($"[Unlock.SongHook] User data already backed up, incompatible mods loaded?");
+                }
+                userData.MusicUnlockMasterList = allUnlockedList;
+                userData.MusicUnlockReMasterList = allUnlockedList;
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(ResultProcess), "ToNextProcess")]
+        public static void PostToNextProcess()
         {
-            __result = false;
-            return false;
+            for (var i = 0; i < 2; i++)
+            {
+                var userData = UserDataManager.Instance.GetUserData(i);
+                if (!userData.IsEntry) continue;
+                if (userData.MusicUnlockMasterList != allUnlockedList || userData.MusicUnlockReMasterList != allUnlockedList)
+                {
+                    MelonLogger.Error($"[Unlock.SongHook] Music Master/ReMaster unlock list changed unexpectedly, incompatible mods loaded?");
+                }
+                else if (!userDataBackupMap.TryGetValue(userData, out var backup))
+                {
+                    MelonLogger.Error($"[Unlock.SongHook] User data backup not found, incompatible mods loaded?");
+                }
+                else
+                {
+                    userData.MusicUnlockMasterList = backup.masterList;
+                    userData.MusicUnlockReMasterList = backup.reMasterList;
+                }
+
+                // Trigger a manual silent unlock check.
+                if (!GameManager.IsEventMode)
+                {
+                    GameScoreList gameScore = GamePlayManager.Instance.GetGameScore(i);
+                    int musicId = gameScore.SessionInfo.musicId;
+                    if (gameScore.SessionInfo.difficulty >= 2 &&
+                        musicId >= 10000 && musicId < 20000 &&
+                        gameScore.GetAchivement() >= 97m)
+                    {
+                        var notesInfo = NotesListManager.Instance.GetNotesList()[musicId];
+                        var musicInfo = DataManager.Instance.GetMusic(musicId);
+                        if (!userData.MusicUnlockMasterList.Contains(musicId) && notesInfo.IsEnable[3])
+                        {
+                            userData.MusicUnlockMasterList.Add(musicId);
+                        }
+                        if (!userData.MusicUnlockReMasterList.Contains(musicId) && notesInfo.IsEnable[4] && musicInfo.subLockType == 0)
+                        {
+                            userData.MusicUnlockReMasterList.Add(musicId);
+                        }
+                    }
+                }
+            }
+            userDataBackupMap.Clear();
         }
     }
 
