@@ -6,11 +6,11 @@ using UnityEngine;
 using AquaMai.Config.Attributes;
 using AquaMai.Core.Attributes;
 using Process;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Reflection;
+using AquaMai.Mods.GameSystem;
 
 namespace AquaMai.Mods.Fix;
 
@@ -34,7 +34,10 @@ public class Common
     [HarmonyPatch(typeof(DebugInput), "GetKey")]
     private static bool GetKey(ref bool __result, KeyCode name)
     {
-        __result = UnityEngine.Input.GetKey(name);
+        if (!KeyMap.disableDebugInput)
+        {
+            __result = UnityEngine.Input.GetKey(name);
+        }
         return false;
     }
 
@@ -43,7 +46,10 @@ public class Common
     [HarmonyPatch(typeof(DebugInput), "GetKeyDown")]
     private static bool GetKeyDown(ref bool __result, KeyCode name)
     {
-        __result = UnityEngine.Input.GetKeyDown(name);
+        if (!KeyMap.disableDebugInput)
+        {
+            __result = UnityEngine.Input.GetKeyDown(name);
+        }
         return false;
     }
 
