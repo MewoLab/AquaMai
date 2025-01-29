@@ -12,9 +12,9 @@ namespace AquaMai.Mods.GameSystem;
 public partial class SinglePlayer
 {
     [ConfigEntry(
-        en: "Touch area radius size.",
-        zh: "触摸区域半径大小")]
-    public readonly static float radius = 60;
+        en: "Touch area radius size. Adjust according to the size of your finger, you can test in Test Mode.",
+        zh: "触摸区域半径大小。请根据手指大小调整，可以去 Test 中测试")]
+    public readonly static float radius = 25;
 
     [ConfigEntry(
         en: "Display touch points (only for touch input).",
