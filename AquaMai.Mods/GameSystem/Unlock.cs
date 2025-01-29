@@ -292,31 +292,31 @@ public class Unlock
         en: "Unlock all titles.",
         zh: "解锁所有称号"
     )]
-    private static readonly bool titles = true;
+    private static readonly bool titles = false;
 
     [ConfigEntry(
         en: "Unlock all icons.",
         zh: "解锁所有头像"
     )]
-    private static readonly bool icons = true;
+    private static readonly bool icons = false;
 
     [ConfigEntry(
         en: "Unlock all plates.",
         zh: "解锁所有姓名框"
     )]
-    private static readonly bool plates = true;
+    private static readonly bool plates = false;
 
     [ConfigEntry(
         en: "Unlock all frames.",
         zh: "解锁所有背景"
     )]
-    private static readonly bool frames = true;
+    private static readonly bool frames = false;
 
     [ConfigEntry(
         en: "Unlock all partners.",
         zh: "解锁所有搭档"
     )]
-    private static readonly bool partners = true;
+    private static readonly bool partners = false;
 
     private static List<
     (
@@ -443,7 +443,7 @@ public class Unlock
         en: "Unlock all characters.",
         zh: "解锁所有旅行伙伴"
     )]
-    private static readonly bool characters = true;
+    private static readonly bool characters = false;
 
     [EnableIf(typeof(Unlock), nameof(characters))]
     public class CharacterHook
