@@ -23,8 +23,9 @@ public class AquaMai : MelonMod
             coreBuildInfo.GetField(field.Name)?.SetValue(null, field.GetValue(null));
         }
     }
-    static MethodInfo StartupCache;
-    static MethodInfo OnGUICache;
+
+    private static MethodInfo onGUIMethod;
+
     public override void OnInitializeMelon()
     {
         // Prevent Chinese characters from being garbled
@@ -35,25 +36,16 @@ public class AquaMai : MelonMod
         var modsAssembly = AssemblyLoader.GetAssembly(AssemblyLoader.AssemblyName.Mods);
         var coreAssembly = AssemblyLoader.GetAssembly(AssemblyLoader.AssemblyName.Core);
         SetCoreBuildInfo(coreAssembly);
-        if (StartupCache == null)
-        {
-            StartupCache = coreAssembly.GetType("AquaMai.Core.Startup")
-            .GetMethod("Initialize", BindingFlags.Public | BindingFlags.Static);
-        }
-        if (OnGUICache == null)
-        {
-            OnGUICache = coreAssembly.GetType("AquaMai.Core.Startup")
-            .GetMethod("OnGUI", BindingFlags.Public | BindingFlags.Static);
-        }
-        StartupCache.Invoke(null, [modsAssembly, HarmonyInstance]);
+        coreAssembly.GetType("AquaMai.Core.Startup")
+                    .GetMethod("Initialize", BindingFlags.Public | BindingFlags.Static)
+                    .Invoke(null, [modsAssembly, HarmonyInstance]);
+        onGUIMethod = coreAssembly.GetType("AquaMai.Core.Startup")
+                                  .GetMethod("OnGUI", BindingFlags.Public | BindingFlags.Static);
     }
 
     public override void OnGUI()
     {
         base.OnGUI();
-        if (OnGUICache != null)
-        {
-            OnGUICache.Invoke(null, []);
-        }
+        onGUIMethod?.Invoke(null, []);
     }
 }
