@@ -12,14 +12,12 @@ namespace AquaMai.Mods.GameSystem;
     en: """
         Enable or disable IO4 and DebugInput. Configure the key mapping for DebugInput.
         DebugInput works independently of IO4 (IO4-compatible board / segatools IO4 emulation).
-        (You should enable at least one input source. Enable exactly one of them is recommended.)
-        (Disabling both will disable button input completely. Enabling both works but may cause issues.)
+        (You should enable at least one input source, unless you use other input solutions like AdxHidInput.)
         """,
     zh: """
         启用或禁用 IO4 和 DebugInput。配置 DebugInput 的按键映射。
         DebugInput 与 IO4（兼容 IO4 板 / segatools IO4 模拟）独立工作。
-        （你应该至少启用一个输入源，推荐仅启用其中一个而禁用另一个。）
-        （同时禁用两者将完全禁用外键输入，同时启用两者可以工作但可能会导致问题。）
+        （你应该至少启用一个输入源，除非你使用其他输入方案如 AdxHidInput。）
         """,
     defaultOn: true)]
 public class KeyMap
@@ -38,12 +36,12 @@ public class KeyMap
     [ConfigEntry(
         en: """
             Disable DebugInput. The key mapping below will not work.
-            With DebugInput disabled, you'll need a IO4-compatible board or segatools IO4 emulation to play the game.
+            With DebugInput disabled, you'll need a IO4-compatible board, segatools IO4 emulation or other custom input solutions to play.
             You may want to configure IO4 emulation key mapping in segatools.ini's [io4] and [button] section.
             """,
         zh: """
             禁用 DebugInput，下列按键映射将不起作用。
-            在禁用 DebugInput 后，你需要兼容 IO4 板或 segatools IO4 模拟才能游玩。
+            在禁用 DebugInput 后，你需要兼容 IO4 板、segatools IO4 模拟或其他自定义输入方案才能游玩。
             如果使用 IO4 模拟，你可以在 segatools.ini 的 [io4] 和 [button] 部分配置按键映射。
             """)]
     public static readonly bool disableDebugInput = false; // Implemented in AquaMai.Mods/Fix/Common.cs
