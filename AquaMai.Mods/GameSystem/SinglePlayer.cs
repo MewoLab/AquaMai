@@ -20,9 +20,15 @@ namespace AquaMai.Mods.GameSystem;
 // Hides the 2p (right hand side) UI.
 // Note: this is not my original work. I simply interpreted the code and rewrote it as a mod.
 [ConfigSection(
-    en: "Single player: Show 1P only, at the center of the screen.",
-    zh: "单人模式，不显示 2P")]
-public class SinglePlayer
+    en: """
+        Single player: Show 1P only, at the center of the screen.
+        Enable radius for mouse input for a more realistic touchscreen experience.
+        """,
+    zh: """
+        单人模式，不显示 2P
+        同时为鼠标输入启用半径，以获得更真实的触摸屏体验
+        """)]
+public partial class SinglePlayer
 {
 
     [ConfigEntry(
