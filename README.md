@@ -40,7 +40,7 @@ This mod is heavily WIP. More details will be added as the development progresse
 
 ## Development
 
-1. Copy `Assembly-CSharp.dll` to `Libs` folder.
+1. Copy `Assembly-CSharp.dll` and `AMDaemon.NET.dll` to `Libs` folder.
 1. Install [.NET Framework 4.7.2 Developer Pack](https://dotnet.microsoft.com/en-us/download/dotnet-framework/thank-you/net472-developer-pack-offline-installer)
 1. Run `build.ps1`.
 1. Copy `Output/AquaMai.dll` to `Mods` folder.
