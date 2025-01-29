@@ -17,6 +17,8 @@ public class Startup
 
     private static bool _hasErrors;
 
+    private static bool _uiInit;
+
     private enum ModLifecycleMethod
     {
         // Invoked before all patches are applied, including core patches
@@ -196,6 +198,10 @@ public class Startup
 
     public static void OnGUI()
     {
-        GuiSizes.SetupStyles();
+        if (!_uiInit)
+        {
+            _uiInit = true;
+            GuiSizes.SetupStyles();
+        }
     }
 }
