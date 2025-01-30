@@ -221,7 +221,7 @@ public class Unlock
     [ConfigEntry(
         en: "Unlock all course-mode courses (no need to reach 10th dan to play \"real\" dan).",
         zh: "解锁所有段位模式的段位（不需要十段就可以打真段位）")]
-    private static readonly bool courses = true;
+    private static readonly bool courses = false;
 
     [EnableIf(typeof(Unlock), nameof(courses))]
     public class CourseHook
