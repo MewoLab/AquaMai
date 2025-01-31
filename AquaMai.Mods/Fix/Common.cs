@@ -29,27 +29,23 @@ public class Common
 
     [ConfigEntry] private readonly static bool fixDebugInput = true;
 
-    [EnableIf(nameof(fixDebugInput))]
+    private static bool FixDebugKeyboardInput => fixDebugInput && !KeyMap.disableDebugInput;
+
+    [EnableIf(nameof(FixDebugKeyboardInput))]
     [HarmonyPrefix]
     [HarmonyPatch(typeof(DebugInput), "GetKey")]
     private static bool GetKey(ref bool __result, KeyCode name)
     {
-        if (!KeyMap.disableDebugInput)
-        {
-            __result = UnityEngine.Input.GetKey(name);
-        }
+        __result = UnityEngine.Input.GetKey(name);
         return false;
     }
 
-    [EnableIf(nameof(fixDebugInput))]
+    [EnableIf(nameof(FixDebugKeyboardInput))]
     [HarmonyPrefix]
     [HarmonyPatch(typeof(DebugInput), "GetKeyDown")]
     private static bool GetKeyDown(ref bool __result, KeyCode name)
     {
-        if (!KeyMap.disableDebugInput)
-        {
-            __result = UnityEngine.Input.GetKeyDown(name);
-        }
+        __result = UnityEngine.Input.GetKeyDown(name);
         return false;
     }
 
