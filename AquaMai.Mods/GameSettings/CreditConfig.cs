@@ -46,25 +46,4 @@ public class CreditConfig
         __result = lockCredits;
         return false;
     }
-
-    [ConfigEntry(
-        en: "Hide the \"CREDIT(s)\" text.",
-        zh: "隐藏游戏画面上可用点数数量的文本")]
-    private static readonly bool hideCreditsText = true;
-
-    [EnableIf(nameof(hideCreditsText))]
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(Monitor.CreditController), "SetFreePlayMode")]
-    public static void PostSetFreePlayMode(TMPro.TextMeshProUGUI ____creditText)
-    {
-        ____creditText.text = "";
-    }
-
-    [EnableIf(nameof(hideCreditsText))]
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(Monitor.CreditController), "SetCredits")]
-    public static void PostSetCredits(TMPro.TextMeshProUGUI ____creditText)
-    {
-        ____creditText.text = "";
-    }
 }
