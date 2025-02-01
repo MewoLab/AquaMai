@@ -13,12 +13,12 @@ public static class Sound
     [ConfigEntry(
         zh: "是否启用音频独占",
         en: "Enable Audio Exclusive")]
-    private static bool enableExclusive;
+    private readonly static bool enableExclusive = false;
 
     [ConfigEntry(
         zh: "是否启用八声道",
         en: "Enable 8-Channel")]
-    private static bool enable8Channel;
+    private readonly static bool enable8Channel = false;
 
     private static CriAtomUserExtension.AudioClientShareMode AudioShareMode => enableExclusive ? CriAtomUserExtension.AudioClientShareMode.Exclusive : CriAtomUserExtension.AudioClientShareMode.Shared;
 

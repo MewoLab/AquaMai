@@ -14,20 +14,32 @@ using Monitor.Entry;
 using Monitor.Entry.Parts.Screens;
 using UnityEngine;
 using Fx;
-using Type = System.Type;
 
 namespace AquaMai.Mods.GameSystem;
 
 // Hides the 2p (right hand side) UI.
 // Note: this is not my original work. I simply interpreted the code and rewrote it as a mod.
 [ConfigSection(
-    en: "Single player: Show 1P only, at the center of the screen.",
-    zh: "单人模式，不显示 2P")]
-public class SinglePlayer
+    en: """
+        Single player: Show 1P only, at the center of the screen.
+        Enable radius for mouse input for a more realistic touchscreen experience.
+        """,
+    zh: """
+        单人模式，不显示 2P
+        同时为鼠标输入启用半径，以获得更真实的触摸屏体验
+        """)]
+public partial class SinglePlayer
 {
+
+    [ConfigEntry(
+        en: "Only show the main area, without the sub-monitor.",
+        zh: "只显示主区域，不显示副屏")]
+    public static bool HideSubMonitor = false;
+
     [HarmonyPatch]
     public class WhateverInitialize
     {
+
         public static IEnumerable<MethodBase> TargetMethods()
         {
             var lateInitialize = AccessTools.Method(typeof(Main.GameMain), "LateInitialize", [typeof(MonoBehaviour), typeof(Transform), typeof(Transform)]);
@@ -38,17 +50,15 @@ public class SinglePlayer
         public static void Prefix(MonoBehaviour gameMainObject, ref Transform left, ref Transform right)
         {
             Vector3 position = Camera.main.gameObject.transform.position;
-            Camera.main.gameObject.transform.position = new Vector3(position.x - 540f, position.y, position.z);
+            var yOffset = 0f;
+            if (HideSubMonitor)
+            {
+                yOffset = -420f;
+                Camera.main.orthographicSize = 540f;
+            }
+            Camera.main.gameObject.transform.position = new Vector3(position.x - 540f, position.y + yOffset, position.z);
             right.localScale = Vector3.zero;
         }
-    }
-
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(MeshButton), "IsPointInPolygon", new Type[] { typeof(Vector2[]), typeof(Vector2) })]
-    public static bool IsPointInPolygon(Vector2[] polygon, ref Vector2 point, MeshButton __instance, ref bool __result)
-    {
-        __result = RectTransformUtility.RectangleContainsScreenPoint(__instance.GetComponent<RectTransform>(), point, Camera.main);
-        return false;
     }
 
     [ConfigEntry(

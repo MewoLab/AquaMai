@@ -2,7 +2,6 @@
 using System.Linq;
 using AquaMai.Config.Attributes;
 using AquaMai.Core.Helpers;
-using AquaMai.Mods.Utils;
 using DB;
 using HarmonyLib;
 using JetBrains.Annotations;
@@ -51,14 +50,14 @@ public static class ServerAnnouncement
 
     public static void OnBeforePatch()
     {
-        NetPacketExtension.OnNetPacketResponse += OnNetPacketResponse;
+        NetPacketHook.OnNetPacketComplete += OnNetPacketComplete;
     }
 
-    private static void OnNetPacketResponse(string api, Variant json)
+    private static Variant OnNetPacketComplete(string api, Variant _, Variant response)
     {
-        if (api != "GetGameSettingApi" || json is not ProxyObject obj) return;
+        if (api != "GetGameSettingApi" || response is not ProxyObject obj) return null;
         var serverAnnouncementJson = obj.Keys.Contains(FieldName) ? obj[FieldName] : null;
-        if (serverAnnouncementJson == null) return;
+        if (serverAnnouncementJson == null) return null;
 
         var serverAnnouncementData = serverAnnouncementJson.Make<ServerAnnouncementData>();
         ServerAnnouncementEntry chosenAnnouncement = null;
@@ -88,6 +87,8 @@ public static class ServerAnnouncement
         }
 
         _announcement = chosenAnnouncement;
+
+        return null;
     }
 
     private static bool ShouldShowAnnouncement(ServerAnnouncementEntry announcement)

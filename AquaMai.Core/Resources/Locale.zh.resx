@@ -115,4 +115,7 @@
     <data name="UserGhostAchievement" xml:space="preserve">
         <value>友人对战目标: {0}</value>
     </data>
+    <data name="NoCamera" xml:space="preserve">
+        <value>没有找到任何摄像头</value>
+    </data>
 </root>

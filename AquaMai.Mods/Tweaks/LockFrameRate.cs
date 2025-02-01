@@ -14,9 +14,13 @@ namespace AquaMai.Mods.Tweaks;
         """)]
 public class LockFrameRate
 {
+    [ConfigEntry(
+        zh: "目标帧率，不建议修改。除非你知道你在做什么")]
+    public static readonly int targetFrameRate = 60;
+
     public static void OnBeforePatch()
     {
-        Application.targetFrameRate = 60;
+        Application.targetFrameRate = targetFrameRate;
         QualitySettings.vSyncCount = 0;
     }
 }

@@ -152,6 +152,15 @@ namespace AquaMai.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No camera detected.
+        /// </summary>
+        public static string NoCamera {
+            get {
+                return ResourceManager.GetString("NoCamera", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Pause.
         /// </summary>
         public static string Pause {

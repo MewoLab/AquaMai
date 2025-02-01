@@ -7,6 +7,8 @@ using Manager;
 using MelonLoader;
 using UnityEngine;
 using AquaMai.Config.Attributes;
+using AquaMai.Core.Helpers;
+using AquaMai.Core.Resources;
 
 namespace AquaMai.Mods.GameSystem;
 
@@ -45,7 +47,7 @@ public class CustomCameraId
         en: "WeChat QRCode Camera.",
         zh: "二维码扫描摄像头")]
     public static int chimeCamera;
-  
+
     private static readonly Dictionary<string, string> cameraTypeMap = new()
     {
         ["LeftQrCamera"] = "QRLeft",
@@ -64,6 +66,14 @@ public class CustomCameraId
 
     private static IEnumerator CameraInitialize(CameraManager __instance)
     {
+        if (WebCamTexture.devices.Length == 0)
+        {
+            MelonLogger.Warning("[CustomCameraId] No camera detected, camera initialization failed.");
+            MessageHelper.ShowMessage(Locale.NoCamera, title: "CustomCameraId");
+            CameraManager.IsReady = true;
+            yield break;
+        }
+
         var textureCache = new WebCamTexture[WebCamTexture.devices.Length];
         SortedDictionary<CameraManager.CameraTypeEnum, WebCamTexture> webCamTextures = [];
         foreach (var (configEntry, cameraTypeName) in cameraTypeMap)
@@ -105,6 +115,7 @@ public class CustomCameraId
             CameraManager.DeviceId[(int)cameraType] = textureIndex;
             textureIndex++;
         }
+
         Traverse.Create(__instance).Field("_webcamtex").SetValue(webCamTextures.Values.ToArray());
 
         CameraManager.IsReady = true;
@@ -132,8 +143,9 @@ public class CustomCameraId
             cameraList += $"FPS: {webCamTexture.requestedFPS}\n";
             webCamTexture.Stop();
         }
+
         cameraList += "==================================================";
-        
+
         foreach (var line in cameraList.Split('\n'))
         {
             MelonLogger.Msg($"[CustomCameraId] {line}");

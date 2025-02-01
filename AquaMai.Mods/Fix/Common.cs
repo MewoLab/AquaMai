@@ -6,19 +6,18 @@ using UnityEngine;
 using AquaMai.Config.Attributes;
 using AquaMai.Core.Attributes;
 using Process;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Reflection;
+using AquaMai.Mods.GameSystem;
 
 namespace AquaMai.Mods.Fix;
 
 [ConfigSection(exampleHidden: true, defaultOn: true)]
 public class Common
 {
-    [ConfigEntry]
-    private readonly static bool preventIniFileClear = true;
+    [ConfigEntry] private readonly static bool preventIniFileClear = true;
 
     [EnableIf(nameof(preventIniFileClear))]
     [HarmonyPrefix]
@@ -28,10 +27,11 @@ public class Common
         return false;
     }
 
-    [ConfigEntry]
-    private readonly static bool fixDebugInput = true;
+    [ConfigEntry] private readonly static bool fixDebugInput = true;
 
-    [EnableIf(nameof(fixDebugInput))]
+    private static bool FixDebugKeyboardInput => fixDebugInput && !KeyMap.disableDebugInput;
+
+    [EnableIf(nameof(FixDebugKeyboardInput))]
     [HarmonyPrefix]
     [HarmonyPatch(typeof(DebugInput), "GetKey")]
     private static bool GetKey(ref bool __result, KeyCode name)
@@ -40,7 +40,7 @@ public class Common
         return false;
     }
 
-    [EnableIf(nameof(fixDebugInput))]
+    [EnableIf(nameof(FixDebugKeyboardInput))]
     [HarmonyPrefix]
     [HarmonyPatch(typeof(DebugInput), "GetKeyDown")]
     private static bool GetKeyDown(ref bool __result, KeyCode name)
@@ -67,8 +67,7 @@ public class Common
         return false;
     }
 
-    [ConfigEntry]
-    private readonly static bool bypassCakeHashCheck = true;
+    [ConfigEntry] private readonly static bool bypassCakeHashCheck = true;
 
     [EnableIf(nameof(bypassCakeHashCheck))]
     [HarmonyPostfix]
@@ -83,8 +82,7 @@ public class Common
         }
     }
 
-    [ConfigEntry]
-    private readonly static bool restoreCertificateValidation = true;
+    [ConfigEntry] private readonly static bool restoreCertificateValidation = true;
 
     [EnableIf(nameof(restoreCertificateValidation))]
     [HarmonyPostfix]
@@ -95,8 +93,7 @@ public class Common
         ServicePointManager.ServerCertificateValidationCallback = null;
     }
 
-    [ConfigEntry]
-    private readonly static bool forceNonTarget = true;
+    [ConfigEntry] private readonly static bool forceNonTarget = true;
 
     [EnableIf(nameof(forceNonTarget))]
     [HarmonyPrefix]
@@ -108,8 +105,7 @@ public class Common
         return false;
     }
 
-    [ConfigEntry]
-    private readonly static bool forceIgnoreError = true;
+    [ConfigEntry] private readonly static bool forceIgnoreError = true;
 
     [EnableIf(nameof(forceIgnoreError))]
     [HarmonyPrefix]
@@ -120,8 +116,7 @@ public class Common
         return false;
     }
 
-    [ConfigEntry]
-    private readonly static bool bypassSpecialNumCheck = true;
+    [ConfigEntry] private readonly static bool bypassSpecialNumCheck = true;
 
     public static void OnAfterPatch(HarmonyLib.Harmony h)
     {
@@ -143,15 +138,15 @@ public class Common
         }
     }
 
-    [ConfigEntry]
-    private readonly static bool enableAllEvent = true;
+    [ConfigEntry] private readonly static bool enableAllEvent = true;
 
     [EnableIf(nameof(enableAllEvent))]
     [HarmonyPrefix]
     [HarmonyPatch(typeof(EventManager), "IsOpenEvent")]
-    private static bool EnableAllEvent(ref bool __result)
+    private static bool EnableAllEvent(ref bool __result, int eventId)
     {
-        __result = true;
+        if (eventId > 0)
+            __result = true;
         return false;
     }
 
@@ -171,6 +166,7 @@ public class Common
             // Failed to find the target instruction, abort.
             return instList;
         }
+
         // Remove all instructions before the target instruction.
         return instList.Skip(onceDispIndex);
     }

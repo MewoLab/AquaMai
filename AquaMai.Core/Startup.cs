@@ -6,7 +6,6 @@ using System.Reflection;
 using AquaMai.Core.Attributes;
 using AquaMai.Core.Helpers;
 using AquaMai.Core.Resources;
-using AquaMai.Mods.Utils;
 using MelonLoader;
 using UnityEngine;
 
@@ -18,8 +17,13 @@ public class Startup
 
     private static bool _hasErrors;
 
+    private static bool _uiInit;
+
     private enum ModLifecycleMethod
     {
+        // Invoked when collecting enabled patches, before the current class is checked
+        // Fields used in [EnableIf(...)] should be initialized here
+        OnBeforeEnableCheck,
         // Invoked before all patches are applied, including core patches
         OnBeforeAllPatch,
         // Invoked after all patches are applied
@@ -80,6 +84,8 @@ public class Startup
 
     private static void CollectWantedPatches(List<Type> wantedPatches, Type type)
     {
+        InvokeLifecycleMethod(type, ModLifecycleMethod.OnBeforeEnableCheck);
+
         if (EnableConditionHelper.ShouldSkipClass(type))
         {
             return;
@@ -88,6 +94,7 @@ public class Startup
         wantedPatches.Add(type);
         foreach (var nested in type.GetNestedTypes())
         {
+            if (nested.GetCustomAttributes().Count() == 0) continue; // Skip data / helper classes
             CollectWantedPatches(wantedPatches, nested);
         }
     }
@@ -156,7 +163,7 @@ public class Startup
         CollectWantedPatches(wantedPatches, typeof(GuiSizes));
         CollectWantedPatches(wantedPatches, typeof(KeyListener));
         CollectWantedPatches(wantedPatches, typeof(Shim));
-        CollectWantedPatches(wantedPatches, typeof(NetPacketExtension));
+        CollectWantedPatches(wantedPatches, typeof(NetPacketHook));
 
         // Collect patches based on the config
         var config = ConfigLoader.Config;
@@ -197,6 +204,10 @@ public class Startup
 
     public static void OnGUI()
     {
-        GuiSizes.SetupStyles();
+        if (!_uiInit)
+        {
+            _uiInit = true;
+            GuiSizes.SetupStyles();
+        }
     }
 }

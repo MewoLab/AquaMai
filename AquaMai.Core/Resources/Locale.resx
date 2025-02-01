@@ -122,4 +122,7 @@
     <data name="UserGhostAchievement" xml:space="preserve">
         <value>Battle Target: {0}</value>
     </data>
+    <data name="NoCamera" xml:space="preserve">
+        <value>No camera detected</value>
+    </data>
 </root>
