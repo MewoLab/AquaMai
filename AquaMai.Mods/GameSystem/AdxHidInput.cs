@@ -76,7 +76,7 @@ public class AdxHidInput
     private static bool GetPushedByButton(int playerNo, InputId inputId)
     {
         if (inputId.Value == "test") return inputBuf1P[13] == 1 || inputBuf2P[13] == 1;
-        if (inputId.Value == "service") return inputBuf1P[11] == 1 || inputBuf2P[13] == 1;
+        if (inputId.Value == "service") return inputBuf1P[11] == 1 || inputBuf2P[11] == 1;
         if (inputId.Value == "select" && playerNo == 0) return inputBuf1P[10] == 1 || inputBuf2P[10] == 1;
         if (inputId.Value == "select" && playerNo == 1) return inputBuf1P[12] == 1 || inputBuf2P[12] == 1;
 
