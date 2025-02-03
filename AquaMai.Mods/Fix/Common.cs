@@ -170,4 +170,19 @@ public class Common
         // Remove all instructions before the target instruction.
         return instList.Skip(onceDispIndex);
     }
+
+    [ConfigEntry] private readonly static bool ignoreProxy = true;
+
+    [EnableIf(nameof(ignoreProxy))]
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(NetHttpClient), "Create")]
+    private static void IgnoreProxy(NetHttpClient __result)
+    {
+        var requestField = typeof(NetHttpClient).GetField("_request", BindingFlags.NonPublic | BindingFlags.Instance);
+        if (requestField == null) return;
+        if (requestField.GetValue(__result) is HttpWebRequest request)
+        {
+            request.Proxy = null;
+        }
+    }
 }
