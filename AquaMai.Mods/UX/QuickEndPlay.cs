@@ -70,6 +70,7 @@ public class QuickEndPlay
             GUIStyle buttonBG = new GUIStyle(GUI.skin.button);
             buttonBG.normal.background = null;
             buttonBG.hover.background = null;
+            btuuonBG.active.background = null;
             // rotate -22.5°
             Vector2 topLeftPosition = new Vector2(topleftx, toplefty);
             GUIUtility.RotateAroundPivot((float)-22.5, topLeftPosition);
