@@ -47,6 +47,7 @@ public class MovieLoader
     private static readonly string movieAssetsDir = "LocalAssets";
 
     private static readonly Dictionary<string, string> optionFileMap = [];
+    private static bool[] isLoadingJacket = [false, false];
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(DataManager), "LoadMusicBase")]
@@ -147,6 +148,7 @@ public class MovieLoader
         {
             sprite.sprite = Sprite.Create(jacket, new Rect(0, 0, jacket.width, jacket.height), new Vector2(0.5f, 0.5f));
             sprite.material = new Material(Shader.Find("Sprites/Default"));
+            isLoadingJacket = [true, true];
         }
     }
 
@@ -154,14 +156,20 @@ public class MovieLoader
     [HarmonyPatch(typeof(MovieController), "GetMovieHeight")]
     public static void GetMovieHeightPostfix(ref uint __result)
     {
-        if (!loadSourceMovie && jacketAsMovie) __result = 1080;
+        if (isLoadingJacket[0]) {
+            __result = 1080;
+            isLoadingJacket[0] = false;
+        }
     }
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(MovieController), "GetMovieWidth")]
     public static void GetMovieWidthPostfix(ref uint __result)
     {
-        if (!loadSourceMovie && jacketAsMovie) __result = 1080;
+        if (isLoadingJacket[1]) {
+            __result = 1080;
+            isLoadingJacket[1] = false;
+        }
     }
 
     [HarmonyPostfix]
