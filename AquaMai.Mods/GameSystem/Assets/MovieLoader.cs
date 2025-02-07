@@ -147,6 +147,16 @@ public class MovieLoader
         {
             sprite.sprite = Sprite.Create(jacket, new Rect(0, 0, jacket.width, jacket.height), new Vector2(0.5f, 0.5f));
             sprite.material = new Material(Shader.Find("Sprites/Default"));
+            MelonCoroutines.Start(CheckSpriteSize(sprite)); //coroutine
+        }
+    }
+
+    // 阻止未来30帧内sprite size被修改
+    private static System.Collections.IEnumerator CheckSpriteSize(SpriteRenderer sprite) {
+        var targetSize = sprite.size;
+        for(int i = 0; i < 30; i++) {
+            if (sprite.size != targetSize) sprite.size = targetSize;
+            yield return null;
         }
     }
 
