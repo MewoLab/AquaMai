@@ -14,40 +14,36 @@ using UnityEngine.Video;
 namespace AquaMai.Mods.GameSystem.Assets;
 
 [ConfigSection(
-    en: "Use mp4 files or the png jacket above as PV if no .dat found in the movie folder.",
-    zh: "使用封面作为 PV 以及直读 MP4 格式 PV 的选项")]
+    en: "Custom Play Song Background\nPriority: game source PV > local mp4 PV > jacket",
+    zh: "自定义歌曲游玩界面背景\n优先级: 首先读游戏自带 PV, 然后读本地 mp4 格式 PV, 最后读封面")]
 public class MovieLoader
 {
-    [ConfigEntry(
-        en: """
-            Use jacket as movie
-            Use together with `LoadLocalImages`.
-            """,
-        zh: """
-            用封面作为背景 PV
-            请和 `LoadLocalImages` 一起用
-            """)]
-    private static bool jacketAsMovie = true;
-
-
     [ConfigEntry(
         en: "Load Movie from game source",
         zh: "加载游戏自带的 PV")]
     private static bool loadSourceMovie = true;
-    
+
 
     [ConfigEntry(
-        en: "Load MP4 files from LocalAssets",
+        en: "Load Movie from LocalAssets mp4 files",
         zh: "从 LocalAssets 中加载 MP4 文件作为 PV")]
-    private static bool loadMp4Movie = true;
+    private static bool loadMp4Movie = false; // default false
+
 
     [ConfigEntry(
         en: "MP4 files directory",
         zh: "加载 MP4 文件的路径")]
     private static readonly string movieAssetsDir = "LocalAssets";
 
+
+    [ConfigEntry(
+        en: "Use jacket as movie\nUse together with `LoadLocalImages`.",
+        zh: "用封面作为背景 PV\n请和 `LoadLocalImages` 一起用")]
+    private static bool jacketAsMovie = false; // default false
+
+
     private static readonly Dictionary<string, string> optionFileMap = [];
-    private static bool[] isLoadingJacket = [false, false];
+    private static uint[] bgaSize = [0, 0];
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(DataManager), "LoadMusicBase")]
@@ -70,8 +66,6 @@ public class MovieLoader
     [HarmonyPatch(typeof(GameCtrl), "Initialize")]
     public static void LoadLocalBgaAwake(GameObject ____movieMaskObj, int ___monitorIndex)
     {
-        // 优先级：首先读游戏自带的bga, 然后读本地mp4 bga, 最后读jacket
-
         var music = Singleton<DataManager>.Instance.GetMusic(GameManager.SelectMusicID[0]);
         if (music is null) return;
         
@@ -103,9 +97,8 @@ public class MovieLoader
             }
         }
 
-        if (!mp4Exists && jacket is null)
-        {
-            MelonLogger.Msg("No jacket found for music " + music);
+        if (!mp4Exists && jacket is null) {
+            MelonLogger.Msg($"[MovieLoader] No jacket or bga for {music.movieName.id:000000}");
             return;
         }
 
@@ -143,12 +136,29 @@ public class MovieLoader
         {
             sprite.material = new Material(Shader.Find("Sprites/Default"));
             _videoPlayers[___monitorIndex].targetMaterialRenderer = sprite;
+
+            // 异步等待视频准备好，获取视频的长宽
+            var player = _videoPlayers[___monitorIndex];
+            player.prepareCompleted += (source) => {
+                var vp = source as VideoPlayer;
+                if (vp != null) {
+                    var height = vp.height;
+                    var width = vp.width;
+                    // 按照比例缩放到(1080, 1080)
+                    if (height > width) {
+                        bgaSize = [1080, (uint)(1080.0 * width / height)];
+                    } else {
+                        bgaSize = [(uint)(1080.0 * height / width), 1080];
+                    }
+                    //MelonLogger.Msg($"[MovieLoader] {music.movieName.id:000000} {width}x{height} -> {bgaSize[0]}x{bgaSize[1]}"); //debug
+                }
+            };
         }
         else
         {
             sprite.sprite = Sprite.Create(jacket, new Rect(0, 0, jacket.width, jacket.height), new Vector2(0.5f, 0.5f));
             sprite.material = new Material(Shader.Find("Sprites/Default"));
-            isLoadingJacket = [true, true];
+            bgaSize = [1080, 1080];
         }
     }
 
@@ -156,9 +166,9 @@ public class MovieLoader
     [HarmonyPatch(typeof(MovieController), "GetMovieHeight")]
     public static void GetMovieHeightPostfix(ref uint __result)
     {
-        if (isLoadingJacket[0]) {
-            __result = 1080;
-            isLoadingJacket[0] = false;
+        if (bgaSize[0] > 0) {
+            __result = bgaSize[0];
+            bgaSize[0] = 0;
         }
     }
 
@@ -166,9 +176,9 @@ public class MovieLoader
     [HarmonyPatch(typeof(MovieController), "GetMovieWidth")]
     public static void GetMovieWidthPostfix(ref uint __result)
     {
-        if (isLoadingJacket[1]) {
-            __result = 1080;
-            isLoadingJacket[1] = false;
+        if (bgaSize[1] > 0) {
+            __result = bgaSize[1];
+            bgaSize[1] = 0;
         }
     }
 
