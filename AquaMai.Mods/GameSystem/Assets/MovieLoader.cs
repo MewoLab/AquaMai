@@ -39,7 +39,7 @@ public class MovieLoader
     [ConfigEntry(
         en: "Use jacket as movie\nUse together with `LoadLocalImages`.",
         zh: "用封面作为背景 PV\n请和 `LoadLocalImages` 一起用")]
-    private static bool jacketAsMovie = true;
+    private static bool jacketAsMovie = false; // default false
 
 
     private static readonly Dictionary<string, string> optionFileMap = [];
