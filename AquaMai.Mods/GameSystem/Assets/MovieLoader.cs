@@ -89,58 +89,61 @@ public class MovieLoader
     [HarmonyPatch(typeof(TrackStartProcess), "OnStart")]
     public static async void GetMovie() {
 
-        movieInfo = ("", "", null, ""); // reset
-        var music = Singleton<DataManager>.Instance.GetMusic(GameManager.SelectMusicID[0]);
-        if (music is null) return;
-        var musicID = $"{music.movieName.id:000000}";
+        try {
 
-        // Load source movie
-        if (loadSourceMovie) {
-            var moviePath = Singleton<OptionDataManager>.Instance.GetMovieDataPath($"{musicID}") + ".dat";
-            if (!moviePath.Contains("dummy")) {
-                movieInfo = ("sourceMovie", "", null, musicID);
-                return;
-            }
-        }
+            movieInfo = ("", "", null, ""); // reset
+            var music = Singleton<DataManager>.Instance.GetMusic(GameManager.SelectMusicID[0]);
+            if (music is null) return;
+            var musicID = $"{music.movieName.id:000000}";
 
-        // Load localasset mp4 bga
-        if (loadMp4Movie) {
-            var resolvedDir = FileSystem.ResolvePath(movieAssetsDir);
-            if (!optionFileMap.TryGetValue($"{musicID}.mp4", out var mp4Path)) {
-                mp4Path = Path.Combine(resolvedDir, $"{musicID}.mp4");
-            }
-            if (File.Exists(mp4Path)) {
-                movieInfo = ("mp4Movie", mp4Path, null, musicID);    
-                return;
-            }   
-        }
-
-        // Load jacket
-        if (jacketAsMovie) {
-            // 尝试从game或LocalAssets获取jacket
-            var jacket = LoadLocalImages.GetJacketTexture2D(music.movieName.id);
-            if (jacket is null) {
-                var filename = $"Jacket/UI_Jacket_{musicID}.png";
-                jacket = AssetManager.Instance().GetJacketTexture2D(filename);
-                if (jacket is null) {
-                    MelonLogger.Msg($"[MovieLoader] No jacket for {musicID}");
+            // Load source movie
+            if (loadSourceMovie) {
+                var moviePath = Singleton<OptionDataManager>.Instance.GetMovieDataPath($"{musicID}") + ".dat";
+                if (!moviePath.Contains("dummy")) {
+                    movieInfo = ("sourceMovie", "", null, musicID);
                     return;
                 }
             }
-            // 如果未开启后处理，直接返回jacket
-            if (!jacketPostProcess) {
+
+            // Load localasset mp4 bga
+            if (loadMp4Movie) {
+                var resolvedDir = FileSystem.ResolvePath(movieAssetsDir);
+                if (!optionFileMap.TryGetValue($"{musicID}.mp4", out var mp4Path)) {
+                    mp4Path = Path.Combine(resolvedDir, $"{musicID}.mp4");
+                }
+                if (File.Exists(mp4Path)) {
+                    movieInfo = ("mp4Movie", mp4Path, null, musicID);    
+                    return;
+                }   
+            }
+
+            // Load jacket
+            if (jacketAsMovie) {
+                // 尝试从game或LocalAssets获取jacket
+                var jacket = LoadLocalImages.GetJacketTexture2D(music.movieName.id);
+                if (jacket is null) {
+                    var filename = $"Jacket/UI_Jacket_{musicID}.png";
+                    jacket = AssetManager.Instance().GetJacketTexture2D(filename);
+                    if (jacket is null) {
+                        MelonLogger.Msg($"[MovieLoader] No jacket for {musicID}");
+                        return;
+                    }
+                }
+                // 如果未开启后处理，直接返回jacket
+                if (!jacketPostProcess) {
+                    movieInfo = ("jacket", "", jacket, musicID);
+                    return;
+                }
+                // 异步调用后处理函数
+                movieInfo = ("jacket_processing", "", jacket, musicID); // 标记为开始后处理
+                jacket = await JacketPostProcess(jacket);
+                if (jacket is null) {
+                    MelonLogger.Msg($"[MovieLoader] post-process return null for {musicID}");
+                    return;
+                }
                 movieInfo = ("jacket", "", jacket, musicID);
-                return;
             }
-            // 异步调用后处理函数
-            movieInfo = ("jacket_processing", "", jacket, musicID); // 标记为开始后处理
-            jacket = await JacketPostProcess(jacket);
-            if (jacket is null) {
-                MelonLogger.Msg($"[MovieLoader] post-process return null for {musicID}");
-                return;
-            }
-            movieInfo = ("jacket", "", jacket, musicID);
-        }
+        } catch (System.Exception e) {MelonLogger.Msg($"[MovieLoader] GetMovie() error: {e}");}
     }
 
     private static async Task<Texture2D> JacketPostProcess(Texture2D jacket) {
