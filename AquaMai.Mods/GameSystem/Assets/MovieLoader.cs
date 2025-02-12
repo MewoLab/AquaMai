@@ -236,7 +236,21 @@ public class MovieLoader
             };
             using var process = new System.Diagnostics.Process { StartInfo = startInfo };
             process.Start();
-            await Task.Run(() => process.WaitForExit());
+
+            // Wait for process exit with 4.5 second timeout
+            var exitTask = Task.Run(() => process.WaitForExit());
+            var timeoutTask = Task.Delay(TimeSpan.FromSeconds(4.5));
+            
+            if (await Task.WhenAny(exitTask, timeoutTask) == timeoutTask) {
+                // Timeout occurred
+                try { 
+                    if (!process.HasExited) process.Kill(); 
+                } catch (Exception e) {
+                    MelonLogger.Msg($"[MovieLoader] failed to kill post-process: {e.Message}");
+                }
+                MelonLogger.Msg($"[MovieLoader] post-process timeout");
+                return null;
+            }
 
             if (process.ExitCode == 0 && File.Exists(outputPath)) {
                 // Load processed texture
@@ -244,7 +258,7 @@ public class MovieLoader
                 processedTexture.LoadImage(File.ReadAllBytes(outputPath));
                 jacket = processedTexture;
             } else {
-                MelonLogger.Msg($"[MovieLoader] post-process failed: {process.ExitCode}");
+                MelonLogger.Msg($"[MovieLoader] post-process failed, ExitCode: {process.ExitCode}");
                 return null;
             }
             
