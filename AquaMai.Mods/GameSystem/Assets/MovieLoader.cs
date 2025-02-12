@@ -67,8 +67,37 @@ public class MovieLoader
 
     private static readonly Dictionary<string, string> optionFileMap = [];
     private static uint[] bgaSize = [0, 0];
-    private static (string, string, Texture2D, string) movieInfo = ("", "", null, "");
-                    // type, mp4Path, jacket, musicID
+
+    private class MovieInfo
+    {
+        public enum MovieType{
+            None,
+            SourceMovie,
+            Mp4Movie,
+            Jacket,
+            JacketProcessing
+        }
+
+        public MovieType Type { get; set; } = MovieType.None;
+        public string Mp4Path { get; set; } = "";
+        public Texture2D JacketTexture { get; set; }
+        public string MusicId { get; set; } = "";
+        public bool IsValid{
+            get {
+                if (string.IsNullOrEmpty(MusicId)) return false;
+                return Type switch {
+                    MovieType.None => false,
+                    MovieType.SourceMovie => true,
+                    MovieType.Mp4Movie => !string.IsNullOrEmpty(Mp4Path),
+                    MovieType.Jacket => JacketTexture != null,
+                    MovieType.JacketProcessing => JacketTexture != null,
+                    _ => false
+                };
+            }
+        }
+    }
+    private static MovieInfo movieInfo = new MovieInfo();
+
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(DataManager), "LoadMusicBase")]
@@ -91,16 +120,17 @@ public class MovieLoader
 
         try {
 
-            movieInfo = ("", "", null, ""); // reset
+            movieInfo = new MovieInfo(); // reset
             var music = Singleton<DataManager>.Instance.GetMusic(GameManager.SelectMusicID[0]);
             if (music is null) return;
             var musicID = $"{music.movieName.id:000000}";
+            movieInfo.MusicId = musicID;
 
             // Load source movie
             if (loadSourceMovie) {
                 var moviePath = Singleton<OptionDataManager>.Instance.GetMovieDataPath($"{musicID}") + ".dat";
                 if (!moviePath.Contains("dummy")) {
-                    movieInfo = ("sourceMovie", "", null, musicID);
+                    movieInfo.Type = MovieInfo.MovieType.SourceMovie;
                     return;
                 }
             }
@@ -112,7 +142,8 @@ public class MovieLoader
                     mp4Path = Path.Combine(resolvedDir, $"{musicID}.mp4");
                 }
                 if (File.Exists(mp4Path)) {
-                    movieInfo = ("mp4Movie", mp4Path, null, musicID);    
+                    movieInfo.Type = MovieInfo.MovieType.Mp4Movie;
+                    movieInfo.Mp4Path = mp4Path; 
                     return;
                 }   
             }
@@ -129,19 +160,24 @@ public class MovieLoader
                         return;
                     }
                 }
-                // 如果未开启后处理，直接返回jacket
+                movieInfo.JacketTexture = jacket;
+
+                // 如果未开启后处理，直接将type设为jacket并返回，否则将type设为jacket_processing
                 if (!jacketPostProcess) {
-                    movieInfo = ("jacket", "", jacket, musicID);
+                    movieInfo.Type = MovieInfo.MovieType.Jacket;
                     return;
+                } else {
+                    movieInfo.Type = MovieInfo.MovieType.JacketProcessing; // 标记为开始后处理
                 }
+
                 // 异步调用后处理函数
-                movieInfo = ("jacket_processing", "", jacket, musicID); // 标记为开始后处理
                 jacket = await JacketPostProcess(jacket);
                 if (jacket is null) {
                     MelonLogger.Msg($"[MovieLoader] post-process return null for {musicID}");
                     return;
                 }
-                movieInfo = ("jacket", "", jacket, musicID);
+                movieInfo.Type = MovieInfo.MovieType.Jacket; // 后处理完成
+                movieInfo.JacketTexture = jacket;
             }
         } catch (System.Exception e) {MelonLogger.Msg($"[MovieLoader] GetMovie() error: {e}");}
     }
@@ -229,28 +265,28 @@ public class MovieLoader
     [HarmonyPatch(typeof(GameCtrl), "Initialize")]
     public static void LoadLocalBgaAwake(GameObject ____movieMaskObj, int ___monitorIndex)
     {
-        if (string.IsNullOrEmpty(movieInfo.Item1) || string.IsNullOrEmpty(movieInfo.Item4)) return;
-        if (movieInfo.Item1 == "sourceMovie") return;
+        if (!movieInfo.IsValid) return;
+        if (movieInfo.Type == MovieInfo.MovieType.SourceMovie) return;
+
         string mp4Path = "";
         bool mp4Exists = false;
         Texture2D jacket = null;
-        var musicID = movieInfo.Item4;
 
-        if (movieInfo.Item1 == "mp4Movie" && !string.IsNullOrEmpty(movieInfo.Item2)) {
-            mp4Path = movieInfo.Item2;
+        if (movieInfo.Type == MovieInfo.MovieType.Mp4Movie) {
+            mp4Path = movieInfo.Mp4Path;
             mp4Exists = File.Exists(mp4Path);
         }
-        if (movieInfo.Item1 == "jacket" && movieInfo.Item3 != null) {
-            jacket = movieInfo.Item3;
+        if (movieInfo.Type == MovieInfo.MovieType.Jacket) {
+            jacket = movieInfo.JacketTexture;
         }
-        if (movieInfo.Item1 == "jacket_processing" && movieInfo.Item3 != null) {
-            MelonLogger.Msg($"[MovieLoader] {musicID} Post-process failed " + 
+        if (movieInfo.Type == MovieInfo.MovieType.JacketProcessing) {
+            MelonLogger.Msg($"[MovieLoader] {movieInfo.MusicId} Post-process failed " + 
                 "or time out, using jacket as fallback");
-            jacket = movieInfo.Item3;
+            jacket = movieInfo.JacketTexture;
         }
 
         if (!mp4Exists && jacket is null) {
-            MelonLogger.Msg($"[MovieLoader] No jacket or bga for {musicID}");
+            MelonLogger.Msg($"[MovieLoader] No jacket or bga for {movieInfo.MusicId}");
             return;
         }
 
