@@ -126,10 +126,10 @@ public class FixTrackNumDisplay
 
             // 数字1的位置需要额外调整，以保证视觉上与其它数字间距一致
             // currentTrackNum 第一位
-            if (curStr[0] == '1' && TrackNumDisplayStyle != 2)
+            if (curStr[0] == '1' && curStr[1] != ' ')
                 ____trackCountText.FrameList[0].RelativePosition = new Vector2(5+2, 0);
             // currentTrackNum 第二位
-            if (curStr[1] == '1' && TrackNumDisplayStyle != 0)
+            if (curStr[1] == '1' && curStr[0] != ' ')
                 ____trackCountText.FrameList[1].RelativePosition = new Vector2(-7-2, 0);
             // maxTrackNum 第一位
             if (maxStr[0] == '1')
