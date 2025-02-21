@@ -14,11 +14,10 @@ namespace AquaMai.Mods.Fix;
     zh: "让右上角的当前曲目数字可以显示两位数")]
 public class FixTrackNumDisplay
 {
-    // 添加configentry
     [ConfigEntry(
-        en: "Use 0 prefix for track number",
-        zh: "在数字前添加 0 进行补位")]
-    private static readonly bool ZeroPrefix = true;
+        en: "Track number display style: 0=Left-padded (_5), 1=Zero-padded (05), 2=Right-padded (5_)",
+        zh: "曲目数字显示格式: 0=左侧补空格(_5), 1=左侧补零(05), 2=右侧补空格(5_)")]
+    private static readonly int TrackNumDisplayStyle = 0; // Default 0
 
     private static Sprite[] customSprites;
     private static bool isInitialized = false;
@@ -127,17 +126,17 @@ public class FixTrackNumDisplay
                 if (maxStr.Length == 2 && maxStr[1] == '1') ____trackDenominatortText.FrameList[1].RelativePosition = new Vector2(16-2, 0);
             }
 
-            string content;
-            if (ZeroPrefix) {
-                content = currentTrackNum.ToString().PadLeft(2, '0'); // 使用0补位
-            } else {
-                content = currentTrackNum.ToString().PadLeft(2); // 使用空格补位
-            }
+            string content = TrackNumDisplayStyle switch {
+                0 => currentTrackNum.ToString().PadLeft(2),      //左侧空格补位
+                1 => currentTrackNum.ToString().PadLeft(2, '0'), //左侧零补位
+                2 => currentTrackNum.ToString().PadRight(2),     //右侧空格补位
+                _ => currentTrackNum.ToString().PadLeft(2),      //默认 case 0
+            };
 
             // 复制原版处理非自由模式的逻辑
             var trackColorID = 0;
             ____trackMaskImage.SetActive(value: false);
-            ____trackCountText.ChangeText(content);
+            ____trackCountText.ChangeText(content); // 使用自定义文本
             ____trackDenominatortText.ChangeText(maxTrackNum.ToString());
             trackColorID = (maxTrackNum - currentTrackNum) switch
             {
