@@ -280,23 +280,28 @@ public class MovieLoader
     public static void LoadLocalBgaAwake(GameObject ____movieMaskObj, int ___monitorIndex)
     {
         if (!movieInfo.IsValid) return;
-        if (movieInfo.Type == MovieInfo.MovieType.SourceMovie) return;
 
         string mp4Path = "";
         bool mp4Exists = false;
         Texture2D jacket = null;
 
-        if (movieInfo.Type == MovieInfo.MovieType.Mp4Movie) {
-            mp4Path = movieInfo.Mp4Path;
-            mp4Exists = File.Exists(mp4Path);
-        }
-        if (movieInfo.Type == MovieInfo.MovieType.Jacket) {
-            jacket = movieInfo.JacketTexture;
-        }
-        if (movieInfo.Type == MovieInfo.MovieType.JacketProcessing) {
-            MelonLogger.Msg($"[MovieLoader] {movieInfo.MusicId} Post-process failed " + 
-                "or time out, using jacket as fallback");
-            jacket = movieInfo.JacketTexture;
+        switch (movieInfo.Type) {
+            case MovieInfo.MovieType.None:
+                return;
+            case MovieInfo.MovieType.SourceMovie:
+                return;
+            case MovieInfo.MovieType.Mp4Movie:
+                mp4Path = movieInfo.Mp4Path;
+                mp4Exists = File.Exists(mp4Path);
+                break;
+            case MovieInfo.MovieType.Jacket:
+                jacket = movieInfo.JacketTexture;
+                break;
+            case MovieInfo.MovieType.JacketProcessing:
+                MelonLogger.Msg($"[MovieLoader] {movieInfo.MusicId} Post-process failed " + 
+                                 "or time out, using jacket as fallback");
+                jacket = movieInfo.JacketTexture;
+                break;
         }
 
         if (!mp4Exists && jacket is null) {
