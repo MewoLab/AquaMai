@@ -105,39 +105,44 @@ public class FixTrackNumDisplay
                 ____trackCountText.FrameList[1].Scale = 0.4f;
                 ____trackDenominatortText.FrameList[0].Scale = 0.3f;
                 ____trackDenominatortText.FrameList[1].Scale = 0.3f;
-                // 调整文字位置
-                ____trackCountText.FrameList[0].RelativePosition = new Vector2(5, 0);
-                ____trackCountText.FrameList[1].RelativePosition = new Vector2(-7, 0);
-                ____trackDenominatortText.FrameList[0].RelativePosition = new Vector2(33, 0);
-                ____trackDenominatortText.FrameList[1].RelativePosition = new Vector2(16, 0);
-
-                // 数字1的位置需要额外调整，以保证视觉上与其它数字间距一致
-                var curStr = currentTrackNum.ToString();
-                var maxStr = maxTrackNum.ToString();
-                // currentTrackNum 第一位
-                if (curStr.Length == 2 && curStr[0] == '1') ____trackCountText.FrameList[0].RelativePosition = new Vector2(5+2, 0);
-                // currentTrackNum 第二位
-                if (curStr.Length == 1 && curStr[0] == '1') ____trackCountText.FrameList[1].RelativePosition = new Vector2(-7-2, 0);
-                if (curStr.Length == 2 && curStr[1] == '1') ____trackCountText.FrameList[1].RelativePosition = new Vector2(-7-2, 0);
-                // maxTrackNum 第一位
-                if (maxStr.Length == 2 && maxStr[0] == '1') ____trackDenominatortText.FrameList[0].RelativePosition = new Vector2(33+2, 0);                
-                // maxTrackNum 第二位
-                if (maxStr.Length == 1 && maxStr[0] == '1') ____trackDenominatortText.FrameList[1].RelativePosition = new Vector2(16-2, 0);
-                if (maxStr.Length == 2 && maxStr[1] == '1') ____trackDenominatortText.FrameList[1].RelativePosition = new Vector2(16-2, 0);
             }
 
-            string content = TrackNumDisplayStyle switch {
-                0 => currentTrackNum.ToString().PadLeft(2),      //左侧空格补位
-                1 => currentTrackNum.ToString().PadLeft(2, '0'), //左侧零补位
-                2 => currentTrackNum.ToString().PadRight(2),     //右侧空格补位
-                _ => currentTrackNum.ToString().PadLeft(2),      //默认 case 0
+            var curStr = currentTrackNum.ToString();
+            var maxStr = maxTrackNum.ToString();
+
+            // 根据配置选择显示格式
+            curStr = TrackNumDisplayStyle switch {
+                0 => curStr.PadLeft(2),      //左侧空格补位
+                1 => curStr.PadLeft(2, '0'), //左侧零补位
+                2 => curStr.PadRight(2),     //右侧空格补位
+                _ => curStr.PadLeft(2),      //默认 case 0
             };
+
+            // 默认文字位置
+            ____trackCountText.FrameList[0].RelativePosition = new Vector2(5, 0);
+            ____trackCountText.FrameList[1].RelativePosition = new Vector2(-7, 0);
+            ____trackDenominatortText.FrameList[0].RelativePosition = new Vector2(33, 0);
+            ____trackDenominatortText.FrameList[1].RelativePosition = new Vector2(16, 0);
+
+            // 数字1的位置需要额外调整，以保证视觉上与其它数字间距一致
+            // currentTrackNum 第一位
+            if (curStr[0] == '1' && TrackNumDisplayStyle != 2)
+                ____trackCountText.FrameList[0].RelativePosition = new Vector2(5+2, 0);
+            // currentTrackNum 第二位
+            if (curStr[1] == '1' && TrackNumDisplayStyle != 0)
+                ____trackCountText.FrameList[1].RelativePosition = new Vector2(-7-2, 0);
+            // maxTrackNum 第一位
+            if (maxStr[0] == '1')
+                ____trackDenominatortText.FrameList[0].RelativePosition = new Vector2(33+2, 0);                
+            // maxTrackNum 第二位
+            if (maxStr[1] == '1')
+                ____trackDenominatortText.FrameList[1].RelativePosition = new Vector2(16-2, 0);
 
             // 复制原版处理非自由模式的逻辑
             var trackColorID = 0;
             ____trackMaskImage.SetActive(value: false);
-            ____trackCountText.ChangeText(content); // 使用自定义文本
-            ____trackDenominatortText.ChangeText(maxTrackNum.ToString());
+            ____trackCountText.ChangeText(curStr); // 使用自定义文本
+            ____trackDenominatortText.ChangeText(maxStr);
             trackColorID = (maxTrackNum - currentTrackNum) switch
             {
                 0u => 2, 
