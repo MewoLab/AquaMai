@@ -133,9 +133,9 @@ public class KeyMap
     private static readonly KeyCodeID Select_2P = (KeyCodeID)84;
 
     [ConfigEntry]
-    private static readonly KeyCodeID Home = (KeyCodeID)94;
+    private static readonly KeyCodeID Autoplay = (KeyCodeID)94;
 
-    public static string GetHome() {return Home.ToString();}
+    public static string GetAutoplay() {return Autoplay.ToString();}
 
     [HarmonyPatch(typeof(DB.JvsButtonTableRecord), MethodType.Constructor, typeof(int), typeof(string), typeof(string), typeof(int), typeof(string), typeof(int), typeof(int), typeof(int))]
     [HarmonyPostfix]

@@ -132,10 +132,10 @@ public class DebugFeature
     {
         public static bool isPause;
         public static double timer;
-        public static KeyCode Home = SetHome();
+        public static KeyCode Autoplay = SetAutoplay();
 
-        private static KeyCode SetHome() {
-            try {return (KeyCode)Enum.Parse(typeof(KeyCode), KeyMap.GetHome());}
+        private static KeyCode SetAutoplay() {
+            try {return (KeyCode)Enum.Parse(typeof(KeyCode), KeyMap.GetAutoplay());}
             catch (Exception) {return KeyCode.Home;}
         }
 
@@ -186,7 +186,7 @@ public class DebugFeature
                 timer += GameManager.GetGameMSecAddD();
             }
 
-            if (Input.GetKeyDown(Home))
+            if (Input.GetKeyDown(Autoplay))
             {
                 GameManager.AutoPlay = (GameManager.AutoPlayMode)((int)(GameManager.AutoPlay + 1) % Enum.GetNames(typeof(GameManager.AutoPlayMode)).Length);
             }
