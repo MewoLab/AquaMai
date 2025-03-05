@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using AquaMai.Config.Attributes;
+using AquaMai.Mods.GameSystem;
 using HarmonyLib;
 using MAI2.Util;
 using Manager;
@@ -131,6 +132,12 @@ public class DebugFeature
     {
         public static bool isPause;
         public static double timer;
+        public static KeyCode Home = SetHome();
+
+        private static KeyCode SetHome() {
+            try {return (KeyCode)Enum.Parse(typeof(KeyCode), KeyMap.GetHome());}
+            catch (Exception) {return KeyCode.Home;}
+        }
 
         public static void DebugTimeSkip(int addMsec)
         {
@@ -179,7 +186,7 @@ public class DebugFeature
                 timer += GameManager.GetGameMSecAddD();
             }
 
-            if (Input.GetKeyDown(KeyCode.Home))
+            if (Input.GetKeyDown(Home))
             {
                 GameManager.AutoPlay = (GameManager.AutoPlayMode)((int)(GameManager.AutoPlay + 1) % Enum.GetNames(typeof(GameManager.AutoPlayMode)).Length);
             }
