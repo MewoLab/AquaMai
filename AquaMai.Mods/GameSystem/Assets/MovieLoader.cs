@@ -199,7 +199,7 @@ public class MovieLoader
     [HarmonyPatch(typeof(MovieController), "Play")]
     public static void Play(int moviePlayerIndex, int frame)
     {
-        if (_videoPlayers[moviePlayerIndex] == null) continue;
+        if (_videoPlayers[moviePlayerIndex] == null) return;
         _videoPlayers[moviePlayerIndex].frame = frame;
         _videoPlayers[moviePlayerIndex].Play();
     }
@@ -208,7 +208,7 @@ public class MovieLoader
     [HarmonyPatch(typeof(MovieController), "Pause")]
     public static void Pause(int moviePlayerIndex, bool pauseFlag)
     {
-        if (_videoPlayers[moviePlayerIndex] == null) continue;
+        if (_videoPlayers[moviePlayerIndex] == null) return;
         if (pauseFlag)
         {
             _videoPlayers[moviePlayerIndex].Pause();
