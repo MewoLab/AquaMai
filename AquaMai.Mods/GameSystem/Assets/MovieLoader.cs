@@ -197,31 +197,25 @@ public class MovieLoader
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(MovieController), "Play")]
-    public static void Play(int frame)
+    public static void Play(int moviePlayerIndex, int frame)
     {
-        foreach (var player in _videoPlayers)
-        {
-            if (player == null) continue;
-            player.frame = frame;
-            player.Play();
-        }
+        if (_videoPlayers[moviePlayerIndex] == null) continue;
+        _videoPlayers[moviePlayerIndex].frame = frame;
+        _videoPlayers[moviePlayerIndex].Play();
     }
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(MovieController), "Pause")]
-    public static void Pause(bool pauseFlag)
+    public static void Pause(int moviePlayerIndex, bool pauseFlag)
     {
-        foreach (var player in _videoPlayers)
+        if (_videoPlayers[moviePlayerIndex] == null) continue;
+        if (pauseFlag)
         {
-            if (player == null) continue;
-            if (pauseFlag)
-            {
-                player.Pause();
-            }
-            else
-            {
-                player.Play();
-            }
+            _videoPlayers[moviePlayerIndex].Pause();
+        }
+        else
+        {
+            _videoPlayers[moviePlayerIndex].Play();
         }
     }
 
