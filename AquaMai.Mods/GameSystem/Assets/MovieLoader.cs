@@ -1,12 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using AquaMai.Config.Attributes;
+using AquaMai.Core.Attributes;
 using AquaMai.Core.Helpers;
 using CriMana;
 using HarmonyLib;
 using MAI2.Util;
 using Manager;
 using MelonLoader;
+using Monitor;
 using Monitor.Game;
 using UnityEngine;
 using UnityEngine.Video;
@@ -171,6 +173,7 @@ public class MovieLoader
                 }
 
                 // 异步调用后处理函数
+                //MelonLogger.Msg($"[MovieLoader] start {musicID}"); //DEBUG
                 jacket = await JacketPostProcess(jacket);
                 if (jacket is null) {
                     MelonLogger.Msg($"[MovieLoader] post-process return null for {musicID}");
@@ -178,6 +181,7 @@ public class MovieLoader
                 }
                 movieInfo.Type = MovieInfo.MovieType.Jacket; // 后处理完成
                 movieInfo.JacketTexture = jacket;
+                //MelonLogger.Msg($"[MovieLoader] success {musicID}"); //DEBUG
             }
         } catch (System.Exception e) {MelonLogger.Msg($"[MovieLoader] GetMovie() error: {e}");}
     }
@@ -274,11 +278,16 @@ public class MovieLoader
     }
 
     private static VideoPlayer[] _videoPlayers = new VideoPlayer[2];
+    private static bool _isReplaced = false;
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(GameCtrl), "Initialize")]
     public static void LoadLocalBgaAwake(GameObject ____movieMaskObj, int ___monitorIndex)
     {
+        //if (___monitorIndex == 0) MelonLogger.Msg($"[MovieLoader] Load"); //DEBUG
+
+        _isReplaced = false;
+        
         if (!movieInfo.IsValid) return;
 
         string mp4Path = "";
@@ -308,6 +317,8 @@ public class MovieLoader
             MelonLogger.Msg($"[MovieLoader] No jacket or bga for {movieInfo.MusicId}");
             return;
         }
+
+        _isReplaced = true;
 
         if (mp4Exists)
         {
@@ -366,6 +377,17 @@ public class MovieLoader
             sprite.material = new Material(Shader.Find("Sprites/Default"));
             bgaSize = [1080, 1080];
         }
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(GameMonitor), "SetMovieMaterial")]
+    [EnableGameVersion(minVersion: 25500)]
+    public static bool SetMovieMaterial(Material material, int ___monitorIndex)
+    {
+# if DEBUG
+        MelonLogger.Msg("SetMovieMaterial");
+# endif
+        return !_isReplaced;
     }
 
     [HarmonyPostfix]
