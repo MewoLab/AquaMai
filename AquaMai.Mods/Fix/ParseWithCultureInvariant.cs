@@ -29,7 +29,7 @@ public class ParseWithCultureInvariant
                 typeof(DLMusicScoreManager), "ExistsMusicScore", [typeof(string), typeof(int), typeof(string).MakeByRefType()]);
             yield return AccessTools.Method(typeof(NotesReader), "loadHeader");
             yield return AccessTools.Method(typeof(Manager.Version), "init");
-            yield return AccessTools.Method(typeof(MapStockController), "SetNumber");
+            yield return AccessTools.Method(typeof(MapStockController.StockOdometerNumber), "SetNumber");
             yield return AccessTools.Method(typeof(TrackStartMonitor), "SetTrackStart");
             yield return AccessTools.Method(typeof(BonusNumber), "SetNumber");
             yield return AccessTools.Method(typeof(CharaLevelNumber), "SetNumber");
@@ -51,26 +51,31 @@ public class ParseWithCultureInvariant
         
             for (var i = 0; i < instrs.Count; i++)
             {
-                var callsFloatParse = instrs[i].Calls(methodFloatParse);
-                var callsIntParse = instrs[i].Calls(methodIntParse);
+                var oldInstruction = instrs[i];
 
-                if (!callsFloatParse && !callsIntParse)
+                if (oldInstruction.Calls(methodFloatParse))
                 {
-                    continue;
+                    instrs.RemoveAt(i);
+                    instrs.InsertRange(
+                        i,
+                        [
+                            new CodeInstruction(OpCodes.Ldc_I4, (int)(NumberStyles.Float | NumberStyles.AllowThousands))
+                                .MoveLabelsFrom(oldInstruction),
+                            new CodeInstruction(OpCodes.Call, methodGetInvariantCulture),
+                            new CodeInstruction(OpCodes.Call, methodFloatParseFull),
+                        ]);
                 }
-
-                instrs.RemoveAt(i);
-                instrs.Insert(i, new CodeInstruction(OpCodes.Ldc_I4, (int)NumberStyles.Any));
-                instrs.Insert(i + 1, new CodeInstruction(OpCodes.Call, methodGetInvariantCulture));
-
-                if (callsFloatParse)
+                else if (oldInstruction.Calls(methodIntParse))
                 {
-                    instrs.Insert(i + 2, new CodeInstruction(OpCodes.Call, methodFloatParseFull));
-                }
-                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-                else if (callsIntParse)
-                {
-                    instrs.Insert(i + 2, new CodeInstruction(OpCodes.Call, methodIntParseFull));
+                    instrs.RemoveAt(i);
+                    instrs.InsertRange(
+                        i,
+                        [
+                            new CodeInstruction(OpCodes.Ldc_I4, (int)NumberStyles.Integer)
+                                .MoveLabelsFrom(oldInstruction),
+                            new CodeInstruction(OpCodes.Call, methodGetInvariantCulture),
+                            new CodeInstruction(OpCodes.Call, methodIntParseFull),
+                        ]);
                 }
             }
 
