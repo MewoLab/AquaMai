@@ -1,6 +1,5 @@
 using System;
 using System.Globalization;
-using System.Threading;
 using AquaMai.Config.Attributes;
 using HarmonyLib;
 using JetBrains.Annotations;
@@ -18,11 +17,6 @@ public class FixLocaleIssues
 
     public static void OnBeforePatch()
     {
-        CultureInfo.DefaultThreadCurrentCulture = JapanCultureInfo;
-        CultureInfo.DefaultThreadCurrentUICulture = JapanCultureInfo;
-        Thread.CurrentThread.CurrentCulture = JapanCultureInfo;
-        Thread.CurrentThread.CurrentUICulture = JapanCultureInfo;
-
         try
         {
             _tokyoStandardTime = TimeZoneInfo.FindSystemTimeZoneById("Tokyo Standard Time");
@@ -43,6 +37,22 @@ public class FixLocaleIssues
             MelonLogger.Warning($"Could not get JST timezone, DateTime.Now patch will not work: {e.StackTrace}");
         }
     }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(int), "Parse", typeof(string))]
+    private static bool int_Parse(ref int __result, string s)
+    {
+        __result = int.Parse(s, JapanCultureInfo);
+        return false;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(float), "Parse", typeof(string))]
+    private static bool float_Parse(ref float __result, string s)
+    {
+        __result = float.Parse(s, JapanCultureInfo);
+        return false;
+    }
     
     // Forces local timezone to be UTC+9, since segatools didn't patch it properly until recent versions,
     // which doesn't actually work well with maimai.
@@ -56,6 +66,22 @@ public class FixLocaleIssues
         }
 
         __result = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, _tokyoStandardTime!);
+        return false;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(DateTime), "Parse", typeof(string))]
+    private static bool DateTime_Parse(ref DateTime __result, string s)
+    {
+        __result = DateTime.Parse(s, JapanCultureInfo);
+        return false;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(DateTime), "ToShortDateString")]
+    private static bool DateTime_ToShortDateString(DateTime __instance, ref string __result)
+    {
+        __result = __instance.ToString("d", JapanCultureInfo);
         return false;
     }
 }
