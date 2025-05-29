@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Threading;
 using AquaMai.Config.Attributes;
 using HarmonyLib;
 using JetBrains.Annotations;
@@ -19,6 +20,8 @@ public class FixLocaleIssues
     {
         CultureInfo.DefaultThreadCurrentCulture = JapanCultureInfo;
         CultureInfo.DefaultThreadCurrentUICulture = JapanCultureInfo;
+        Thread.CurrentThread.CurrentCulture = JapanCultureInfo;
+        Thread.CurrentThread.CurrentUICulture = JapanCultureInfo;
 
         try
         {
