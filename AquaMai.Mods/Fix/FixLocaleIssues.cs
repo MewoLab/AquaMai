@@ -60,7 +60,7 @@ public class FixLocaleIssues
     }
 
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(DateTime), "Parse")]
+    [HarmonyPatch(typeof(DateTime), "Parse", typeof(string))]
     private static bool DateTime_Parse(ref DateTime __result, string s)
     {
         __result = DateTime.Parse(s, JapanCultureInfo);
