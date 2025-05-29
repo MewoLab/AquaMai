@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Threading;
 using AquaMai.Config.Attributes;
 using HarmonyLib;
 using JetBrains.Annotations;
@@ -17,6 +18,11 @@ public class FixLocaleIssues
 
     public static void OnBeforePatch()
     {
+        Thread.CurrentThread.CurrentCulture = JapanCultureInfo;
+        Thread.CurrentThread.CurrentUICulture = JapanCultureInfo;
+        CultureInfo.DefaultThreadCurrentCulture = JapanCultureInfo;
+        CultureInfo.DefaultThreadCurrentUICulture = JapanCultureInfo;
+        
         try
         {
             _tokyoStandardTime = TimeZoneInfo.FindSystemTimeZoneById("Tokyo Standard Time");
