@@ -4,6 +4,7 @@ using AquaMai.Config.Attributes;
 using HarmonyLib;
 using JetBrains.Annotations;
 using Manager;
+using MelonLoader;
 
 namespace AquaMai.Mods.Fix;
 
@@ -11,23 +12,33 @@ namespace AquaMai.Mods.Fix;
 [ConfigSection(exampleHidden: true, defaultOn: true)]
 public class FixLocaleIssues
 {
-    private static readonly CultureInfo JapanCultureInfo = new CultureInfo("ja-JP");
+    private static readonly CultureInfo JapanCultureInfo = CultureInfo.GetCultureInfo("ja-JP");
     [CanBeNull] private static TimeZoneInfo _tokyoStandardTime;
 
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(int), "Parse", typeof(string))]
-    private static bool int_Parse(ref int __result, string s)
+    public static void OnBeforePatch()
     {
-        __result = int.Parse(s, JapanCultureInfo);
-        return false;
-    }
+        CultureInfo.DefaultThreadCurrentCulture = JapanCultureInfo;
+        CultureInfo.DefaultThreadCurrentUICulture = JapanCultureInfo;
 
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(float), "Parse", typeof(string))]
-    private static bool float_Parse(ref float __result, string s)
-    {
-        __result = float.Parse(s, JapanCultureInfo);
-        return false;
+        try
+        {
+            _tokyoStandardTime = TimeZoneInfo.FindSystemTimeZoneById("Tokyo Standard Time");
+        }
+        catch (Exception e) when (e is TimeZoneNotFoundException or InvalidTimeZoneException)
+        {
+            _tokyoStandardTime = TimeZoneInfo.CreateCustomTimeZone(
+                "Tokyo Standard Time",
+                TimeManager.JpTime,
+                "(UTC+09:00) Osaka, Sapporo, Tokyo",
+                "Tokyo Standard Time",
+                "Tokyo Daylight Time",
+                null,
+                true);
+        }
+        catch (Exception e)
+        {
+            MelonLogger.Warning($"Could not get JST timezone, DateTime.Now patch will not work: {e.StackTrace}");
+        }
     }
     
     // Forces local timezone to be UTC+9, since segatools didn't patch it properly until recent versions,
@@ -38,40 +49,10 @@ public class FixLocaleIssues
     {
         if (_tokyoStandardTime == null)
         {
-            try
-            {
-                _tokyoStandardTime = TimeZoneInfo.FindSystemTimeZoneById("Tokyo Standard Time");
-            }
-            catch (Exception e) when (e is TimeZoneNotFoundException or InvalidTimeZoneException)
-            {
-                _tokyoStandardTime = TimeZoneInfo.CreateCustomTimeZone(
-                    "Tokyo Standard Time",
-                    TimeManager.JpTime,
-                    "(UTC+09:00) Osaka, Sapporo, Tokyo",
-                    "Tokyo Standard Time",
-                    "Tokyo Daylight Time",
-                    null,
-                    true);
-            }
+            return true;
         }
 
         __result = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, _tokyoStandardTime!);
-        return false;
-    }
-
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(DateTime), "Parse", typeof(string))]
-    private static bool DateTime_Parse(ref DateTime __result, string s)
-    {
-        __result = DateTime.Parse(s, JapanCultureInfo);
-        return false;
-    }
-
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(DateTime), "ToShortDateString")]
-    private static bool DateTime_ToShortDateString(DateTime __instance, ref string __result)
-    {
-        __result = __instance.ToString("d", JapanCultureInfo);
         return false;
     }
 }
