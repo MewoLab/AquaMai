@@ -18,11 +18,6 @@ public class FixLocaleIssues
 
     public static void OnBeforePatch()
     {
-        Thread.CurrentThread.CurrentCulture = JapanCultureInfo;
-        Thread.CurrentThread.CurrentUICulture = JapanCultureInfo;
-        CultureInfo.DefaultThreadCurrentCulture = JapanCultureInfo;
-        CultureInfo.DefaultThreadCurrentUICulture = JapanCultureInfo;
-        
         try
         {
             _tokyoStandardTime = TimeZoneInfo.FindSystemTimeZoneById("Tokyo Standard Time");
@@ -54,7 +49,7 @@ public class FixLocaleIssues
     [HarmonyPatch(typeof(NumberFormatInfo), "get_CurrentInfo")]
     public static bool NumberFormatInfo_get_CurrentInfo(ref NumberFormatInfo __result)
     {
-        __result = (NumberFormatInfo)JapanCultureInfo.GetFormat(typeof(NumberFormatInfo));
+        __result = JapanCultureInfo.NumberFormat;
         return false;
     }
 
@@ -63,7 +58,7 @@ public class FixLocaleIssues
     [HarmonyPatch(typeof(DateTimeFormatInfo), "get_CurrentInfo")]
     public static bool DateTimeFormatInfo_get_CurrentInfo(ref DateTimeFormatInfo __result)
     {
-        __result = (DateTimeFormatInfo)JapanCultureInfo.GetFormat(typeof(DateTimeFormatInfo));
+        __result = JapanCultureInfo.DateTimeFormat;
         return false;
     }
     
