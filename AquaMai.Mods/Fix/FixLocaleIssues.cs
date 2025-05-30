@@ -13,7 +13,7 @@ namespace AquaMai.Mods.Fix;
 [ConfigSection(exampleHidden: true, defaultOn: true)]
 public class FixLocaleIssues
 {
-    private static readonly CultureInfo JapanCultureInfo = CultureInfo.GetCultureInfo("ja-JP");
+    private static readonly CultureInfo JapanCultureInfo = new("ja-JP");
     [CanBeNull] private static TimeZoneInfo _tokyoStandardTime;
 
     public static void OnBeforePatch()
@@ -44,19 +44,26 @@ public class FixLocaleIssues
         }
     }
 
+    // This covers all calls to T.Parse(String) or T.Parse(String, NumberStyles)
+    // where T is a number. Sets the current thread's culture to Japan before calling
+    // the original getter, since that's what the original getter depends on.
+    //
+    // While we already set the thread's culture on the OnBeforePatch lifecycle hook,
+    // it seems to not apply to the game at all for some reason.
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(int), "Parse", typeof(string))]
-    private static bool int_Parse(ref int __result, string s)
+    [HarmonyPatch(typeof(NumberFormatInfo), "get_CurrentInfo")]
+    public static bool NumberFormatInfo_get_CurrentInfo(ref NumberFormatInfo __result)
     {
-        __result = int.Parse(s, JapanCultureInfo);
+        __result = (NumberFormatInfo)JapanCultureInfo.GetFormat(typeof(NumberFormatInfo));
         return false;
     }
 
+    // Same for datetimes.
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(float), "Parse", typeof(string))]
-    private static bool float_Parse(ref float __result, string s)
+    [HarmonyPatch(typeof(DateTimeFormatInfo), "get_CurrentInfo")]
+    public static bool DateTimeFormatInfo_get_CurrentInfo(ref DateTimeFormatInfo __result)
     {
-        __result = float.Parse(s, JapanCultureInfo);
+        __result = (DateTimeFormatInfo)JapanCultureInfo.GetFormat(typeof(DateTimeFormatInfo));
         return false;
     }
     
@@ -72,22 +79,6 @@ public class FixLocaleIssues
         }
 
         __result = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, _tokyoStandardTime!);
-        return false;
-    }
-
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(DateTime), "Parse", typeof(string))]
-    private static bool DateTime_Parse(ref DateTime __result, string s)
-    {
-        __result = DateTime.Parse(s, JapanCultureInfo);
-        return false;
-    }
-
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(DateTime), "ToShortDateString")]
-    private static bool DateTime_ToShortDateString(DateTime __instance, ref string __result)
-    {
-        __result = __instance.ToString("d", JapanCultureInfo);
         return false;
     }
 }
