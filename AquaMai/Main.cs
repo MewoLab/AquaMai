@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using MelonLoader;
 
@@ -22,7 +23,18 @@ public class AquaMai : MelonMod
         {
             coreBuildInfo.GetField(field.Name)?.SetValue(null, field.GetValue(null));
         }
-        coreBuildInfo.GetField("ModAssembly")?.SetValue(null, MelonAssembly);
+        coreBuildInfo.GetField("ModAssembly")?.SetValue(null, MelonAssembly.Assembly);
+    }
+
+    private void SetCoreLogger(Assembly coreAssembly)
+    {
+        var coreLogger = coreAssembly.GetType("AquaMai.Core.Environment.MelonLogger");
+        coreLogger.GetField("MsgStringAction").SetValue(null, (Action<string>)MelonLogger.Msg);
+        coreLogger.GetField("MsgObjectAction").SetValue(null, (Action<object>)MelonLogger.Msg);
+        coreLogger.GetField("ErrorStringAction").SetValue(null, (Action<string>)MelonLogger.Error);
+        coreLogger.GetField("ErrorObjectAction").SetValue(null, (Action<object>)MelonLogger.Error);
+        coreLogger.GetField("WarningStringAction").SetValue(null, (Action<string>)MelonLogger.Warning);
+        coreLogger.GetField("WarningObjectAction").SetValue(null, (Action<object>)MelonLogger.Warning);
     }
 
     private static MethodInfo onGUIMethod;
@@ -30,13 +42,14 @@ public class AquaMai : MelonMod
     public override void OnInitializeMelon()
     {
         // Prevent Chinese characters from being garbled
-        SetConsoleOutputCP(65001);
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) SetConsoleOutputCP(65001);
 
         AssemblyLoader.LoadAssemblies();
 
         var modsAssembly = AssemblyLoader.GetAssembly(AssemblyLoader.AssemblyName.Mods);
         var coreAssembly = AssemblyLoader.GetAssembly(AssemblyLoader.AssemblyName.Core);
         SetCoreBuildInfo(coreAssembly);
+        SetCoreLogger(coreAssembly);
         coreAssembly.GetType("AquaMai.Core.Startup")
                     .GetMethod("Initialize", BindingFlags.Public | BindingFlags.Static)
                     .Invoke(null, [modsAssembly, HarmonyInstance]);

@@ -7,7 +7,7 @@ using AquaMai.Core.Resources;
 using AquaMai.Mods.UX.PracticeMode;
 using HarmonyLib;
 using Manager;
-using MelonLoader;
+using AquaMai.Core.Environment;
 using Monitor;
 using Process;
 using TMPro;

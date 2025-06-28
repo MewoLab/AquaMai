@@ -33,6 +33,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../MelonLoader.TinyJSON/MelonLoader.TinyJSON.csproj" />
     <ProjectReference Include="../AquaMai.Config/AquaMai.Config.csproj" />
   </ItemGroup>
 
@@ -42,7 +43,6 @@
     <Reference Include="AMDaemon.NET" />
     <Reference Include="Assembly-CSharp" />
     <Reference Include="Assembly-CSharp-firstpass" />
-    <Reference Include="MelonLoader" />
     <Reference Include="Mono.Cecil" />
     <Reference Include="Mono.Posix" />
     <Reference Include="Mono.Security" />

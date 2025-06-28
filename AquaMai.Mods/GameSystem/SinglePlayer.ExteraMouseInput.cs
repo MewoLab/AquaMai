@@ -1,4 +1,5 @@
 ﻿using AquaMai.Config.Attributes;
+using AquaMai.Core.Environment;
 using HarmonyLib;
 using System;
 using System.Collections;
@@ -33,7 +34,7 @@ public partial class SinglePlayer
         {
             return;
         }
-        MelonLoader.MelonLogger.Msg("ExteraMouseInput: Start");
+        MelonLogger.Msg("ExteraMouseInput: Start");
         leftCanvas = __instance.transform.parent.GetComponent<Canvas>();
         UnityEngine.Object.Destroy(__instance.transform.parent.GetComponent<GraphicRaycaster>());
         MeshButtonRaycaster radiusRaycaster = __instance.transform.parent.gameObject.AddComponent<MeshButtonRaycaster>();

@@ -7,7 +7,7 @@ using HarmonyLib;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
-using MelonLoader;
+using AquaMai.Core.Environment;
 using System.Collections;
 using Manager.UserDatas;
 using Net.VO.Mai2;

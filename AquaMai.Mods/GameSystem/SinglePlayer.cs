@@ -7,7 +7,7 @@ using AquaMai.Mods.Fancy.GamePlay;
 using HarmonyLib;
 using MAI2.Util;
 using Manager;
-using MelonLoader;
+using AquaMai.Core.Environment;
 using Monitor;
 using Monitor.Common;
 using Monitor.Entry;

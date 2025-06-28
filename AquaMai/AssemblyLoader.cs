@@ -10,6 +10,7 @@ public static class AssemblyLoader
 {
     public enum AssemblyName
     {
+        TinyJSON,
         ConfigInterfaces,
         Config,
         Core,
@@ -18,6 +19,7 @@ public static class AssemblyLoader
 
     private static readonly Dictionary<AssemblyName, string> Assemblies = new()
     {
+        [AssemblyName.TinyJSON] = "MelonLoader.TinyJSON.dll",
         [AssemblyName.ConfigInterfaces] = "AquaMai.Config.Interfaces.dll",
         [AssemblyName.Config] = "AquaMai.Config.dll",
         [AssemblyName.Core] = "AquaMai.Core.dll",

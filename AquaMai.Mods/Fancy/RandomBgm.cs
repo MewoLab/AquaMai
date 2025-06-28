@@ -7,7 +7,7 @@ using HarmonyLib;
 using Mai2.Mai2Cue;
 using MAI2.Util;
 using Manager;
-using MelonLoader;
+using AquaMai.Core.Environment;
 
 namespace AquaMai.Mods.Fancy;
 
