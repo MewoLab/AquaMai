@@ -7,7 +7,7 @@ using Manager;
 
 namespace AquaMai.BepInEx;
 
-[BepInPlugin(PluginName, BuildInfo.Name, BuildInfo.GitVersion)]
+[BepInPlugin(PluginName, BuildInfo.Name, BuildInfo.Version)]
 public class Plugin : BaseUnityPlugin
 {
     public const string PluginName = "net.aquadx.aquamai";
