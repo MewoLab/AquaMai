@@ -1,9 +1,7 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using AquaMai.Common;
 using BepInEx;
 using BepInEx.Logging;
-using Manager;
 
 namespace AquaMai.BepInEx;
 
