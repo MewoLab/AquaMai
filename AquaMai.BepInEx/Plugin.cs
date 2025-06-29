@@ -12,8 +12,13 @@ public class Plugin : BaseUnityPlugin
 
     public readonly static ManualLogSource LogSource = global::BepInEx.Logging.Logger.CreateLogSource(BuildInfo.Name);
 
+    private static bool _isInitialized = false;
+
     public void Awake()
     {
+        if (_isInitialized) return;
+        _isInitialized = true;
+
         var harmony = new HarmonyLib.Harmony(PluginName);
 
         Common.AquaMai.Bootstrap(new BootstrapOptions
