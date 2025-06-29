@@ -39,7 +39,7 @@ Task("PreBuild")
         public const string BuildDate = ""{buildDate}"";
     }}
     ";
-    FileWriteText("./AquaMai/BuildInfo.g.cs", versionContent);
+    FileWriteText("./AquaMai.Common/BuildInfo.g.cs", versionContent);
 });
 
 Task("Build")
