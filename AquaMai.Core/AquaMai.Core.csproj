@@ -7,7 +7,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>AquaMai.Core</RootNamespace>
     <AssemblyName>AquaMai.Core</AssemblyName>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <LangVersion>12</LangVersion>

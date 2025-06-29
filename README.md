@@ -36,7 +36,7 @@
 ## Development
 
 1. Copy `Assembly-CSharp.dll` and `AMDaemon.NET.dll` to `Libs` folder.
-1. Install [.NET Framework 4.7.2 Developer Pack](https://dotnet.microsoft.com/en-us/download/dotnet-framework/thank-you/net472-developer-pack-offline-installer)
+1. Install [.NET Framework 4.8 Developer Pack](https://dotnet.microsoft.com/en-us/download/dotnet-framework/thank-you/net48-developer-pack-offline-installer)
 1. Run `build.ps1`.
 1. Copy `Output/AquaMai.dll` to `Mods` folder.
 1. Configure and copy `AquaMai.toml` to the same folder as your game executable: `Sinmai.exe`
