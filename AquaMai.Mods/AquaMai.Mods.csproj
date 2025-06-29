@@ -130,11 +130,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="hidlibrary" Version="3.3.40" />
-    <PackageReference Include="ILMerge.Fody" Version="1.24.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="FodyWeavers.xml" />
+    <PackageReference Include="ILMerge.Fody" Version="1.24.0" PrivateAssets="all" />
   </ItemGroup>
 
 </Project>

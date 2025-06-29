@@ -30,7 +30,7 @@ Task("PreBuild")
 
     var versionContent = $@"
     // Auto-generated file. Do not modify manually.
-    namespace AquaMai;
+    namespace AquaMai.Common;
 
     public static partial class BuildInfo
     {{

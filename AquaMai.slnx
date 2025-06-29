@@ -1,12 +1,18 @@
 <Solution>
-  <Project Path="AquaMai.BepInEx/AquaMai.BepInEx.csproj" />
+
   <Project Path="AquaMai.Build/AquaMai.Build.csproj" />
+
   <Project Path="AquaMai.Config.HeadlessLoader/AquaMai.Config.HeadlessLoader.csproj" />
   <Project Path="AquaMai.Config.Interfaces/AquaMai.Config.Interfaces.csproj" />
   <Project Path="AquaMai.Config/AquaMai.Config.csproj" />
   <Project Path="AquaMai.Core/AquaMai.Core.csproj" />
-  <Project Path="AquaMai.ErrorReport/AquaMai.ErrorReport.csproj" />
   <Project Path="AquaMai.Mods/AquaMai.Mods.csproj" />
-  <Project Path="AquaMai/AquaMai.csproj" />
+
+  <Project Path="AquaMai.ErrorReport/AquaMai.ErrorReport.csproj" />
+  <Project Path="AquaMai.Common/AquaMai.Common.csproj" />
+  <Project Path="AquaMai.MelonLoader/AquaMai.MelonLoader.csproj" />
+  <Project Path="AquaMai.BepInEx/AquaMai.BepInEx.csproj" />
+
   <Project Path="MelonLoader.TinyJSON/MelonLoader.TinyJSON.csproj" />
+
 </Solution>

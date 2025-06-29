@@ -4,7 +4,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Reflection;
 
-namespace AquaMai;
+namespace AquaMai.Common;
 
 public static class AssemblyLoader
 {
@@ -35,7 +35,7 @@ public static class AssemblyLoader
         foreach (var (assemblyName, assemblyFileName) in Assemblies)
         {
 # if DEBUG
-            AquaMai.LogSource.LogMessage($"Loading assembly \"{assemblyFileName}\"...");
+            AquaMai.EarlyStageLog($"Loading assembly \"{assemblyFileName}\"...");
 # endif
             LoadedAssemblies[assemblyName] = LoadAssemblyFromResource(assemblyFileName);
         }

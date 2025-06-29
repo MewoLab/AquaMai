@@ -24,7 +24,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="ILMerge.Fody" Version="1.24.0" />
+    <PackageReference Include="ILMerge.Fody" Version="1.24.0" PrivateAssets="all" />
     <PackageReference Include="Matt.Encoding.Fountain" Version="1.1.5" />
     <PackageReference Include="QRCoder" Version="1.6.0" />
   </ItemGroup>
@@ -33,7 +33,4 @@
     <Reference Include="System.IO.Compression" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Content Include="FodyWeavers.xml" />
-  </ItemGroup>
 </Project>
