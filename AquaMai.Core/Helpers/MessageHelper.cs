@@ -1,7 +1,7 @@
 ﻿using DB;
 using HarmonyLib;
 using Manager;
-using MelonLoader;
+using AquaMai.Core.Environment;
 using Process;
 using UnityEngine;
 

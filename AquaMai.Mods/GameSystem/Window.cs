@@ -59,6 +59,7 @@ public class Window
                 Screen.SetResolution(width, height, FullScreenMode.Windowed);
             }
 
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
             hwnd = GetWindowHandle();
             if (alreadyWindowed)
             {
@@ -84,6 +85,7 @@ public class Window
 
     public static void SetResizeable()
     {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
         if (hwnd == IntPtr.Zero) return;
         if (borderless)
         {

@@ -6,7 +6,7 @@ using System.Reflection;
 using AquaMai.Config.Attributes;
 using AquaMai.Core.Helpers;
 using Manager;
-using MelonLoader;
+using AquaMai.Core.Environment;
 using MelonLoader.TinyJSON;
 using Net.VO.Mai2;
 

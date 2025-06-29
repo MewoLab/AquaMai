@@ -47,7 +47,7 @@ public class KeyMap
     public static readonly bool disableDebugInput = false; // Implemented in AquaMai.Mods/Fix/Common.cs
 
     [EnableIf(nameof(disableIO4))]
-    [HarmonyPatch("IO.Jvs+JvsSwitch", ".ctor", MethodType.Constructor, [typeof(int), typeof(string), typeof(KeyCode), typeof(bool), typeof(bool)])]
+    [HarmonyPatch("IO.Jvs+JvsSwitch, Assembly-CSharp", ".ctor", MethodType.Constructor, [typeof(int), typeof(string), typeof(KeyCode), typeof(bool), typeof(bool)])]
     [HarmonyPrefix]
     public static void PreJvsSwitchConstructor(ref bool invert)
     {

@@ -3,7 +3,7 @@ using AquaMai.Config.Attributes;
 using AquaMai.Core.Helpers;
 using AquaMai.Mods.Types;
 using JetBrains.Annotations;
-using MelonLoader;
+using AquaMai.Core.Environment;
 using MelonLoader.TinyJSON;
 
 namespace AquaMai.Mods.Enhancement;

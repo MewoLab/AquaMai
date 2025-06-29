@@ -9,7 +9,7 @@ using AquaMai.Config.Attributes;
 using AquaMai.Core.Helpers;
 using HarmonyLib;
 using Main;
-using MelonLoader;
+using AquaMai.Core.Environment;
 using UnityEngine;
 using BuildInfo = AquaMai.Core.BuildInfo;
 
@@ -87,13 +87,13 @@ public class ShowErrorLog
 
     private static Stream GetErrorReporterStream()
     {
-        var s = BuildInfo.ModAssembly.Assembly.GetManifestResourceStream("AquaMai.ErrorReport.exe");
+        var s = BuildInfo.ModAssembly.GetManifestResourceStream("AquaMai.ErrorReport.exe");
         if (s != null)
         {
             return s;
         }
 
-        s = BuildInfo.ModAssembly.Assembly.GetManifestResourceStream("AquaMai.ErrorReport.exe.compressed");
+        s = BuildInfo.ModAssembly.GetManifestResourceStream("AquaMai.ErrorReport.exe.compressed");
         return new DeflateStream(s, CompressionMode.Decompress);
     }
 

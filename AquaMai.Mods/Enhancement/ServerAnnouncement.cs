@@ -6,7 +6,7 @@ using AquaMai.Mods.Types;
 using DB;
 using HarmonyLib;
 using JetBrains.Annotations;
-using MelonLoader;
+using AquaMai.Core.Environment;
 using MelonLoader.TinyJSON;
 using Process;
 using UnityEngine;
