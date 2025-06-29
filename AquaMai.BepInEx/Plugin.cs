@@ -18,18 +18,6 @@ public class Plugin : BaseUnityPlugin
     {
         var harmony = new HarmonyLib.Harmony(PluginName);
 
-        // Early initialization of AMDaemon.NET
-        try
-        {
-            AmManager.Instance.Initialize();
-            harmony.PatchAll(typeof(Plugin));
-        }
-        catch (Exception ex)
-        {
-            LogSource.LogError($"AMDaemon.NET early initialization failed: {ex.Message}");
-            return;
-        }
-
         Common.AquaMai.Bootstrap(new BootstrapOptions
         {
             CurrentAssembly = Assembly.GetExecutingAssembly(),
@@ -46,12 +34,5 @@ public class Plugin : BaseUnityPlugin
     public void OnGUI()
     {
         Common.AquaMai.OnGUI();
-    }
-
-    [HarmonyLib.HarmonyPatch(typeof(AmManager), "Initialize")]
-    [HarmonyLib.HarmonyPrefix]
-    public static bool PreAmManagerInitialize()
-    {
-        return false; // Prevent AMDaemon.NET from initializing again
     }
 }
