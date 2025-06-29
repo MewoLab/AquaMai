@@ -1,7 +1,7 @@
-﻿using System;
 using AquaMai.Config.Attributes;
 using HarmonyLib;
 using Manager;
+using System;
 
 namespace AquaMai.Mods.GameSystem;
 
@@ -19,6 +19,11 @@ public static class Sound
         zh: "是否启用八声道",
         en: "Enable 8-Channel")]
     private readonly static bool enable8Channel = false;
+
+    [ConfigEntry(
+        en: "Music Volume.",
+        zh: "乐曲音量")]
+    private readonly static float musicVolume = 1.0f;
 
     private static CriAtomUserExtension.AudioClientShareMode AudioShareMode => enableExclusive ? CriAtomUserExtension.AudioClientShareMode.Exclusive : CriAtomUserExtension.AudioClientShareMode.Shared;
 
@@ -59,5 +64,21 @@ public static class Sound
         var format = CreateFormat();
         CriAtomUserExtension.SetAudioClientFormat(ref format);
         return false;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(SoundManager), "Play")]
+    public static void PlayPrefix(SoundManager.AcbID acbID,
+        SoundManager.PlayerID playerID,
+        int cueID,
+        bool prepare,
+        int target,
+        int startTime,
+        ref float volume)
+    {
+        if (acbID == SoundManager.AcbID.Music && playerID == SoundManager.PlayerID.Music)
+        {
+            volume = musicVolume;
+        }
     }
 }
