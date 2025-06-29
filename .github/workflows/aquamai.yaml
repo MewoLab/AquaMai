@@ -54,7 +54,7 @@ jobs:
       - name: Upload CI release
         if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
         shell: cmd
-        # TODO: Add AquaMai.BepInEx.dll
+        # For MaiChartManager, upload MelonLoader version only.
         run: build-assets\Releaser\AquaMaiReleaser.exe "Output\Upload\AquaMai.dll" "${{ env.GIT_DESCRIBE }}"
 
       - name: Send to Telegram
