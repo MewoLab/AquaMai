@@ -5,7 +5,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>Library</OutputType>
     <RootNamespace>AquaMai.MelonLoader</RootNamespace>
-    <AssemblyName>AquaMai</AssemblyName>
+    <AssemblyName>AquaMai.MelonLoader</AssemblyName>
+    <TargetName>AquaMai</TargetName>
     <TargetFramework>net48</TargetFramework>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
