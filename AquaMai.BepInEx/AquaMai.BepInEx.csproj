@@ -3,7 +3,6 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{01F9CFFA-7DC3-4D3A-877D-9E93959A47A0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>AquaMai</RootNamespace>
     <AssemblyName>AquaMai.BepInEx</AssemblyName>

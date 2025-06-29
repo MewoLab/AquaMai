@@ -3,7 +3,6 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{33C0D4ED-6A84-4659-9A05-12D43D75D0B3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>AquaMai.Core</RootNamespace>
     <AssemblyName>AquaMai.Core</AssemblyName>

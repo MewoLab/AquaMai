@@ -3,7 +3,6 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{604377A8-CC01-417B-9D4F-22F50DD31014}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>MelonLoader.TinyJSON</RootNamespace>
     <AssemblyName>MelonLoader.TinyJSON</AssemblyName>
