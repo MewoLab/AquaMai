@@ -4,7 +4,7 @@ using System.Collections;
 using System.Linq;
 using HarmonyLib;
 using Manager;
-using MelonLoader;
+using AquaMai.Core.Environment;
 using UnityEngine;
 using AquaMai.Config.Attributes;
 using AquaMai.Core.Helpers;

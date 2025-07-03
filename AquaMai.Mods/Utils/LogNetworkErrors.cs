@@ -3,7 +3,7 @@ using AquaMai.Config.Attributes;
 using HarmonyLib;
 using Manager;
 using Manager.Operation;
-using MelonLoader;
+using AquaMai.Core.Environment;
 using Net.Packet;
 
 namespace AquaMai.Mods.Utils;

@@ -6,7 +6,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>AquaMai.Mods</RootNamespace>
     <AssemblyName>AquaMai.Mods</AssemblyName>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <LangVersion>12</LangVersion>
@@ -32,6 +32,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../MelonLoader.TinyJSON/MelonLoader.TinyJSON.csproj" />
     <ProjectReference Include="../AquaMai.Config/AquaMai.Config.csproj" />
     <ProjectReference Include="../AquaMai.Core/AquaMai.Core.csproj" />
   </ItemGroup>
@@ -42,7 +43,6 @@
     <Reference Include="AMDaemon.NET" />
     <Reference Include="Assembly-CSharp" />
     <Reference Include="Assembly-CSharp-firstpass" />
-    <Reference Include="MelonLoader" />
     <Reference Include="Mono.Cecil" />
     <Reference Include="Mono.Posix" />
     <Reference Include="Mono.Security" />
@@ -130,11 +130,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="hidlibrary" Version="3.3.40" />
-    <PackageReference Include="ILMerge.Fody" Version="1.24.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="FodyWeavers.xml" />
+    <PackageReference Include="ILMerge.Fody" Version="1.24.0" PrivateAssets="all" />
   </ItemGroup>
 
 </Project>

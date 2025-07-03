@@ -1,4 +1,4 @@
-using MelonLoader;
+using System.Reflection;
 
 namespace AquaMai.Core;
 
@@ -16,6 +16,6 @@ public static class BuildInfo
     public static string BuildDate;
     public static string DownloadLink;
 
-    public static MelonAssembly ModAssembly;
+    public static Assembly ModAssembly;
 }
 

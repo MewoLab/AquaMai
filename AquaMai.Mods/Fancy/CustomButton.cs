@@ -2,7 +2,7 @@ using AquaMai.Config.Attributes;
 using AquaMai.Core.Helpers;
 using HarmonyLib;
 using System.Reflection;
-using MelonLoader;
+using AquaMai.Core.Environment;
 using UnityEngine;
 using System.Collections.Generic;
 using System.IO;

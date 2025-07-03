@@ -10,7 +10,7 @@ using AquaMai.Config.Attributes;
 using AquaMai.Core.Helpers;
 using AquaMai.Mods.Types;
 using HarmonyLib;
-using MelonLoader;
+using AquaMai.Core.Environment;
 using MelonLoader.TinyJSON;
 using Monitor;
 using Process;

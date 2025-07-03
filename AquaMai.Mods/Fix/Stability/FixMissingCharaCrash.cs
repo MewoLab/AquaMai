@@ -4,7 +4,7 @@ using AquaMai.Config.Attributes;
 using HarmonyLib;
 using Manager;
 using Manager.MaiStudio;
-using MelonLoader;
+using AquaMai.Core.Environment;
 using Monitor;
 using Process;
 using Util;

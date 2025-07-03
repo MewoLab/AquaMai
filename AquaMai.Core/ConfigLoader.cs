@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using MelonLoader;
+using AquaMai.Core.Environment;
 using AquaMai.Config;
 using AquaMai.Config.Interfaces;
 using AquaMai.Config.Migration;

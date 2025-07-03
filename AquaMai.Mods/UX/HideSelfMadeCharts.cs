@@ -10,7 +10,7 @@ using AquaMai.Core.Resources;
 using HarmonyLib;
 using MAI2.Util;
 using Manager;
-using MelonLoader;
+using AquaMai.Core.Environment;
 using Process;
 using Util;
 

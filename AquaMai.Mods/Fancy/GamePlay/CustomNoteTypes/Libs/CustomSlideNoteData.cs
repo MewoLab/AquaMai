@@ -2,7 +2,7 @@
 using System.Linq;
 using DB;
 using Manager;
-using MelonLoader;
+using AquaMai.Core.Environment;
 using UnityEngine;
 
 namespace AquaMai.Mods.Fancy.GamePlay.CustomNoteTypes.Libs;

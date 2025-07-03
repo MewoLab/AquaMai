@@ -7,7 +7,7 @@ using AquaMai.Config.Attributes;
 using AquaMai.Config.Types;
 using HarmonyLib;
 using HidLibrary;
-using MelonLoader;
+using AquaMai.Core.Environment;
 using UnityEngine;
 
 namespace AquaMai.Mods.GameSystem;
