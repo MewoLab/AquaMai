@@ -6,7 +6,7 @@ using System.Reflection;
 using AquaMai.Core.Attributes;
 using AquaMai.Core.Helpers;
 using AquaMai.Core.Resources;
-using MelonLoader;
+using AquaMai.Core.Environment;
 using UnityEngine;
 
 namespace AquaMai.Core;

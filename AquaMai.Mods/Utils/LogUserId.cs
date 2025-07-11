@@ -1,7 +1,7 @@
 ﻿using System;
 using AquaMai.Config.Attributes;
 using HarmonyLib;
-using MelonLoader;
+using AquaMai.Core.Environment;
 using Net.Packet;
 using Net.Packet.Mai2;
 using Net.VO.Mai2;

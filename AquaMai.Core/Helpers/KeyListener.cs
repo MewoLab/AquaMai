@@ -5,7 +5,7 @@ using AquaMai.Config.Types;
 using HarmonyLib;
 using Main;
 using Manager;
-using MelonLoader;
+using AquaMai.Core.Environment;
 using UnityEngine;
 
 namespace AquaMai.Core.Helpers;

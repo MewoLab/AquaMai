@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Net;
 using Net.Packet;
-using MelonLoader;
+using AquaMai.Core.Environment;
 using MelonLoader.TinyJSON;
 using HarmonyLib;
 using AquaMai.Core.Attributes;

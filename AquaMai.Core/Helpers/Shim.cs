@@ -7,7 +7,7 @@ using HarmonyLib;
 using MAI2.Util;
 using Manager;
 using Manager.UserDatas;
-using MelonLoader;
+using AquaMai.Core.Environment;
 using Net;
 using Net.Packet;
 using Net.Packet.Mai2;

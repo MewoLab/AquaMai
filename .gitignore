@@ -372,5 +372,5 @@ MigrationBackup/
 
 Output
 tools
-AquaMai/BuildInfo.g.cs
+AquaMai.Common/BuildInfo.g.cs
 .idea

@@ -4,7 +4,7 @@ using System.Reflection;
 using AquaMai.Core.Attributes;
 using AquaMai.Core.Resources;
 using HarmonyLib;
-using MelonLoader;
+using AquaMai.Core.Environment;
 
 namespace AquaMai.Core.Helpers;
 

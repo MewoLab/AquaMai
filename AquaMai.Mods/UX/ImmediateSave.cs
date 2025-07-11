@@ -13,7 +13,7 @@ using MAI2System;
 using Manager;
 using Manager.MaiStudio;
 using Manager.UserDatas;
-using MelonLoader;
+using AquaMai.Core.Environment;
 using Monitor.Entry.Parts.Screens;
 using Net.Packet;
 using Net.Packet.Helper;

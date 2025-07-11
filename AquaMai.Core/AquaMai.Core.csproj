@@ -6,7 +6,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>AquaMai.Core</RootNamespace>
     <AssemblyName>AquaMai.Core</AssemblyName>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <LangVersion>12</LangVersion>
@@ -32,6 +32,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../MelonLoader.TinyJSON/MelonLoader.TinyJSON.csproj" />
     <ProjectReference Include="../AquaMai.Config/AquaMai.Config.csproj" />
   </ItemGroup>
 
@@ -41,7 +42,6 @@
     <Reference Include="AMDaemon.NET" />
     <Reference Include="Assembly-CSharp" />
     <Reference Include="Assembly-CSharp-firstpass" />
-    <Reference Include="MelonLoader" />
     <Reference Include="Mono.Cecil" />
     <Reference Include="Mono.Posix" />
     <Reference Include="Mono.Security" />
