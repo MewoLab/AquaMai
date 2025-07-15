@@ -75,6 +75,7 @@ public class ConfigMigration_V1_0_V2_0 : IConfigMigration
         MapBooleanTrueToSectionEnable(src, dst, "Fix.SlideJudgeTweak", "Fancy.GamePlay.AlignCircleSlideJudgeDisplay");
         MapBooleanTrueToSectionEnable(src, dst, "Fix.FixCircleSlideJudge", "Fancy.GamePlay.AlignCircleSlideJudgeDisplay");
 
+
         // Performance (legacy)
         MapBooleanTrueToSectionEnable(src, dst, "Performance.ImproveLoadSpeed", "Tweaks.TimeSaving.SkipStartupDelays");
 
@@ -297,6 +298,7 @@ public class ConfigMigration_V1_0_V2_0 : IConfigMigration
 
         // MaimaiDX2077 (WTF is the name?)
         MapBooleanTrueToSectionEnable(src, dst, "MaimaiDX2077.CustomNoteTypePatch", "Fancy.GamePlay.CustomNoteTypes");
+        MapBooleanTrueToSectionEnable(src, dst, "MaimaiDX2077.JudgeTouchHoldInNormalArea", "Fancy.GamePlay.JudgeTouchHoldInNormalArea");
 
         // Default enabled in V2
         dst.EnsureDictionary("GameSystem.RemoveEncryption");
