@@ -52,7 +52,6 @@
   - Fancy.GamePlay.HideHanabi
   - Fancy.GamePlay.JudgeDisplay4B
   - Fancy.Triggers
-  - Fancy.GamePlay.JudgeTouchHoldInNormalArea
 
 键位和灵敏度:
   - GameSystem.HidInput

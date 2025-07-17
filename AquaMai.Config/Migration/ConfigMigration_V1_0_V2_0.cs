@@ -298,7 +298,6 @@ public class ConfigMigration_V1_0_V2_0 : IConfigMigration
 
         // MaimaiDX2077 (WTF is the name?)
         MapBooleanTrueToSectionEnable(src, dst, "MaimaiDX2077.CustomNoteTypePatch", "Fancy.GamePlay.CustomNoteTypes");
-        MapBooleanTrueToSectionEnable(src, dst, "MaimaiDX2077.JudgeTouchHoldInNormalArea", "Fancy.GamePlay.JudgeTouchHoldInNormalArea");
 
         // Default enabled in V2
         dst.EnsureDictionary("GameSystem.RemoveEncryption");
