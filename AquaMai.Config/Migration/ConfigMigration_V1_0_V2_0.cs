@@ -75,7 +75,6 @@ public class ConfigMigration_V1_0_V2_0 : IConfigMigration
         MapBooleanTrueToSectionEnable(src, dst, "Fix.SlideJudgeTweak", "Fancy.GamePlay.AlignCircleSlideJudgeDisplay");
         MapBooleanTrueToSectionEnable(src, dst, "Fix.FixCircleSlideJudge", "Fancy.GamePlay.AlignCircleSlideJudgeDisplay");
 
-
         // Performance (legacy)
         MapBooleanTrueToSectionEnable(src, dst, "Performance.ImproveLoadSpeed", "Tweaks.TimeSaving.SkipStartupDelays");
 
