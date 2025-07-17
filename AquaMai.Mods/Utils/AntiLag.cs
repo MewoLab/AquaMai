@@ -2,7 +2,7 @@
 using AquaMai.Config.Attributes;
 using HarmonyLib;
 using Main;
-using MelonLoader;
+using AquaMai.Core.Environment;
 using UnityEngine;
 
 namespace AquaMai.Mods.Utils;
@@ -41,6 +41,7 @@ public class AntiLag : MonoBehaviour
 #if DEBUG
         MelonLogger.Msg("[AntiLag] Trigger");
 #endif
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
         keybd_event(CTRL, 0, KEYEVENTF_KEYDOWN, 0);
         keybd_event(CTRL, 0, KEYEVENTF_KEYUP, 0);
     }

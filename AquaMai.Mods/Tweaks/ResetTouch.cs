@@ -1,5 +1,6 @@
 ﻿using AquaMai.Config.Attributes;
 using AquaMai.Config.Types;
+using AquaMai.Core.Environment;
 using AquaMai.Core.Helpers;
 using AquaMai.Core.Resources;
 using HarmonyLib;
@@ -29,7 +30,7 @@ public class ResetTouch
     {
         if (!afterTrack) return;
         SingletonStateMachine<AmManager, AmManager.EState>.Instance.StartTouchPanel();
-        MelonLoader.MelonLogger.Msg("[TouchResetAfterTrack] Touch panel reset");
+        MelonLogger.Msg("[TouchResetAfterTrack] Touch panel reset");
     }
 
     [HarmonyPostfix]

@@ -6,7 +6,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>AquaMai.Config</RootNamespace>
     <AssemblyName>AquaMai.Config</AssemblyName>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <LangVersion>12</LangVersion>
@@ -50,9 +50,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="ILMerge.Fody" Version="1.24.0">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
+    <PackageReference Include="ILMerge.Fody" Version="1.24.0" PrivateAssets="all" />
     <PackageReference Include="Samboy063.Tomlet" Version="5.4.0" />
   </ItemGroup>
 

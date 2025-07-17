@@ -1,4 +1,5 @@
 using AquaMai.Config.Attributes;
+using AquaMai.Core.Environment;
 
 namespace AquaMai.Mods;
 
@@ -23,7 +24,7 @@ public class DeprecationWarning
     {
         if (v1_0_ModKeyMap_TestMode)
         {
-            MelonLoader.MelonLogger.Warning("ModKeyMap.TestMode has been deprecated (> v1.0). Please use GameSystem.KeyMap.Test instead.");
+            MelonLogger.Warning("ModKeyMap.TestMode has been deprecated (> v1.0). Please use GameSystem.KeyMap.Test instead.");
         }
     }
 }

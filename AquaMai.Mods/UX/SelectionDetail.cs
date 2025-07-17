@@ -10,7 +10,7 @@ using MAI2.Util;
 using Manager;
 using Manager.MaiStudio;
 using Manager.UserDatas;
-using MelonLoader;
+using AquaMai.Core.Environment;
 using Monitor;
 using Process;
 using UnityEngine;

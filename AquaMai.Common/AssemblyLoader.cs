@@ -4,12 +4,13 @@ using System.IO;
 using System.IO.Compression;
 using System.Reflection;
 
-namespace AquaMai;
+namespace AquaMai.Common;
 
 public static class AssemblyLoader
 {
     public enum AssemblyName
     {
+        TinyJSON,
         ConfigInterfaces,
         Config,
         Core,
@@ -18,6 +19,7 @@ public static class AssemblyLoader
 
     private static readonly Dictionary<AssemblyName, string> Assemblies = new()
     {
+        [AssemblyName.TinyJSON] = "MelonLoader.TinyJSON.dll",
         [AssemblyName.ConfigInterfaces] = "AquaMai.Config.Interfaces.dll",
         [AssemblyName.Config] = "AquaMai.Config.dll",
         [AssemblyName.Core] = "AquaMai.Core.dll",
@@ -33,7 +35,7 @@ public static class AssemblyLoader
         foreach (var (assemblyName, assemblyFileName) in Assemblies)
         {
 # if DEBUG
-            MelonLoader.MelonLogger.Msg($"Loading assembly \"{assemblyFileName}\"...");
+            AquaMai.EarlyStageLog($"Loading assembly \"{assemblyFileName}\"...");
 # endif
             LoadedAssemblies[assemblyName] = LoadAssemblyFromResource(assemblyFileName);
         }

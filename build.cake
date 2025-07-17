@@ -30,7 +30,7 @@ Task("PreBuild")
 
     var versionContent = $@"
     // Auto-generated file. Do not modify manually.
-    namespace AquaMai;
+    namespace AquaMai.Common;
 
     public static partial class BuildInfo
     {{
@@ -39,7 +39,7 @@ Task("PreBuild")
         public const string BuildDate = ""{buildDate}"";
     }}
     ";
-    FileWriteText("./AquaMai/BuildInfo.g.cs", versionContent);
+    FileWriteText("./AquaMai.Common/BuildInfo.g.cs", versionContent);
 });
 
 Task("Build")

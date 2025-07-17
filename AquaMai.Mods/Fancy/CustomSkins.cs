@@ -3,7 +3,7 @@ using System.IO;
 using AquaMai.Config.Attributes;
 using AquaMai.Core.Helpers;
 using HarmonyLib;
-using MelonLoader;
+using AquaMai.Core.Environment;
 using Monitor;
 using Monitor.Game;
 using Process;
