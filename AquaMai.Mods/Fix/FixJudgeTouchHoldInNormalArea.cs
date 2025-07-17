@@ -3,19 +3,21 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using AquaMai.Config.Attributes;
+using AquaMai.Core.Attributes;
 using HarmonyLib;
 using Manager;
 using MelonLoader;
 using Monitor;
 
-namespace AquaMai.Mods.Fancy.GamePlay;
+namespace AquaMai.Mods.Fix;
 
-[ConfigSection(
-    en: "Enable the game to correctly judge Touch Hold outside the C zone.",
-    zh: "使游戏可以正常判定非 C 区的 Touch Hold"
-)]
-public class JudgeTouchHoldInNormalArea
+[ConfigSection(exampleHidden: true, defaultOn: true)]
+[EnableGameVersion(maxVersion: 25699)]
+public class FixJudgeTouchHoldInNormalArea
 {
+    // This patch fixes the issue in GameVersion <= 1.56 where Touch Hold could appear in any zone but were only judged in C zone
+    // This bug occurred because SBGA's NoteCheck implementation only handled judgment logic for C zone Touch Hold
+
     private static TouchHoldC _currentInstance;
 
     [HarmonyPatch(typeof(TouchHoldC), "NoteCheck")]
@@ -27,7 +29,7 @@ public class JudgeTouchHoldInNormalArea
         try
         {
             var setCurrentInstanceMethod =
-                AccessTools.Method(typeof(JudgeTouchHoldInNormalArea), nameof(SetCurrentInstance));
+                AccessTools.Method(typeof(FixJudgeTouchHoldInNormalArea), nameof(SetCurrentInstance));
 
             codes.Insert(0, new CodeInstruction(OpCodes.Ldarg_0));
             codes.Insert(1, new CodeInstruction(OpCodes.Call, setCurrentInstanceMethod));
@@ -38,8 +40,8 @@ public class JudgeTouchHoldInNormalArea
             var cPushMethod =
                 AccessTools.Method(typeof(InputManager), "InGameTouchPanelArea_C_Push", [typeof(int)]);
 
-            var customDownMethod = AccessTools.Method(typeof(JudgeTouchHoldInNormalArea), nameof(CustomTouchDown));
-            var customPushMethod = AccessTools.Method(typeof(JudgeTouchHoldInNormalArea), nameof(CustomTouchPush));
+            var customDownMethod = AccessTools.Method(typeof(FixJudgeTouchHoldInNormalArea), nameof(CustomTouchDown));
+            var customPushMethod = AccessTools.Method(typeof(FixJudgeTouchHoldInNormalArea), nameof(CustomTouchPush));
 
             if (cDownMethod == null || cPushMethod == null || customDownMethod == null || customPushMethod == null)
             {
@@ -57,23 +59,23 @@ public class JudgeTouchHoldInNormalArea
                     {
                         codes[i] = new CodeInstruction(OpCodes.Call, customDownMethod);
                         replacedCount++;
-                        MelonLogger.Msg($"Replaced C_Down method call at index {i}");
+                        // MelonLogger.Msg($"Replaced C_Down method call at index {i}");
                     }
                     else if (method == cPushMethod)
                     {
                         codes[i] = new CodeInstruction(OpCodes.Call, customPushMethod);
                         replacedCount++;
-                        MelonLogger.Msg($"Replaced C_Push method call at index {i}");
+                        // MelonLogger.Msg($"Replaced C_Push method call at index {i}");
                     }
                 }
             }
 
-            MelonLogger.Msg($"Replaced {replacedCount} method calls");
+            // MelonLogger.Msg($"Replaced {replacedCount} method calls");
             return codes;
         }
         catch (Exception ex)
         {
-            MelonLogger.Error($"Error in TranspilerNoteCheck: {ex}");
+            MelonLogger.Error($"Error in NoteCheckTranspiler: {ex}");
             return codes;
         }
     }
@@ -87,91 +89,18 @@ public class JudgeTouchHoldInNormalArea
     {
         try
         {
-            // 尝试多种可能的字段名
-            var possibleFieldNames = new[] { "TouchArea", "touchArea", "_touchArea", "m_touchArea" };
-
-            foreach (var fieldName in possibleFieldNames)
-            {
-                var field = AccessTools.Field(typeof(TouchHoldC), fieldName);
-                if (field != null)
-                {
-                    var value = field.GetValue(instance);
-                    if (value != null)
-                    {
-                        // MelonLogger.Msg($"Found TouchArea field: {fieldName}, value: {value}, type: {value.GetType()}");
-                        return (int)value;
-                    }
-                }
-            }
-
-            // 如果找不到字段，尝试属性
-            var possiblePropertyNames = new[] { "TouchArea", "touchArea" };
-
-            foreach (var propertyName in possiblePropertyNames)
-            {
-                var property = AccessTools.Property(typeof(TouchHoldC), propertyName);
-                if (property != null)
-                {
-                    var value = property.GetValue(instance);
-                    if (value != null)
-                    {
-                        // MelonLogger.Msg($"Found TouchArea property: {propertyName}, value: {value}, type: {value.GetType()}");
-                        return (int)value;
-                    }
-                }
-            }
-
-            // 如果还是找不到，尝试反射获取所有字段
-            var allFields =
-                typeof(TouchHoldC).GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-            // MelonLogger.Msg($"All fields in TouchHoldC:");
-            foreach (var field in allFields)
+            var field = AccessTools.Field(typeof(TouchHoldC), "TouchArea");
+            if (field != null)
             {
                 var value = field.GetValue(instance);
-                // MelonLogger.Msg($"  {field.Name}: {value} (type: {field.FieldType})");
-
-                // 查找可能是TouchArea的字段
-                if (field.Name.ToLower().Contains("touch") || field.Name.ToLower().Contains("area") ||
-                    field.FieldType.Name.Contains("TouchSensor") || field.FieldType.Name.Contains("Touch"))
+                if (value != null)
                 {
-                    if (value != null && value.GetType().IsEnum)
-                    {
-                        // MelonLogger.Msg($"  Potential TouchArea field found: {field.Name} = {value}");
-                        return (int)value;
-                    }
+                    // MelonLogger.Msg($"TouchArea value: {value}");
+                    return (int)value;
                 }
             }
 
-            // 尝试获取所有属性
-            var allProperties =
-                typeof(TouchHoldC).GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-            // MelonLogger.Msg($"All properties in TouchHoldC:");
-            foreach (var property in allProperties)
-            {
-                try
-                {
-                    var value = property.GetValue(instance);
-                    // MelonLogger.Msg($"  {property.Name}: {value} (type: {property.PropertyType})");
-
-                    // 查找可能是TouchArea的属性
-                    if (property.Name.ToLower().Contains("touch") || property.Name.ToLower().Contains("area") ||
-                        property.PropertyType.Name.Contains("TouchSensor") ||
-                        property.PropertyType.Name.Contains("Touch"))
-                    {
-                        if (value != null && value.GetType().IsEnum)
-                        {
-                            // MelonLogger.Msg($"  Potential TouchArea property found: {property.Name} = {value}");
-                            return (int)value;
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MelonLogger.Msg($"  {property.Name}: Error reading - {ex.Message}");
-                }
-            }
-
-            MelonLogger.Error("Could not find TouchArea field or property");
+            MelonLogger.Error("Could not find TouchArea field");
             return 1; // 默认返回C区域
         }
         catch (Exception ex)
