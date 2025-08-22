@@ -22,30 +22,25 @@ public class SkipBoardNoCheck
     {
         var codes = new List<CodeInstruction>(instructions);
         bool patched = false;
-
         for (int i = 0; i < codes.Count; i++)
         {
             if (codes[i].opcode == OpCodes.Callvirt &&
                 codes[i].operand != null &&
                 codes[i].operand.ToString().Contains("IsEqual"))
             {
-                codes.Insert(i, new CodeInstruction(OpCodes.Pop));
-                codes.Insert(i, new CodeInstruction(OpCodes.Pop));
-                codes.Insert(i, new CodeInstruction(OpCodes.Ldc_I4_1));
+                codes[i] = new CodeInstruction(OpCodes.Pop);
+                codes.Insert(i + 1, new CodeInstruction(OpCodes.Pop));
+                codes.Insert(i + 2, new CodeInstruction(OpCodes.Ldc_I4_1));
+
                 patched = true;
+                MelonLoader.MelonLogger.Msg("[SkipBoardNoCheck] 修补 BoardCtrl15070_4._md_initBoard_GetBoardInfo 方法成功");
                 break;
             }
         }
-
-        if (patched)
+        if (!patched)
         {
-            MelonLoader.MelonLogger.Msg("修补 BoardCtrl15070_4._md_initBoard_GetBoardInfo 方法成功");
+            MelonLoader.MelonLogger.Warning("[SkipBoardNoCheck] 未找到需要修补的代码位置：BoardCtrl15070_4._md_initBoard_GetBoardInfo");
         }
-        else
-        {
-            MelonLoader.MelonLogger.Warning("未找到需要修补的代码位置：BoardCtrl15070_4._md_initBoard_GetBoardInfo");
-        }
-
         return codes;
     }
 
@@ -55,30 +50,25 @@ public class SkipBoardNoCheck
     {
         var codes = new List<CodeInstruction>(instructions);
         bool patched = false;
-
         for (int i = 0; i < codes.Count; i++)
         {
             if (codes[i].opcode == OpCodes.Callvirt &&
                 codes[i].operand != null &&
                 codes[i].operand.ToString().Contains("IsEqual"))
             {
-                codes.Insert(i, new CodeInstruction(OpCodes.Pop));
-                codes.Insert(i, new CodeInstruction(OpCodes.Pop));
-                codes.Insert(i, new CodeInstruction(OpCodes.Ldc_I4_1));
+                codes[i] = new CodeInstruction(OpCodes.Pop);
+                codes.Insert(i + 1, new CodeInstruction(OpCodes.Pop));
+                codes.Insert(i + 2, new CodeInstruction(OpCodes.Ldc_I4_1));
+
                 patched = true;
+                MelonLoader.MelonLogger.Msg("[SkipBoardNoCheck] 修补 Bd15070_4Control.IsNeedFirmUpdate 方法成功");
                 break;
             }
         }
-
-        if (patched)
+        if (!patched)
         {
-            MelonLoader.MelonLogger.Msg("修补 Bd15070_4Control.IsNeedFirmUpdate 方法成功");
+            MelonLoader.MelonLogger.Warning("[SkipBoardNoCheck] 未找到需要修补的代码位置：Bd15070_4Control.IsNeedFirmUpdate");
         }
-        else
-        {
-            MelonLoader.MelonLogger.Warning("未找到需要修补的代码位置：Bd15070_4Control.IsNeedFirmUpdate");
-        }
-
         return codes;
     }
 }
