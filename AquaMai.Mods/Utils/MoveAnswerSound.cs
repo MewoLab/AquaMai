@@ -24,8 +24,8 @@ namespace AquaMai.Mods.Utils;
 public class MoveAnswerSound : IPlayerSettingsItem
 {
     [ConfigEntry(
-        en: "Display in-game config entry for player.",
-        zh: "在游戏内添加设置项给用户，使用户能够在游戏内调整正解音偏移量。")]
+        en: "Display in-game config entry for player. If disabled, the user's settings will be ignored.",
+        zh: "在游戏内添加设置项给用户，使用户能够在游戏内调整正解音偏移量。如果关闭此选项，则就算用户之前设置过，也会忽略。")]
     private static readonly bool DisplayInGameConfig = true;
     
     [ConfigEntry(
@@ -36,7 +36,7 @@ public class MoveAnswerSound : IPlayerSettingsItem
     private static float[] userSettings = [0, 0];
     private static IPersistentStorage storage = new PlayerPrefsStorage();
 
-    private static float GetSettingsValue(uint monitorIndex) => userSettings[monitorIndex] + MoveValue;
+    private static float GetSettingsValue(uint monitorIndex) => DisplayInGameConfig ? userSettings[monitorIndex] + MoveValue : MoveValue;
     private static float GetSettingsValue(int monitorIndex) => GetSettingsValue((uint)monitorIndex);
 
     #region 设置界面注入
