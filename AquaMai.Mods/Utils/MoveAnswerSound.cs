@@ -31,12 +31,23 @@ public class MoveAnswerSound : IPlayerSettingsItem
     [ConfigEntry(
         en: "Answer sound move value in ms, this value will be combined with user's setting in game. Increase this value to make the answer sound appear later, vice versa.",
         zh: "正解音偏移量，单位为毫秒，此设定值会与用户游戏内的设置相加。增大这个值将会使正解音出现得更晚，反之则更早。")]
-    private static readonly float MoveValue = 33f;
+    private static readonly float MoveValue1P = 33f;
+    
+    [ConfigEntry(
+        en: "Same as MoveValue1P.",
+        zh: "与 MoveValue1P 作用相同.")]
+    private static readonly float MoveValue2P = 33f;
     
     private static float[] userSettings = [0, 0];
     private static IPersistentStorage storage = new PlayerPrefsStorage();
 
-    private static float GetSettingsValue(uint monitorIndex) => DisplayInGameConfig ? userSettings[monitorIndex] + MoveValue : MoveValue;
+    private static float GetCabinSettingsValue(uint monitorIndex) => monitorIndex == 0 ? MoveValue1P : MoveValue2P;
+    private static float GetSettingsValue(uint monitorIndex)
+    {
+        var moveValue = GetCabinSettingsValue(monitorIndex);
+        return DisplayInGameConfig ? userSettings[monitorIndex] + moveValue : moveValue;
+    }
+    
     private static float GetSettingsValue(int monitorIndex) => GetSettingsValue((uint)monitorIndex);
 
     #region 设置界面注入
@@ -85,11 +96,11 @@ public class MoveAnswerSound : IPlayerSettingsItem
             userSettings[i] = storage.GetFloat(i, "MoveAnswerSound", 0);
             if (DisplayInGameConfig)
             {
-                MelonLogger.Msg($"玩家 {i} 的移动正解音设置为 {GetSettingsValue(i)} 毫秒，其中游戏内设置为 {userSettings[i]} 毫秒，机台设置为 {MoveValue} 毫秒");
+                MelonLogger.Msg($"玩家 {i} 的移动正解音设置为 {GetSettingsValue(i)} 毫秒，其中游戏内设置为 {userSettings[i]} 毫秒，机台设置为 {GetCabinSettingsValue(i)} 毫秒");
             }
             else
             {
-                MelonLogger.Msg($"玩家 {i} 的移动正解音设置为 {GetSettingsValue(i)} 毫秒，其中游戏内设置已被禁用，机台设置为 {MoveValue} 毫秒");
+                MelonLogger.Msg($"玩家 {i} 的移动正解音设置为 {GetSettingsValue(i)} 毫秒，其中游戏内设置已被禁用，机台设置为 {GetCabinSettingsValue(i)} 毫秒");
             }
         }
     }
