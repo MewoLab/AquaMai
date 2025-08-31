@@ -83,7 +83,14 @@ public class MoveAnswerSound : IPlayerSettingsItem
             var userData = UserDataManager.Instance.GetUserData(i);
             if (!userData.IsEntry) continue;
             userSettings[i] = storage.GetFloat(i, "MoveAnswerSound", 0);
-            MelonLogger.Msg($"玩家 {i} 的移动正解音设置为 {GetSettingsValue(i)} 毫秒，其中游戏内设置为 {userSettings[i]} 毫秒，机台设置为 {MoveValue} 毫秒");
+            if (DisplayInGameConfig)
+            {
+                MelonLogger.Msg($"玩家 {i} 的移动正解音设置为 {GetSettingsValue(i)} 毫秒，其中游戏内设置为 {userSettings[i]} 毫秒，机台设置为 {MoveValue} 毫秒");
+            }
+            else
+            {
+                MelonLogger.Msg($"玩家 {i} 的移动正解音设置为 {GetSettingsValue(i)} 毫秒，其中游戏内设置已被禁用，机台设置为 {MoveValue} 毫秒");
+            }
         }
     }
 
