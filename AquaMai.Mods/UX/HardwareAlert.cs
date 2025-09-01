@@ -100,7 +100,7 @@ public class HardwareAlert
                 TouchSensor_2P && (AMDaemon.Error.Number == 3302 || AMDaemon.Error.Number == 3303)
                 )
             {
-                ShowErrorFrame(__instance);
+                ErrorFrame.Show(__instance);
                 return;
             }
         }
@@ -113,24 +113,24 @@ public class HardwareAlert
         // Do another version check, since the AMDaemon error code gets disappeared sometimes...
         if (TouchSensor_1P && statusSubMsg[0] == ConstParameter.TestString_Bad)
         {
-            ShowErrorFrame(__instance, 3300, FaultTouchSensor1P[GetLocale()]);
+            ErrorFrame.Show(__instance, 3300, FaultTouchSensor1P[GetLocale()]);
             return;
         }
         if (TouchSensor_2P && statusSubMsg[1] == ConstParameter.TestString_Bad)
         {
-            ShowErrorFrame(__instance, 3302, FaultTouchSensor2P[GetLocale()]);
+            ErrorFrame.Show(__instance, 3302, FaultTouchSensor2P[GetLocale()]);
             return;
         }
 
         // LED check
         if (LED_1P && statusSubMsg[2] == ConstParameter.TestString_Bad)
         {
-            ShowErrorFrame(__instance, 3400, FaultLED1P[GetLocale()]);
+            ErrorFrame.Show(__instance, 3400, FaultLED1P[GetLocale()]);
             return;
         }
         if (LED_2P && statusSubMsg[3] == ConstParameter.TestString_Bad)
         {
-            ShowErrorFrame(__instance, 3401, FaultLED2P[GetLocale()]);
+            ErrorFrame.Show(__instance, 3401, FaultLED2P[GetLocale()]);
             return;
         }
         
@@ -139,58 +139,25 @@ public class HardwareAlert
         {
             if (PlayerCamera && !CameraManager.IsAvailableCameras[_cameraIndex[CameraTypeEnumInner.Photo]])
             {
-                ShowErrorFrame(__instance, 3102, FaultPlayerCamera[GetLocale()]);
+                ErrorFrame.Show(__instance, 3102, FaultPlayerCamera[GetLocale()]);
                 return;
             }
             if (CodeReader_1P && !CameraManager.IsAvailableCameras[_cameraIndex[CameraTypeEnumInner.QRLeft]])
             {
-                ShowErrorFrame(__instance, 3101, FaultQR1P[GetLocale()]);
+                ErrorFrame.Show(__instance, 3101, FaultQR1P[GetLocale()]);
                 return;
             }
             if (CodeReader_2P && !CameraManager.IsAvailableCameras[_cameraIndex[CameraTypeEnumInner.QRRight]])
             {
-                ShowErrorFrame(__instance, 3101, FaultQR2P[GetLocale()]);
+                ErrorFrame.Show(__instance, 3101, FaultQR2P[GetLocale()]);
                 return;
             }
             if (ChimeCamera && !CameraManager.IsAvailableCameras[_cameraIndex[CameraTypeEnumInner.Chime]])
             {
-                ShowErrorFrame(__instance, 3100, FaultChime[GetLocale()]);
+                ErrorFrame.Show(__instance, 3100, FaultChime[GetLocale()]);
                 return;
             }
         }
-    }
-
-    private static void ShowErrorFrame(ProcessBase process)
-    {
-        var tv = Traverse.Create(process);
-        var ctn = tv.Field("container").GetValue<ProcessDataContainer>();
-        ctn.processManager.AddProcess((ProcessBase) new ErrorProcess(ctn));
-        ctn.processManager.ReleaseProcess(process);
-        GameManager.IsErrorMode = true;
-    }
-
-    private static int customErrCode;
-    private static string customErrMsg;
-    private static DateTime customErrDate;
-    
-    // patch the error monitor so that it can display custom error codes and messages.
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(ErrorMonitor), "Initialize", typeof(int), typeof(bool))]
-    public static void PostInitialize(ErrorMonitor __instance)
-    {
-        var tv = Traverse.Create(__instance);
-        if (customErrCode == 0) return;
-        tv.Field("ErrorID").GetValue<TextMeshProUGUI>().text = customErrCode.ToString().PadLeft(4, '0');
-        tv.Field("ErrorMessage").GetValue<TextMeshProUGUI>().text = customErrMsg;
-        tv.Field("ErrorDate").GetValue<TextMeshProUGUI>().text = customErrDate.ToString();
-    }
-    
-    private static void ShowErrorFrame(ProcessBase process, int errCode, string errMsg)
-    {
-        customErrCode = errCode;
-        customErrMsg = errMsg;
-        customErrDate = DateTime.Now;
-        ShowErrorFrame(process);
     }
 
     private static string GetLocale()

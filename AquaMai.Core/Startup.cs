@@ -164,6 +164,7 @@ public class Startup
         CollectWantedPatches(wantedPatches, typeof(KeyListener));
         CollectWantedPatches(wantedPatches, typeof(Shim));
         CollectWantedPatches(wantedPatches, typeof(NetPacketHook));
+        CollectWantedPatches(wantedPatches, typeof(ErrorFrame));
         // 使用时才 patch！不要添加这个
         // CollectWantedPatches(wantedPatches, typeof(GameSettingsManager));
 
