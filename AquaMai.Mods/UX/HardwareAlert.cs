@@ -1,43 +1,92 @@
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using AquaMai.Config.Attributes;
+using AquaMai.Core.Helpers;
 using AquaMai.Core.Resources;
+using AquaMai.Mods.GameSystem;
 using HarmonyLib;
 using IO;
 using MAI2.Util;
+using MAI2System;
 using Main;
 using Manager;
+using MelonLoader;
+using Monitor.Error;
 using Process;
 using Process.Error;
+using TMPro;
 using UnityEngine;
 
 namespace AquaMai.Mods.UX;
 
 [ConfigSection(
-    defaultOn: true,
-    zh: "自定义硬件警告，可配置在指定硬件自检失败时阻止游戏启动并显示报错画面")]
-public class HardwareAlert : MonoBehaviour
+    zh: "自定义硬件警告，可配置在指定硬件自检失败时阻止游戏启动并显示报错画面，开启下方的错误类型以配置需要关注的错误。")]
+public class HardwareAlert
 {
-    private static HardwareAlert display;
-    private Stopwatch stopwatch = new Stopwatch();
+    [ConfigEntry(
+        en: "If enabled, all the in-game hardware warnings will be displayed in game's original language, like Japanese for SDEZ. If you have used any translation pack, you should disable this setting.",
+        zh: "如果启用，所有硬件警告将会使用游戏原本的语言显示，例如 SDEZ 就会用日文显示报错。如果你安装了任何汉化包，你应该关闭这个选项。")]
+    private static readonly bool UseOriginalGameLanguage = true;
+    [ConfigEntry(
+        en: "1P Touch Sensor",
+        zh: "1P 触摸屏")]
+    private static readonly bool TouchSensor_1P = false; // Error 3300, 3301
+    [ConfigEntry(
+        en: "2P Touch Sensor",
+        zh: "2P 触摸屏")]
+    private static readonly bool TouchSensor_2P = false; // Error 3302, 3303
+    [ConfigEntry(
+        en: "1P LED",
+        zh: "1P LED")]
+    private static readonly bool LED_1P = false; // custom 3400
+    [ConfigEntry(
+        en: "2P LED",
+        zh: "2P LED")]
+    private static readonly bool LED_2P = false; // custom 3401
+    [ConfigEntry(
+        en: "Player Camera",
+        zh: "玩家摄像机")]
+    private static readonly bool PlayerCamera = false;  // 3102
+    [ConfigEntry(
+        en: "DX Pass 1P",
+        zh: "DX Pass 1P")]
+    private static readonly bool CodeReader_1P = false; // 3101
+    [ConfigEntry(
+        en: "DX Pass 2P",
+        zh: "DX Pass 2P")]
+    private static readonly bool CodeReader_2P = false; // 3101
+    [ConfigEntry(
+        en: "WeChat QRCode Camera",
+        zh: "二维码扫描摄像头")]
+    public static readonly bool ChimeCamera = false; // 3100
 
-    // [HarmonyPostfix]
-    // [HarmonyPatch(typeof(StartupProcess), "OnUpdate")]
-    // public static void OnPostUpdate(StartupProcess __instance)
-    // {
-    //     var tv = Traverse.Create(__instance);
-    //     if (tv.Field("_state").GetValue<byte>() > 0)
-    //     {
-    //         if (SingletonStateMachine<AmManager, AmManager.EState>.Instance.NewTouchPanel[1].Status ==
-    //             NewTouchPanel.StatusEnum.Error)
-    //         {
-    //             var go = new GameObject("硬件提示组件");
-    //             display = go.AddComponent<HardwareAlert>();
-    //         }
-    //     }
-    // }
+    private static readonly List<string> CameraTypeList = ["QRLeft", "QRRight", "Photo", "Chime"];
+    private static SortedDictionary<CameraTypeEnumInner, int> _cameraIndex = [];
 
-    private static int errorCode;
-    private static string errorMessage;
+    private enum CameraTypeEnumInner
+    {
+        QRLeft,
+        QRRight,
+        Photo,
+        Chime,
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(CameraManager), "CameraInitialize")]
+    public static void PostCameraInitialize(CameraManager __instance)
+    {
+        var curCamIdx = 0;
+        foreach (var cameraTypeName in CameraTypeList)
+        {
+            if (Enum.TryParse<CameraTypeEnumInner>(cameraTypeName, out var cameraType))
+            {
+                MelonLogger.Msg($"[HardwareAlert] Identified camera type {cameraType} for current game version on idx {curCamIdx}");
+                _cameraIndex[cameraType] = curCamIdx;
+            }
+        }
+    }
     
     [HarmonyPostfix]
     [HarmonyPatch(typeof(StartupProcess), "OnUpdate")]
@@ -45,43 +94,146 @@ public class HardwareAlert : MonoBehaviour
     {
         if (AMDaemon.Error.Number > 0)
         {
-            var tv = Traverse.Create(__instance);
-            var ctn = tv.Field("container").GetValue<ProcessDataContainer>();
-            ctn.processManager.AddProcess((ProcessBase) new ErrorProcess(ctn));
-            ctn.processManager.ReleaseProcess((ProcessBase) __instance);
-            GameManager.IsErrorMode = true;
-            // errorCode = AMDaemon.Error.Number;
-            // errorMessage = AMDaemon.Error.Message;
-            // var go = new GameObject("硬件提示组件");
-            // display = go.AddComponent<HardwareAlert>();
+            if (
+                TouchSensor_1P && (AMDaemon.Error.Number == 3300 || AMDaemon.Error.Number == 3301) ||
+                TouchSensor_2P && (AMDaemon.Error.Number == 3302 || AMDaemon.Error.Number == 3303)
+                )
+            {
+                ShowErrorFrame(__instance);
+                return;
+            }
         }
-    }
+        
+        // get current startup state
+        var tv = Traverse.Create(__instance);
+        var state = tv.Field("_state").GetValue<byte>();
+        var statusSubMsg = tv.Field("_statusSubMsg").GetValue<string[]>();
 
-    private void Start()
-    {
-        stopwatch.Start();
-    }
-
-    private void OnGUI()
-    {
-        if (stopwatch.ElapsedMilliseconds < 2000)
+        // LED check
+        if (LED_1P && statusSubMsg[2] == ConstParameter.TestString_Bad)
         {
+            ShowErrorFrame(__instance, 3400, FaultLED1P[GetLocale()]);
             return;
         }
-        GUIStyle styleTitle = new GUIStyle(GUI.skin.label)
+        if (LED_2P && statusSubMsg[3] == ConstParameter.TestString_Bad)
         {
-            fontSize = 35,
-            alignment = TextAnchor.MiddleCenter,
-            wordWrap = true
-        };
-        GUIStyle style = new GUIStyle(GUI.skin.label)
+            ShowErrorFrame(__instance, 3401, FaultLED2P[GetLocale()]);
+            return;
+        }
+        
+        // Camera Check
+        if (CameraManager.IsReady)
         {
-            fontSize = 25,
-            alignment = TextAnchor.MiddleLeft,
-            wordWrap = true
-        };
-
-        GUI.Label(new Rect(50, 50, Screen.width - 50, Screen.height - 500), "AMDaemon Error", styleTitle);
-        GUI.Label(new Rect(50, 50, Screen.width - 50, Screen.height - 50), $"出现错误：{errorCode}, Message: {errorMessage}", style);
+            if (PlayerCamera && !CameraManager.IsAvailableCameras[_cameraIndex[CameraTypeEnumInner.Photo]])
+            {
+                ShowErrorFrame(__instance, 3102, FaultPlayerCamera[GetLocale()]);
+                return;
+            }
+            if (CodeReader_1P && !CameraManager.IsAvailableCameras[_cameraIndex[CameraTypeEnumInner.QRLeft]])
+            {
+                ShowErrorFrame(__instance, 3101, FaultQR1P[GetLocale()]);
+                return;
+            }
+            if (CodeReader_2P && !CameraManager.IsAvailableCameras[_cameraIndex[CameraTypeEnumInner.QRRight]])
+            {
+                ShowErrorFrame(__instance, 3101, FaultQR2P[GetLocale()]);
+                return;
+            }
+            if (ChimeCamera && !CameraManager.IsAvailableCameras[_cameraIndex[CameraTypeEnumInner.Chime]])
+            {
+                ShowErrorFrame(__instance, 3100, FaultChime[GetLocale()]);
+                return;
+            }
+        }
     }
+
+    private static void ShowErrorFrame(ProcessBase process)
+    {
+        var tv = Traverse.Create(process);
+        var ctn = tv.Field("container").GetValue<ProcessDataContainer>();
+        ctn.processManager.AddProcess((ProcessBase) new ErrorProcess(ctn));
+        ctn.processManager.ReleaseProcess(process);
+        GameManager.IsErrorMode = true;
+    }
+
+    private static int customErrCode;
+    private static string customErrMsg;
+    private static DateTime customErrDate;
+    
+    // patch the error monitor so that it can display custom error codes and messages.
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(ErrorMonitor), "Initialize", typeof(int), typeof(bool))]
+    public static void PostInitialize(ErrorMonitor __instance)
+    {
+        var tv = Traverse.Create(__instance);
+        if (customErrCode == 0) return;
+        tv.Field("ErrorID").GetValue<TextMeshProUGUI>().text = customErrCode.ToString().PadLeft(4, '0');
+        tv.Field("ErrorMessage").GetValue<TextMeshProUGUI>().text = customErrMsg;
+        tv.Field("ErrorDate").GetValue<TextMeshProUGUI>().text = customErrDate.ToString();
+    }
+    
+    private static void ShowErrorFrame(ProcessBase process, int errCode, string errMsg)
+    {
+        customErrCode = errCode;
+        customErrMsg = errMsg;
+        customErrDate = DateTime.Now;
+        ShowErrorFrame(process);
+    }
+
+    private static string GetLocale()
+    {
+        if (UseOriginalGameLanguage)
+        {
+            return GameVersionToLocale[GameInfo.GameId];
+        }
+        MelonLogger.Msg($"[HardwareAlert] Using locale '{Locale.Culture.TwoLetterISOLanguageName}'");
+        // MelonLogger.Msg($"[HardwareAlert] Using locale '{Locale.Culture.Name}'");
+        return Locale.Culture.TwoLetterISOLanguageName.Equals("zh",
+            StringComparison.OrdinalIgnoreCase)
+            ? "zh"
+            : "en";
+    }
+
+    private static readonly Dictionary<string, string> GameVersionToLocale = new()
+    {
+        ["SDEZ"] = "jp",
+        ["SDGA"] = "en",
+        ["SDGB"] = "zh",
+    };
+    private static readonly Dictionary<string, string> FaultLED1P = new()
+    {
+        ["jp"] = "LED（1P）はご利用いただけません",
+        ["en"] = "LED(1P) not available",
+        ["zh"] = "LED（1P）不可用",
+    };
+    private static readonly Dictionary<string, string> FaultLED2P = new()
+    {
+        ["jp"] = "LED（2P）はご利用いただけません",
+        ["en"] = "LED(2P) not available",
+        ["zh"] = "LED（2P）不可用",
+    };
+    private static readonly Dictionary<string, string> FaultQR1P = new()
+    {
+        ["jp"] = "コードリーダー（1P）はご利用いただけません",
+        ["en"] = "Code Reader (1P) not available",
+        ["zh"] = "DX Pass 二维码相机（1P）不可用", // This thing does not exist...
+    };
+    private static readonly Dictionary<string, string> FaultQR2P = new()
+    {
+        ["jp"] = "コードリーダー（2P）はご利用いただけません",
+        ["en"] = "Code Reader (2P) not available",
+        ["zh"] = "DX Pass 二维码相机（2P）不可用", // This thing does not exist...
+    };
+    private static readonly Dictionary<string, string> FaultPlayerCamera = new()
+    {
+        ["jp"] = "プレイヤーカメラはご利用いただけません",
+        ["en"] = "Player Camera not available",
+        ["zh"] = "玩家相机不可用",
+    };
+    private static readonly Dictionary<string, string> FaultChime = new()
+    {
+        ["jp"] = "コードリーダーは（Chime）ご利用いただけません", // This thing does not exist...
+        ["en"] = "Code Reader (Chime) not available", // This thing does not exist...
+        ["zh"] = "二维码相机不可用",
+    };
 }
