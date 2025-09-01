@@ -92,25 +92,14 @@ public class HardwareAlert
     [HarmonyPatch(typeof(StartupProcess), "OnUpdate")]
     public static void OnPostUpdate(StartupProcess __instance)
     {
-        if (AMDaemon.Error.Number > 0)
-        {
-            // if we have official AMDaemon error for sensors, just use them.
-            if (
-                TouchSensor_1P && (AMDaemon.Error.Number == 3300 || AMDaemon.Error.Number == 3301) ||
-                TouchSensor_2P && (AMDaemon.Error.Number == 3302 || AMDaemon.Error.Number == 3303)
-                )
-            {
-                ErrorFrame.Show(__instance);
-                return;
-            }
-        }
-        
         // get current startup state
         var tv = Traverse.Create(__instance);
         // var state = tv.Field("_state").GetValue<byte>();
         var statusSubMsg = tv.Field("_statusSubMsg").GetValue<string[]>();
         
-        // Do another version check, since the AMDaemon error code gets disappeared sometimes...
+        // Touch sensor check
+        // The built-in AMDaemon errors are not stable, and cannot be localized.
+        // So we decided to use another approach to check it.
         if (TouchSensor_1P && statusSubMsg[0] == ConstParameter.TestString_Bad)
         {
             ErrorFrame.Show(__instance, 3300, FaultTouchSensor1P[GetLocale()]);
@@ -137,22 +126,31 @@ public class HardwareAlert
         // Camera Check
         if (CameraManager.IsReady)
         {
-            if (PlayerCamera && !CameraManager.IsAvailableCameras[_cameraIndex[CameraTypeEnumInner.Photo]])
+            var nCam = CameraManager.IsAvailableCameras.Length;
+
+            var pcIdx = _cameraIndex[CameraTypeEnumInner.Photo];
+            if (PlayerCamera && pcIdx < nCam && !CameraManager.IsAvailableCameras[pcIdx])
             {
                 ErrorFrame.Show(__instance, 3102, FaultPlayerCamera[GetLocale()]);
                 return;
             }
-            if (CodeReader_1P && !CameraManager.IsAvailableCameras[_cameraIndex[CameraTypeEnumInner.QRLeft]])
+
+            var cr1PIdx = _cameraIndex[CameraTypeEnumInner.QRLeft];
+            if (CodeReader_1P && cr1PIdx < nCam && !CameraManager.IsAvailableCameras[cr1PIdx])
             {
                 ErrorFrame.Show(__instance, 3101, FaultQR1P[GetLocale()]);
                 return;
             }
-            if (CodeReader_2P && !CameraManager.IsAvailableCameras[_cameraIndex[CameraTypeEnumInner.QRRight]])
+
+            var cr2PIdx = _cameraIndex[CameraTypeEnumInner.QRRight];
+            if (CodeReader_2P && cr2PIdx < nCam && !CameraManager.IsAvailableCameras[cr2PIdx])
             {
                 ErrorFrame.Show(__instance, 3101, FaultQR2P[GetLocale()]);
                 return;
             }
-            if (ChimeCamera && !CameraManager.IsAvailableCameras[_cameraIndex[CameraTypeEnumInner.Chime]])
+
+            var chimeIdx = _cameraIndex[CameraTypeEnumInner.Chime];
+            if (ChimeCamera && chimeIdx < nCam && !CameraManager.IsAvailableCameras[chimeIdx])
             {
                 ErrorFrame.Show(__instance, 3100, FaultChime[GetLocale()]);
                 return;
