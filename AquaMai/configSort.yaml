@@ -75,6 +75,7 @@
   - Utils.LogNetworkRequests
   - Utils.ShowErrorLog
   - UX.NoAmDaemonAlert
+  - UX.HardwareAlert
 
 键位和灵敏度:
   - GameSystem.HidInput
