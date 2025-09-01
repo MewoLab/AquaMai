@@ -65,6 +65,7 @@ public class HardwareAlert
 
     private static readonly List<string> CameraTypeList = ["QRLeft", "QRRight", "Photo", "Chime"];
     private static SortedDictionary<CameraTypeEnumInner, int> _cameraIndex = [];
+    private static bool _isInitialized = false;
 
     private enum CameraTypeEnumInner
     {
@@ -78,6 +79,11 @@ public class HardwareAlert
     [HarmonyPatch(typeof(CameraManager), "CameraInitialize")]
     public static void PostCameraInitialize(CameraManager __instance)
     {
+        if (_isInitialized)
+        {
+            return;
+        }
+        
         var curCamIdx = 0;
         foreach (var cameraTypeName in CameraTypeList)
         {
@@ -85,8 +91,11 @@ public class HardwareAlert
             {
                 MelonLogger.Msg($"[HardwareAlert] Identified camera type {cameraType} for current game version on idx {curCamIdx}");
                 _cameraIndex[cameraType] = curCamIdx;
+                curCamIdx++;
             }
         }
+
+        _isInitialized = true;
     }
     
     [HarmonyPostfix]
