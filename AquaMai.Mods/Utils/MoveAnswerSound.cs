@@ -31,12 +31,12 @@ public class MoveAnswerSound : IPlayerSettingsItem
     [ConfigEntry(
         en: "Answer sound move value in ms, this value will be combined with user's setting in game. Increase this value to make the answer sound appear later, vice versa.",
         zh: "正解音偏移量，单位为毫秒，此设定值会与用户游戏内的设置相加。增大这个值将会使正解音出现得更晚，反之则更早。")]
-    private static readonly float MoveValue_1P = 33f;
+    private static readonly float MoveValue_1P = 0f;
     
     [ConfigEntry(
         en: "Same as MoveValue_1P.",
         zh: "与 MoveValue_1P 作用相同。")]
-    private static readonly float MoveValue_2P = 33f;
+    private static readonly float MoveValue_2P = 0f;
     
     private static float[] userSettings = [0, 0];
     private static IPersistentStorage storage = new PlayerPrefsStorage();
@@ -137,12 +137,12 @@ public class MoveAnswerSound : IPlayerSettingsItem
                 continue;
             }
             if (note.type.isSlide() || note.type.isConnectSlide()) continue;
-            if (NotesManager.GetCurrentMsec() - GetSettingsValue(__instance.MonitorIndex) > note.time.msec && !note.playAnsSoundHead)
+            if (NotesManager.GetCurrentMsec() - 33f - GetSettingsValue(__instance.MonitorIndex) > note.time.msec && !note.playAnsSoundHead)
             {
                 Singleton<GameSingleCueCtrl>.Instance.ReserveAnswerSe(__instance.MonitorIndex);
                 note.playAnsSoundHead = true;
             }
-            if (note.type.isHold() && NotesManager.GetCurrentMsec() - GetSettingsValue(__instance.MonitorIndex) > note.end.msec && !note.playAnsSoundTail)
+            if (note.type.isHold() && NotesManager.GetCurrentMsec() - 33f - GetSettingsValue(__instance.MonitorIndex) > note.end.msec && !note.playAnsSoundTail)
             {
                 Singleton<GameSingleCueCtrl>.Instance.ReserveAnswerSe(__instance.MonitorIndex);
                 note.playAnsSoundTail = true;
