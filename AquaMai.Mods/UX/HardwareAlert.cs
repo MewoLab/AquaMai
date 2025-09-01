@@ -94,6 +94,7 @@ public class HardwareAlert
     {
         if (AMDaemon.Error.Number > 0)
         {
+            // if we have official AMDaemon error for sensors, just use them.
             if (
                 TouchSensor_1P && (AMDaemon.Error.Number == 3300 || AMDaemon.Error.Number == 3301) ||
                 TouchSensor_2P && (AMDaemon.Error.Number == 3302 || AMDaemon.Error.Number == 3303)
@@ -106,8 +107,20 @@ public class HardwareAlert
         
         // get current startup state
         var tv = Traverse.Create(__instance);
-        var state = tv.Field("_state").GetValue<byte>();
+        // var state = tv.Field("_state").GetValue<byte>();
         var statusSubMsg = tv.Field("_statusSubMsg").GetValue<string[]>();
+        
+        // Do another version check, since the AMDaemon error code gets disappeared sometimes...
+        if (TouchSensor_1P && statusSubMsg[0] == ConstParameter.TestString_Bad)
+        {
+            ShowErrorFrame(__instance, 3300, FaultTouchSensor1P[GetLocale()]);
+            return;
+        }
+        if (TouchSensor_2P && statusSubMsg[1] == ConstParameter.TestString_Bad)
+        {
+            ShowErrorFrame(__instance, 3302, FaultTouchSensor2P[GetLocale()]);
+            return;
+        }
 
         // LED check
         if (LED_1P && statusSubMsg[2] == ConstParameter.TestString_Bad)
@@ -199,6 +212,18 @@ public class HardwareAlert
         ["SDEZ"] = "jp",
         ["SDGA"] = "en",
         ["SDGB"] = "zh",
+    };
+    private static readonly Dictionary<string, string> FaultTouchSensor1P = new()
+    {
+        ["jp"] = "タッチセンサ（1P）はご利用いただけません",
+        ["en"] = "Touch Sensor (1P) not available",
+        ["zh"] = "触摸传感器（1P）不可用",
+    };
+    private static readonly Dictionary<string, string> FaultTouchSensor2P = new()
+    {
+        ["jp"] = "タッチセンサ（2P）はご利用いただけません",
+        ["en"] = "Touch Sensor (2P) not available",
+        ["zh"] = "触摸传感器（2P）不可用",
     };
     private static readonly Dictionary<string, string> FaultLED1P = new()
     {
