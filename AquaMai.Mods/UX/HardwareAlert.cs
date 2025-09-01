@@ -22,6 +22,7 @@ using UnityEngine;
 namespace AquaMai.Mods.UX;
 
 [ConfigSection(
+    en: "Custom hardware alert, you can configure to display an error frame upon hardware failure. Toggle the switches below to define the required hardware.",
     zh: "自定义硬件警告，可配置在指定硬件自检失败时阻止游戏启动并显示报错画面，开启下方的错误类型以配置需要关注的错误。")]
 public class HardwareAlert
 {
