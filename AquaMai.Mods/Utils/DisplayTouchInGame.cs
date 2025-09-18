@@ -201,4 +201,13 @@ public static class DisplayTouchInGame
             }
         }
     }
+    
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(MouseTouchPanel), "Start")]
+    public static void Workaround() { }
+    /*
+     * 和 https://github.com/MewoLab/AquaMai/blob/983f887be48d6c5c85a81460fa3c45d2d35c3852/AquaMai.Mods/GameSystem/TestProof.cs#L78-L87 的情况是一样的...
+     * 在Maimoller的Mod Patch之后，MouseTouchPanel.Start就不会被调用了，但是放一个钩子在它身上，就一切正常了...
+     * 我没有能力研究的特别透彻，就先和上面采取一样的做法了...留给后来者研究吧
+     */
 }
