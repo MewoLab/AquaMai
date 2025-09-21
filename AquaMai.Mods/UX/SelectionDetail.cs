@@ -108,6 +108,14 @@ public class SelectionDetail
             {
                 dataToShow.Add(string.Format(Locale.RatingUpWhenSSSp, rate));
             }
+            else
+            {
+                rate = CalcB50(SelectData.MusicData, difficulty[player], true);
+                if (rate > 0)
+                {
+                    dataToShow.Add(string.Format(Locale.RatingUpWhenAP, rate));
+                }
+            }
 
             var playCount = Shim.GetUserScoreList(userData)[difficulty[player]].FirstOrDefault(it => it.id == SelectData.MusicData.name.id)?.playcount ?? 0;
             if (playCount > 0)
@@ -131,12 +139,13 @@ public class SelectionDetail
             }
         }
 
-        private uint CalcB50(MusicData musicData, int difficulty)
+        private int CalcB50(MusicData musicData, int difficulty, bool ap = false)
         {
-            var theory = Shim.CreateUserRate(musicData.name.id, difficulty, 1010000, (uint)musicData.version, PlayComboflagID.None);
-            var list = theory.OldFlag ? userData.RatingList.RatingList : userData.RatingList.NewRatingList;
-            var maxCount = theory.OldFlag ? 35 : 15;
-
+            var musicId = musicData.name.id;
+            var aimRate = ap ? Shim.CreateUserRate(musicId, difficulty, 1010000, (uint)musicData.version, PlayComboflagID.AllPerfectPlus) :
+                Shim.CreateUserRate(musicId, difficulty, 1005000, (uint)musicData.version, PlayComboflagID.None);
+            var list = aimRate.OldFlag ? userData.RatingList.RatingList : userData.RatingList.NewRatingList;
+            var maxCount = aimRate.OldFlag ? 35 : 15;
             uint userLowRate = 0;
             if (list.Count == maxCount)
             {
@@ -144,19 +153,10 @@ public class SelectionDetail
                 userLowRate = rate.SingleRate;
             }
 
-            var userSongRate = list.FirstOrDefault(it => it.MusicId == musicData.name.id && it.Level == difficulty);
+            var userSongRate = list.FirstOrDefault(it => it.MusicId == musicId && it.Level == difficulty);
+            if (!userSongRate.Equals(default(UserRate))) userLowRate = userSongRate.SingleRate;
 
-            if (!userSongRate.Equals(default(UserRate)))
-            {
-                return theory.SingleRate - userSongRate.SingleRate;
-            }
-
-            if (theory.SingleRate > userLowRate)
-            {
-                return theory.SingleRate - userLowRate;
-            }
-
-            return 0;
+            return (int)aimRate.SingleRate - (int)userLowRate;
         }
 
         public void Close()

@@ -272,6 +272,15 @@ namespace AquaMai.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to AP =&gt; DXRating += {0}.
+        /// </summary>
+        public static string RatingUpWhenAP {
+            get {
+                return ResourceManager.GetString("RatingUpWhenAP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Repeat end time cannot be less than repeat start time.
         /// </summary>
         public static string RepeatEndTimeLessThenStartTime {
