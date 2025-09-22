@@ -37,6 +37,7 @@ public class EntryToMusicSelection
             var userDatas = ((int[]) [0, 1]).Select(i => Singleton<UserDataManager>.Instance.GetUserData(i));
             if (!userDatas.All(it => it.IsGuest())) return true;
         }
+        GameManager.IsNormalMode = true;
         GameManager.SetMaxTrack();
         SharedInstances.GameMainObject.StartCoroutine(GraduallyIncreaseHeadphoneVolumeCoroutine());
         ___container.processManager.AddProcess(new MusicSelectProcess(___container));
