@@ -21,7 +21,14 @@ public class FixLevelDisplay
     private static void FixLevelShiftMusicChainCardObejct(MusicLevelID levelID, SpriteCounter ____digitLevel, SpriteCounter ____doubleDigitLevel, bool utage, GameObject ____difficultyUtageQuesionMarkSingleDigit, GameObject ____difficultyUtageQuesionMarkDoubleDigit)
     {
         // 在 KLD 表门和里门不应用修改
-        if (GameManager.IsKaleidxScopeMode && (Singleton<KaleidxScopeManager>.Instance.gateId == 8 || Singleton<KaleidxScopeManager>.Instance.gateId == 10)) return;
+        if (GameManager.IsKaleidxScopeMode)
+        {
+            if (Singleton<KaleidxScopeManager>.Instance.gateId == 8 ||
+                Singleton<KaleidxScopeManager>.Instance.gateId == 10)
+            {
+                return;
+            }
+        }
 
         switch (levelID)
         {
