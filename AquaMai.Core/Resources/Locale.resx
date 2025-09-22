@@ -163,4 +163,10 @@ Use arrow keys to move the position
 Current Movement Speed: {1} (Press [ or ] to adjust)
 Press {2} to switch block or exit adjustment mode</value>
     </data>
+    <data name="AutoplayOn" xml:space="preserve">
+        <value>AutoPlay On</value>
+    </data>
+    <data name="AutoplayWasUsed" xml:space="preserve">
+        <value>Autoplay was used, score will not be saved.</value>
+    </data>
 </root>

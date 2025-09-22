@@ -3,6 +3,7 @@ using System.Reflection;
 using AquaMai.Config.Attributes;
 using AquaMai.Core.Attributes;
 using AquaMai.Core.Helpers;
+using AquaMai.Core.Resources;
 using DB;
 using HarmonyLib;
 using MAI2.Util;
@@ -111,6 +112,14 @@ public class DontRuinMyAccount
             musicid, difficulty, oldScore?.achivement);
     }
 
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(GameProcess), nameof(GameProcess.OnStart))]
+    public static void OnGameStart()
+    {
+        // For compatibility with QuickRetry
+        ignoreScore = false;
+    }
+
     private class NoticeUI : MonoBehaviour
     {
         public void OnGUI()
@@ -126,7 +135,7 @@ public class DontRuinMyAccount
             labelStyle.alignment = TextAnchor.MiddleCenter;
 
             GUI.Box(rect, "");
-            GUI.Label(rect, "AutoPlay");
+            GUI.Label(rect, GameManager.IsAutoPlay() ? Locale.AutoplayOn : Locale.AutoplayWasUsed);
         }
     }
 }

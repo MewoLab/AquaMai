@@ -60,6 +60,24 @@ namespace AquaMai.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to AutoPlay On.
+        /// </summary>
+        public static string AutoplayOn {
+            get {
+                return ResourceManager.GetString("AutoplayOn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Autoplay was used, score will not be saved..
+        /// </summary>
+        public static string AutoplayWasUsed {
+            get {
+                return ResourceManager.GetString("AutoplayWasUsed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to You are using AquaMai CI build version. This version is built from the latest mainline code and may contain undocumented configuration changes or potential issues..
         /// </summary>
         public static string CiBuildAlertContent {
