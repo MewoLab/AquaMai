@@ -160,7 +160,7 @@ public class CustomNoteTypes
     public static void PrepareBasicNoteData(NoteData noteData, NotesReader reader,
         MA2Record record, int index, ref int noteIndex, OptionMirrorID mirrorMode)
     {
-        noteData.type = record.getType().getNotesTypeId();
+        noteData.type = new NotesTypeID(record.getType().getNotesTypeId());
         noteData.time.init(record.getBar(), record.getGrid(), reader);
         noteData.end = noteData.time;
         noteData.startButtonPos = MaiGeometry.MirrorInfo[(int)mirrorMode, record.getPos()];

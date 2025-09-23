@@ -4,6 +4,7 @@ using AquaMai.Core.Attributes;
 using AquaMai.Config.Attributes;
 using AquaMai.Core.Helpers;
 using AquaMai.Core.Resources;
+using DB;
 using HarmonyLib;
 using JetBrains.Annotations;
 using MAI2.Util;
@@ -132,7 +133,7 @@ public class SelectionDetail
 
         private uint CalcB50(MusicData musicData, int difficulty)
         {
-            var theory = new UserRate(musicData.name.id, difficulty, 1010000, (uint)musicData.version);
+            var theory = Shim.CreateUserRate(musicData.name.id, difficulty, 1010000, (uint)musicData.version, PlayComboflagID.None);
             var list = theory.OldFlag ? userData.RatingList.RatingList : userData.RatingList.NewRatingList;
             var maxCount = theory.OldFlag ? 35 : 15;
 

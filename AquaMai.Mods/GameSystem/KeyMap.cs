@@ -46,6 +46,15 @@ public class KeyMap
             """)]
     public static readonly bool disableDebugInput = false; // Implemented in AquaMai.Mods/Fix/Common.cs
 
+    [ConfigEntry(
+        en: """
+            Disable DebugFeature Polyfill hotkeys, like Enter to pause, Left/Right to seek, etc.
+            """,
+        zh: """
+            禁用 DebugFeature Polyfill 的快捷键，比如说回车暂停，左右键快进快退等。
+            """)]
+    public static readonly bool disableDebugFeatureHotkeys = false; // Implemented in DebugFeature
+
     [EnableIf(nameof(disableIO4))]
     [HarmonyPatch("IO.Jvs+JvsSwitch", ".ctor", MethodType.Constructor, [typeof(int), typeof(string), typeof(KeyCode), typeof(bool), typeof(bool)])]
     [HarmonyPrefix]
