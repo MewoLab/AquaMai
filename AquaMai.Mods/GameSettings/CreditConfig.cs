@@ -1,6 +1,9 @@
-﻿using AquaMai.Config.Attributes;
+﻿using System.Diagnostics;
+using System.Linq;
+using AquaMai.Config.Attributes;
 using AquaMai.Core.Attributes;
 using HarmonyLib;
+using MelonLoader;
 
 namespace AquaMai.Mods.GameSettings;
 
@@ -14,10 +17,25 @@ public class CreditConfig
         zh: "是否免费游玩（设为 false 时为付费游玩）")]
     private static readonly bool isFreePlay = true;
 
+    [ConfigEntry(
+        en: "Allow purchasing paid feature tickets in Free Play mode.",
+        zh: "可以在免费游玩时购买付费功能票")]
+    private static readonly bool allowTicketInFreePlay = false;
+
     [HarmonyPrefix]
     [HarmonyPatch(typeof(Manager.Credit), "IsFreePlay")]
     public static bool PreIsFreePlay(ref bool __result)
     {
+        if (allowTicketInFreePlay)
+        {
+            var stackTrace = new StackTrace();
+            var stackFrames = stackTrace.GetFrames();
+            if (stackFrames.Any(f => f.GetMethod() is { DeclaringType: { Name: "TicketSelectMonitor" }, Name: "Initialize" }))
+            {
+                __result = false;
+                return false;
+            }
+        }
         __result = isFreePlay;
         return false;
     }

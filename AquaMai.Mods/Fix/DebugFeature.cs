@@ -62,6 +62,7 @@ public class DebugFeature
         _gameMovie = ____gameMovie;
         _monitors = ____monitors;
         PolyFill.timer = 0;
+        PolyFill.isPause = false;
     }
 
     public static void OnBeforePatch(HarmonyLib.Harmony h)
@@ -166,9 +167,10 @@ public class DebugFeature
         public static double timer;
         public static KeyCode Autoplay = SetAutoplay();
 
-        private static KeyCode SetAutoplay() {
-            try {return (KeyCode)Enum.Parse(typeof(KeyCode), KeyMap.GetAutoplay());}
-            catch (Exception) {return KeyCode.Home;}
+        private static KeyCode SetAutoplay()
+        {
+            try { return (KeyCode)Enum.Parse(typeof(KeyCode), KeyMap.GetAutoplay()); }
+            catch (Exception) { return KeyCode.Home; }
         }
 
         public static void DebugTimeSkip(int addMsec)
@@ -218,6 +220,8 @@ public class DebugFeature
                 timer += GameManager.GetGameMSecAddD();
             }
 
+            if (KeyMap.disableDebugFeatureHotkeys) return;
+
             if (Input.GetKeyDown(Autoplay))
             {
                 GameManager.AutoPlay = (GameManager.AutoPlayMode)((int)(GameManager.AutoPlay + 1) % Enum.GetNames(typeof(GameManager.AutoPlayMode)).Length);
@@ -242,7 +246,9 @@ public class DebugFeature
                     num23 = 1000;
                 }
 
-                int addMsec = ((!DebugInput.GetKey(KeyCode.LeftShift) && !DebugInput.GetKey(KeyCode.RightShift)) ? ((!DebugInput.GetKey(KeyCode.LeftControl) && !DebugInput.GetKey(KeyCode.RightControl)) ? num23 : (num23 * 10)) : (num23 * 5));
+                int addMsec = ((!DebugInput.GetKey(KeyCode.LeftShift) && !DebugInput.GetKey(KeyCode.RightShift))
+                    ? ((!DebugInput.GetKey(KeyCode.LeftControl) && !DebugInput.GetKey(KeyCode.RightControl)) ? num23 : (num23 * 10))
+                    : (num23 * 5));
                 Singleton<GamePlayManager>.Instance.Initialize();
                 DebugTimeSkip(addMsec);
             }

@@ -183,7 +183,7 @@ public class ImmediateSave
                     continue;
                 }
 
-                UserRate item = new UserRate(item2.id, j, item2.achivement, (uint)music.version);
+                UserRate item = Shim.CreateUserRate(item2.id, j, item2.achivement, (uint)music.version, item2.combo);
                 if (item.OldFlag)
                 {
                     if (num <= (float)item.Level && !ratingList.Contains(item))

@@ -11,7 +11,9 @@ using System.Linq;
 using System.Reflection.Emit;
 using System.Reflection;
 using AquaMai.Mods.GameSystem;
+using MAI2.Util;
 using Manager.Operation;
+using MelonLoader;
 
 namespace AquaMai.Mods.Fix;
 
@@ -188,5 +190,24 @@ public class Common
     private static bool PreDataUploaderStart()
     {
         return false;
+    }
+
+    [ConfigEntry] private static readonly bool fixGetMusicVersion = true;
+
+    [EnableIf(nameof(fixGetMusicVersion))]
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(DataManager), nameof(DataManager.GetMusicVersion))]
+    private static void GetMusicVersion(int id, ref Manager.MaiStudio.MusicVersionData __result)
+    {
+        if (__result != null) return;
+        var musicVersions = Singleton<DataManager>.Instance.GetMusicVersions();
+        // SBGA 程序员真是坏
+        var realVersion = musicVersions.ElementAtOrDefault(id).Value;
+        if (realVersion == null)
+        {
+            MelonLogger.Warning("Unable to fix GetMusicVersion for id " + id);
+            return;
+        }
+        __result = realVersion;
     }
 }

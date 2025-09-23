@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using DB;
 using HarmonyLib;
 using MAI2.Util;
 using Manager;
@@ -202,5 +203,19 @@ public static class Shim
         }
 
         throw new MissingFieldException("No matching UserData.ScoreList/ScoreDic found");
+    }
+
+    private static ConstructorInfo UserRateCtor = typeof(UserRate).GetConstructors().First(it => it.GetParameters().Length is 4 or 5);
+
+    public static UserRate CreateUserRate(int musicId, int level, uint achievement, uint romVersion, PlayComboflagID comboflagID)
+    {
+        if (UserRateCtor.GetParameters().Length == 5)
+        {
+            return (UserRate)UserRateCtor.Invoke([musicId, level, achievement, romVersion, comboflagID]);
+        }
+        else
+        {
+            return (UserRate)UserRateCtor.Invoke([musicId, level, achievement, romVersion]);
+        }
     }
 }
