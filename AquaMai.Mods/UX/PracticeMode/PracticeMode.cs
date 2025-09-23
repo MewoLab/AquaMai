@@ -225,6 +225,10 @@ public class PracticeMode
     [HarmonyPrefix]
     public static bool NotesManagerPostUpdateTimer(bool ____isPlaying, Stopwatch ____stopwatch, ref float ____curMSec, ref float ____curMSecPre, float ____msecStartGap)
     {
+        if (GameManager.IsKaleidxScopeMode)
+        {
+            return true;
+        }
         var stackTrace = new StackTrace(); // get call stack
         var stackFrames = stackTrace.GetFrames(); // get method calls (frames)
         if(stackFrames.Select(it => it.GetMethod().DeclaringType.Name).Contains("AdvDemoProcess"))

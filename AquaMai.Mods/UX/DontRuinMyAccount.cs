@@ -34,8 +34,24 @@ public class DontRuinMyAccount
     {
         if (GameManager.IsInGame && GameManager.IsAutoPlay() && !ignoreScore)
         {
-            ignoreScore = true;
-            MelonLogger.Msg("[DontRuinMyAccount] Autoplay triggered, will ignore this score.");
+            if (GameManager.IsKaleidxScopeMode)
+            {
+                if (Singleton<KaleidxScopeManager>.Instance.gateId == 8 ||
+                    Singleton<KaleidxScopeManager>.Instance.gateId == 10)
+                {
+                    ignoreScore = false;
+                }
+                else
+                {
+                    ignoreScore = true;
+                    MelonLogger.Msg("[DontRuinMyAccount] Autoplay triggered, will ignore this score.");
+                }
+            }
+            else
+            {
+                ignoreScore = true;
+                MelonLogger.Msg("[DontRuinMyAccount] Autoplay triggered, will ignore this score.");
+            }
         }
     }
 
