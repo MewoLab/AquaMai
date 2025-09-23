@@ -24,6 +24,7 @@ public class SetFade
 
 
     private static bool isInitialized = false;
+    private static bool isResourcePatchEnabled = false;
     private static Sprite[] subBGs = new Sprite[3];
 
 
@@ -67,23 +68,18 @@ public class SetFade
     }
 
 
-
-
-
-
-
-    // 在显示转场前启用临时patch替换预制体
+    // 在显示转场前启用patch
     [HarmonyPrefix]
     [HarmonyPatch(typeof(FadeProcess), "OnStart")]
-    public static void FadeProcessOnStartPreFix() { SetFade_ResourcesLoadPatch.Enable(); }
+    public static void FadeProcessOnStartPreFix() { isResourcePatchEnabled = true; }
     [HarmonyPrefix]
     [HarmonyPatch(typeof(AdvertiseProcess), "InitFade")]
-    public static void AdvertiseProcessInitFadePreFix() { SetFade_ResourcesLoadPatch.Enable(); }
+    public static void AdvertiseProcessInitFadePreFix() { isResourcePatchEnabled = true; }
     [HarmonyPrefix]
     [HarmonyPatch(typeof(NextTrackProcess), "OnStart")]
-    public static void NextTrackProcessOnStartPreFix() { SetFade_ResourcesLoadPatch.Enable(); }
+    public static void NextTrackProcessOnStartPreFix() { isResourcePatchEnabled = true; }
 
-    // 在显示转场后禁用临时patch
+    // 在显示转场后禁用patch
     [HarmonyPostfix]
     [HarmonyPatch(typeof(FadeProcess), "OnStart")]
     public static void FadeProcessOnStartPostFix(GameObject[] ___fadeObject) { ReplaceSubBG(___fadeObject); }
@@ -97,50 +93,26 @@ public class SetFade
 
     private static void ReplaceSubBG(GameObject[] fadeObjects)
     {
-        SetFade_ResourcesLoadPatch.Disable();
+        isResourcePatchEnabled = false;
         foreach (var monitor in fadeObjects)
         {
             var subBG = monitor.transform.Find("Canvas/Sub/Sub_ChangeScreen(Clone)/Sub_BG").GetComponent<Image>();
             subBG.sprite = subBGs[FadeType];
         }
     }
-}
 
-
-
-public static class SetFade_ResourcesLoadPatch
-{
-    private static bool isPatchEnabled = false;
-    private static HarmonyLib.Harmony harmony = null;
-    private static MethodInfo be_patched_method = null;
-    private static MethodInfo harmony_patch_method = null;
-
-    public static void Enable()
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(Resources), "Load", new[] { typeof(string), typeof(Type) })]
+    public static bool ResourcesLoadPrefix(ref string path, Type systemTypeInstance, ref UnityEngine.Object __result)
     {
-        if (isPatchEnabled) return;
-
-        harmony = new HarmonyLib.Harmony("com.AquaMai.Mods.Fancy.SetFade.SetFade_ResourcesLoadPatch");
-        be_patched_method = typeof(Resources).GetMethod("Load", new[] { typeof(string), typeof(Type) });
-        harmony_patch_method = typeof(SetFade_ResourcesLoadPatch).GetMethod("Prefix", BindingFlags.Static | BindingFlags.Public);
-
-        harmony.Patch(be_patched_method, prefix: new HarmonyMethod(harmony_patch_method));
-        isPatchEnabled = true;
-    }
-
-    public static void Disable()
-    {
-        if (!isPatchEnabled) return;
-        harmony.Unpatch(be_patched_method, harmony_patch_method);
-        isPatchEnabled = false;
-    }
-
-    public static bool Prefix(ref string path, Type systemTypeInstance, ref UnityEngine.Object __result)
-    {
-        // 神金实现，但因为是短暂的临时patch，所以不会影响性能（也许吧）
-        if (path.StartsWith("Process/ChangeScreen/Prefabs/ChangeScreen_0")&& path != $"Process/ChangeScreen/Prefabs/ChangeScreen_0{SetFade.FadeType + 1}")
+        if (isResourcePatchEnabled)
         {
-            __result = Resources.Load($"Process/ChangeScreen/Prefabs/ChangeScreen_0{SetFade.FadeType + 1}", systemTypeInstance);
-            return false;
+            if (path.StartsWith("Process/ChangeScreen/Prefabs/ChangeScreen_0") &&
+                path != $"Process/ChangeScreen/Prefabs/ChangeScreen_0{FadeType + 1}") // 避免无限递归
+            {
+                __result = Resources.Load($"Process/ChangeScreen/Prefabs/ChangeScreen_0{FadeType + 1}", systemTypeInstance);
+                return false;
+            }
         }
         return true;
     }
