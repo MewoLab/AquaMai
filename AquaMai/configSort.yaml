@@ -87,6 +87,7 @@
   - Fancy.HideMask
   - GameSettings.ForceAsServer
   - GameSystem.RemoveEncryption
+  - GameSystem.TouchPanelPort
   - GameSystem.TouchPanelBaudRate
   - GameSystem.OptionLoadFix
   - GameSystem.SkipBoardNoCheck
