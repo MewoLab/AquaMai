@@ -220,7 +220,7 @@ public class CustomIntroCinematic
         {
             if (!_targetIDMovieDict.ContainsKey(musicId))
             {
-                MelonLogger.Msg($"[CustomIntroCinematic] No valid video found for music {musicId}");
+                MelonLogger.Msg($"[CustomIntroCinematic] Files not found or invalid for music {musicId}");
             }
         }
 
@@ -482,6 +482,8 @@ public class CustomIntroCinematic
                             }
 
                             _state = SimpleMovieState.VideoPlay;
+                            _videoPlayers[0].time = 0;
+                            _videoPlayers[1].time = 0;
                             _videoPlayers[0].Play();
                             _videoPlayers[1].Play();
                             _videoTimer = 0f; // 重置计时器
@@ -759,6 +761,10 @@ public class CustomIntroCinematic
                     preparedCount++;
                     if (preparedCount == 2)
                     {
+                        // 暂停视频，防止自动播放
+                        _videoPlayers[0].Pause();
+                        _videoPlayers[1].Pause();
+                        
                         _isVideoPrepared[0] = true;
                         _isVideoPrepared[1] = true;
                         _videoDuration = Mathf.Max((float)_videoPlayers[0].length, (float)_videoPlayers[1].length); // 取较长的时长
