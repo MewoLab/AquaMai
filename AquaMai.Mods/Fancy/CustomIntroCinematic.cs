@@ -899,7 +899,7 @@ public class CustomIntroCinematic
 
             // 检查当前选择的歌曲是否为目标歌曲
             var musicId = GameManager.SelectMusicID[0];
-            if (_targetMusicIds.Contains(musicId) && _targetIDMovieDict.TryGetValue(musicId, out var videoPath))
+            if (_targetIDMovieDict.TryGetValue(musicId, out var videoPath))
             {
                 MelonLogger.Msg($"[CustomIntroCinematic] Play enter movie for music {musicId}");
                 
