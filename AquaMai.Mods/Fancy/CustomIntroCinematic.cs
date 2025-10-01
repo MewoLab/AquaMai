@@ -902,7 +902,7 @@ public class CustomIntroCinematic
             var musicId = GameManager.SelectMusicID[0];
             if (_targetIDMovieDict.TryGetValue(musicId, out var videoPath))
             {
-                MelonLogger.Msg($"[CustomIntroCinematic] Play enter movie for music {musicId}");
+                MelonLogger.Msg($"[CustomIntroCinematic] Play intro cinematic for music {musicId}");
                 
                 // 使用反射获取 MusicSelectProcess 的 container 字段
                 var containerField = typeof(ProcessBase).GetField("container", 
