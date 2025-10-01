@@ -484,6 +484,7 @@ public class CustomIntroCinematic
                             _state = SimpleMovieState.VideoPlay;
                             _videoPlayers[0].Play();
                             _videoPlayers[1].Play();
+                            _videoTimer = 0f; // 重置计时器
                             
                             // 开始播放音频（如果有）
                             if (_isAudioPrepared)
