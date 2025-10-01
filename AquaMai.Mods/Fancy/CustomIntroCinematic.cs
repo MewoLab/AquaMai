@@ -42,14 +42,15 @@ public class CustomIntroCinematic
     private static bool _isInitialized = false;
 
     private static Dictionary<int, (string leftPath, string rightPath, string acbPath, string awbPath)> _targetIDMovieDict = new Dictionary<int, (string leftPath, string rightPath, string acbPath, string awbPath)>();
-    private static HashSet<int> _targetMusicIds = new HashSet<int>();
-
+    
 
 
     [HarmonyPrepare]
     public static bool Prepare()
     {
         if (_isInitialized) return true;
+
+        HashSet<int> _targetMusicIds = new HashSet<int>();
 
         // 解析视频文件夹路径
         string resolvedDir = FileSystem.ResolvePath(IntroMovieDir.Trim());
@@ -220,7 +221,6 @@ public class CustomIntroCinematic
             if (!_targetIDMovieDict.ContainsKey(musicId))
             {
                 MelonLogger.Msg($"[CustomIntroCinematic] No valid video found for music {musicId}");
-                return false;
             }
         }
 
