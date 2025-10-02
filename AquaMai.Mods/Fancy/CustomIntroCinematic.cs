@@ -230,6 +230,19 @@ public class CustomIntroCinematic
     }
 
 
+
+
+
+
+
+
+
+
+
+
+    // TODO
+
+
     public class SimpleMovieTrackStartProcess : ProcessBase
     {
         private enum SimpleMovieState
@@ -260,7 +273,7 @@ public class CustomIntroCinematic
         private string _awbFilePath;
         private bool _isAudioPrepared;
 
-        public SimpleMovieTrackStartProcess(ProcessDataContainer dataContainer, (string leftPath, string rightPath, string acbPath, string awbPath) videoPaths) 
+        public SimpleMovieTrackStartProcess(ProcessDataContainer dataContainer, (string leftPath, string rightPath, string acbPath, string awbPath) videoPaths)
             : base(dataContainer)
         {
             _videoFilePathLeft = videoPaths.leftPath;
@@ -291,7 +304,8 @@ public class CustomIntroCinematic
                 //MelonLogger.Msg("[CustomIntroCinematic] Unloaded CueSheet 1");
                 _isAudioPrepared = false;
             }
-            
+
+
             // 清理所有创建的对象
             for (int i = 0; i < 2; i++)
             {
@@ -331,7 +345,7 @@ public class CustomIntroCinematic
             try
             {
                 // 隐藏普通背景
-                var containerField = typeof(ProcessBase).GetField("container", 
+                var containerField = typeof(ProcessBase).GetField("container",
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 var container = (ProcessDataContainer)containerField.GetValue(this);
 
@@ -341,7 +355,6 @@ public class CustomIntroCinematic
                     container.processManager.SendMessage(new Message(ProcessType.CommonProcess, 50004, i, false));
                 }
 
-                
                 // 复刻 TrackStartProcess.OnStart() 的副屏控制逻辑
                 for (int l = 0; l < 2; l++)
                 {
@@ -359,7 +372,8 @@ public class CustomIntroCinematic
                     container.processManager.SendMessage(new Message(ProcessType.CommonProcess, 50016, l));
                 }
                 container.processManager.SendMessage(new Message(ProcessType.CommonProcess, 30001));
-                
+
+
                 // 准备音频（如果有）
                 if (!string.IsNullOrEmpty(_acbFilePath) && !string.IsNullOrEmpty(_awbFilePath))
                 {
@@ -379,10 +393,10 @@ public class CustomIntroCinematic
 
                 // 开始准备视频
                 StartVideoPreparation();
-                
+
                 // 通知淡入完成
                 container.processManager.NotificationFadeIn();
-                
+
                 // 进入StartWait阶段
                 _state = SimpleMovieState.StartWait;
                 _startWaitTimer = 0f;
@@ -398,7 +412,6 @@ public class CustomIntroCinematic
                 FallbackToGameProcess();
             }
         }
-
 
         public override void OnUpdate()
         {
@@ -450,7 +463,7 @@ public class CustomIntroCinematic
                             _videoPlayers[0].Play();
                             _videoPlayers[1].Play();
                             _videoTimer = 0f; // 重置计时器
-                            
+
                             // 开始播放音频（如果有）
                             if (_isAudioPrepared)
                             {
@@ -477,7 +490,7 @@ public class CustomIntroCinematic
 
                         // 考虑到视频时长可能不一致，如果有视频提前结束了就禁用对应的Sprite以防止白屏
                         try
-                        {   
+                        {
                             if (!_videoPlayers[0].isPlaying)
                                 if (_movieSprites[0] != null) _movieSprites[0].enabled = false;
                             if (!_videoPlayers[1].isPlaying)
@@ -492,7 +505,7 @@ public class CustomIntroCinematic
                         bool videoEnded = (!_videoPlayers[0].isPlaying && !_videoPlayers[1].isPlaying) || _videoTimer >= _videoDuration;
                         // 如果有音频，还需要检查音频是否结束
                         bool audioEnded = !_isAudioPrepared || SoundManager.IsEndMusic();
-                        
+
                         if (videoEnded && audioEnded)
                         {
                             _state = SimpleMovieState.VideoEnd;
@@ -553,12 +566,12 @@ public class CustomIntroCinematic
                     case SimpleMovieState.Release:
                         // 清理资源，进入游戏
                         _state = SimpleMovieState.Released;
-                        
+
                         // 使用反射获取 container 字段
-                        var containerField = typeof(ProcessBase).GetField("container", 
+                        var containerField = typeof(ProcessBase).GetField("container",
                             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                         var container = (ProcessDataContainer)containerField.GetValue(this);
-                        
+
                         container.processManager.AddProcess(
                             new FadeProcess(container, this, new GameProcess(container), FadeProcess.FadeType.Type3), 50);
                         container.processManager.SetVisibleTimers(isVisible: false);
@@ -837,6 +850,7 @@ public class CustomIntroCinematic
             try
             {
                 MelonLogger.Msg("[CustomIntroCinematic] Falling back to GameProcess");
+                
                 // 停止音频
                 if (_isAudioPrepared)
                 {
@@ -867,8 +881,26 @@ public class CustomIntroCinematic
         try
         {
             if (!_isInitialized) return true;
-            if (!GameManager.IsNormalMode) return true; // 仅在 Normal 模式下生效
 
+            // 复刻GameStart的检查逻辑
+            if (GameManager.IsCourseMode) return true;
+            if (GameManager.IsKaleidxScopeMode) return true;
+            if (Singleton<SpecialRomManager>.Instance.IsSpecialMovie()) return true;
+
+            // 自由模式不生效
+            if (GameManager.IsFreedomMode) return true;
+
+            // 仅在 Normal 模式下生效
+            if (!GameManager.IsNormalMode) return true;
+
+            // 试玩模式不生效
+            if (GameManager.IsTrialPlay) return true;
+            
+            // 联机对战不生效
+            Manager.Party.Party.IManager PartyManager = Manager.Party.Party.Party.Get();
+            if (SingletonStateMachine<AmManager, AmManager.EState>.Instance.Backup.gameSetting.MachineGroupID != DB.MachineGroupID.OFF && PartyManager != null && PartyManager.IsJoinAndActive())
+                return true;
+            
             // 检查当前选择的歌曲是否为目标歌曲
             var musicId = GameManager.SelectMusicID[0];
             if (_targetIDMovieDict.TryGetValue(musicId, out var videoPath))
@@ -884,7 +916,7 @@ public class CustomIntroCinematic
                 container.processManager.AddProcess(
                     new FadeProcess(container, __instance, 
                         new SimpleMovieTrackStartProcess(container, videoPath), 
-                        FadeProcess.FadeType.Type3), 50);
+                        releaseCustomMaterial: false), 50);
                 
                 SoundManager.PreviewEnd();
                 SoundManager.StopBGM(2);
