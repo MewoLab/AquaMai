@@ -340,9 +340,25 @@ public class CustomIntroCinematic
                     // SetBackGroundDisp()
                     container.processManager.SendMessage(new Message(ProcessType.CommonProcess, 50004, i, false));
                 }
+
                 
-                // 不知道怎么回事，副屏角色图片不显示了，要重新发送信息
-                SendCharacterInformation(container);
+                // 复刻 TrackStartProcess.OnStart() 的副屏控制逻辑
+                for (int l = 0; l < 2; l++)
+                {
+                    if (Singleton<UserDataManager>.Instance.GetUserData(l).IsEntry)
+                    {
+                        int num = GameManager.SelectMusicID[l];
+                        int num2 = GameManager.SelectDifficultyID[l];
+                        MusicData music = Singleton<DataManager>.Instance.GetMusic(num);
+                        Notes notes = null;
+                        MusicDifficultyID musicDifficultyID = (MusicDifficultyID)num2;
+                        int musicLevelID = (((uint)musicDifficultyID > 4u) ? Singleton<DataManager>.Instance.GetMusic(num).notesData[0] : Singleton<DataManager>.Instance.GetMusic(num).notesData[num2]).musicLevelID;
+                        MessageMusicData messageMusicData = new MessageMusicData(container.assetManager.GetJacketTexture2D(music.jacketFile), music.name.str, music.utageKanjiName, music.utagePlayStyle, music.GetID(), num2, musicLevelID, GameManager.GetScoreKind(num), Singleton<DataManager>.Instance.IsLong(music.longMusic));
+                        container.processManager.SendMessage(new Message(ProcessType.CommonProcess, 20002, l, messageMusicData));
+                    }
+                    container.processManager.SendMessage(new Message(ProcessType.CommonProcess, 50016, l));
+                }
+                container.processManager.SendMessage(new Message(ProcessType.CommonProcess, 30001));
                 
                 // 准备音频（如果有）
                 if (!string.IsNullOrEmpty(_acbFilePath) && !string.IsNullOrEmpty(_awbFilePath))
@@ -383,44 +399,6 @@ public class CustomIntroCinematic
             }
         }
 
-        private void SendCharacterInformation(ProcessDataContainer container)
-        {
-            try
-            {
-                // 复刻 MusicSelectMonitor.Initialize()
-                DataManager instance = Singleton<DataManager>.Instance;
-                for (int playerIndex = 0; playerIndex < 2; playerIndex++)
-                {
-                    var userData = Singleton<UserDataManager>.Instance.GetUserData(playerIndex);
-                    if (!userData.IsEntry)
-                        continue;
-                    int[] charaSlot = userData.Detail.CharaSlot;
-                    List<UserChara> charaList = userData.CharaList;
-                    for (int i = 0; i < charaSlot.Length; i++)
-                    {
-                        if (charaSlot[i] != 0)
-                        {
-                            CharaData charaData = instance.GetChara(charaSlot[i]);
-                            UserChara userChara = charaList.Find((UserChara a) => a.ID == charaData.GetID());
-                            if (userChara != null)
-                            {
-                                MapColorData mapColorData = instance.GetMapColorData(charaData.color.id);
-                                Color regionColor = new Color32(mapColorData.Color.R, mapColorData.Color.G, mapColorData.Color.B, byte.MaxValue);
-                                Texture2D characterTexture2D = container.assetManager.GetCharacterTexture2D(charaData.imageFile);
-                                MessageCharactorInfomationData messageCharactorInfomationData = new MessageCharactorInfomationData(i, charaData.genre.id, characterTexture2D, userChara.DisplayLevel, userChara.Awakening, userChara.NextAwakePercent, regionColor, userChara.Reincarnation);
-                                container.processManager.SendMessage(new Message(ProcessType.CommonProcess, 20021, playerIndex, messageCharactorInfomationData));
-                            }
-                        }
-                    }
-                    // 激活角色信息显示
-                    container.processManager.SendMessage(new Message(ProcessType.CommonProcess, 20020, playerIndex, true));
-                }
-            }
-            catch (Exception e)
-            {
-                MelonLogger.Msg($"[CustomIntroCinematic] SendCharacterInformation error: {e}");
-            }
-        }
 
         public override void OnUpdate()
         {
