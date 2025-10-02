@@ -261,6 +261,7 @@ public class CustomIntroCinematic
         private GameObject[] _movieMaskObjs;
         private GameObject[] _monitorObjects;
         private SpriteRenderer[] _movieSprites;
+        private Material[] _movieMaterials;
         private float _videoTimer;
         private bool[] _isVideoPrepared;
         private bool _isVideoPrepareError;
@@ -284,6 +285,7 @@ public class CustomIntroCinematic
             _movieMaskObjs = new GameObject[2];
             _monitorObjects = new GameObject[2];
             _movieSprites = new SpriteRenderer[2];
+            _movieMaterials = new Material[2];
             _isVideoPrepared = new bool[2];
             _isVideoPrepareError = false;
             _isAudioPrepared = false;
@@ -293,51 +295,10 @@ public class CustomIntroCinematic
         {
         }
 
+
         public override void OnRelease()
         {
-            // 停止音频
-            if (_isAudioPrepared)
-            {
-                SoundManager.StopMusic();
-                // 卸载CueSheet以释放音频资源
-                Singleton<SoundCtrl>.Instance.UnloadCueSheet(1);
-                //MelonLogger.Msg("[CustomIntroCinematic] Unloaded CueSheet 1");
-                _isAudioPrepared = false;
-            }
-
-
-            // 清理所有创建的对象
-            for (int i = 0; i < 2; i++)
-            {
-                if (_videoPlayers[i] != null)
-                {
-                    _videoPlayers[i].Stop();
-                    UnityEngine.Object.Destroy(_videoPlayers[i]);
-                }
-                if (_movieMaskObjs[i] != null)
-                {
-                    UnityEngine.Object.Destroy(_movieMaskObjs[i]);
-                }
-                // 销毁Monitor GameObject
-                if (_monitorObjects[i] != null)
-                {
-                    UnityEngine.Object.Destroy(_monitorObjects[i]);
-                    _monitorObjects[i] = null;
-                }
-                // Ensure sprite renderers are disabled and cleared
-                try
-                {
-                    if (_movieSprites != null && _movieSprites[i] != null)
-                    {
-                        _movieSprites[i].enabled = false;
-                        _movieSprites[i] = null;
-                    }
-                }
-                catch { }
-
-                _videoPlayers[i] = null;
-                _movieMaskObjs[i] = null;
-            }
+            CleanupResources();
         }
 
         public override void OnStart()
@@ -710,8 +671,12 @@ public class CustomIntroCinematic
 
                 if (leftMovieSprite != null && rightMovieSprite != null)
                 {
-                    leftMovieSprite.material = new Material(Shader.Find("Sprites/Default"));
-                    rightMovieSprite.material = new Material(Shader.Find("Sprites/Default"));
+                    // 创建 Material 并保存引用
+                    _movieMaterials[0] = new Material(Shader.Find("Sprites/Default"));
+                    _movieMaterials[1] = new Material(Shader.Find("Sprites/Default"));
+                    
+                    leftMovieSprite.material = _movieMaterials[0];
+                    rightMovieSprite.material = _movieMaterials[1];
 
                     _videoPlayers[0].targetMaterialRenderer = leftMovieSprite;
                     _videoPlayers[1].targetMaterialRenderer = rightMovieSprite;
@@ -851,15 +816,8 @@ public class CustomIntroCinematic
             {
                 MelonLogger.Msg("[CustomIntroCinematic] Falling back to GameProcess");
                 
-                // 停止音频
-                if (_isAudioPrepared)
-                {
-                    SoundManager.StopMusic();
-                    // 卸载CueSheet以释放音频资源
-                    Singleton<SoundCtrl>.Instance.UnloadCueSheet(1);
-                    //MelonLogger.Msg("[CustomIntroCinematic] Unloaded CueSheet 1 in fallback");
-                    _isAudioPrepared = false;
-                }
+                // 清理所有资源
+                CleanupResources();
 
                 // 直接进入乐曲
                 container.processManager.AddProcess(
@@ -872,7 +830,71 @@ public class CustomIntroCinematic
                 MelonLogger.Msg($"[CustomIntroCinematic] FallbackToGameProcess error: {e}");
             }
         }
+
+
+        // 清理所有视频和音频资源
+        private void CleanupResources()
+        {
+            // 停止音频
+            if (_isAudioPrepared)
+            {
+                SoundManager.StopMusic();
+                // 卸载CueSheet以释放音频资源
+                Singleton<SoundCtrl>.Instance.UnloadCueSheet(1);
+                //MelonLogger.Msg("[CustomIntroCinematic] Unloaded CueSheet 1");
+                _isAudioPrepared = false;
+            }
+
+            // 清理所有创建的对象
+            for (int i = 0; i < 2; i++)
+            {
+                // 清理 VideoPlayer 和事件回调
+                if (_videoPlayers[i] != null)
+                {
+                    // 解绑事件回调
+                    _videoPlayers[i].prepareCompleted -= null;
+                    _videoPlayers[i].errorReceived -= null;
+                    
+                    // 清理 VideoPlayer
+                    _videoPlayers[i].Stop();
+                    UnityEngine.Object.Destroy(_videoPlayers[i]);
+                    _videoPlayers[i] = null;
+                }
+                
+                // 清理 Material
+                if (_movieMaterials != null && _movieMaterials[i] != null)
+                {
+                    UnityEngine.Object.Destroy(_movieMaterials[i]);
+                    _movieMaterials[i] = null;
+                }
+                
+                if (_movieMaskObjs[i] != null)
+                {
+                    UnityEngine.Object.Destroy(_movieMaskObjs[i]);
+                    _movieMaskObjs[i] = null;
+                }
+                
+                // 销毁Monitor GameObject
+                if (_monitorObjects[i] != null)
+                {
+                    UnityEngine.Object.Destroy(_monitorObjects[i]);
+                    _monitorObjects[i] = null;
+                }
+                
+                // 清理 sprite 引用
+                try
+                {
+                    if (_movieSprites != null && _movieSprites[i] != null)
+                    {
+                        _movieSprites[i].enabled = false;
+                        _movieSprites[i] = null;
+                    }
+                }
+                catch { }
+            }
+        }
     }
+    
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(MusicSelectProcess), "GameStart")]
