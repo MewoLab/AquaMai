@@ -292,24 +292,6 @@ public class CustomIntroCinematic
                 _isAudioPrepared = false;
             }
             
-            // 恢复背景显示
-            try
-            {
-                var containerField = typeof(ProcessBase).GetField("container", 
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                var container = (ProcessDataContainer)containerField.GetValue(this);
-                
-                for (int i = 0; i < 2; i++)
-                {
-                    //SetBackGroundDisp
-                    container.processManager.SendMessage(new Message(ProcessType.CommonProcess, 50004, i, true));
-                }
-            }
-            catch (Exception e)
-            {
-                MelonLogger.Msg($"[CustomIntroCinematic] OnRelease error when restoring background: {e}");
-            }
-            
             // 清理所有创建的对象
             for (int i = 0; i < 2; i++)
             {
@@ -885,17 +867,6 @@ public class CustomIntroCinematic
                     Singleton<SoundCtrl>.Instance.UnloadCueSheet(1);
                     //MelonLogger.Msg("[CustomIntroCinematic] Unloaded CueSheet 1 in fallback");
                     _isAudioPrepared = false;
-                }
-                
-                // 恢复背景显示
-                var containerField = typeof(ProcessBase).GetField("container", 
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                var container = (ProcessDataContainer)containerField.GetValue(this);
-                
-                for (int i = 0; i < 2; i++)
-                {
-                    // SetBackGroundDisp
-                    container.processManager.SendMessage(new Message(ProcessType.CommonProcess, 50004, i, true));
                 }
 
                 // 直接进入乐曲
