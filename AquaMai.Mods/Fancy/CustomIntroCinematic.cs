@@ -250,6 +250,7 @@ public class CustomIntroCinematic
         private SpriteRenderer[] _movieSprites;
         private float _videoTimer;
         private bool[] _isVideoPrepared;
+        private bool _isVideoPrepareError;
         private string _videoFilePathLeft;
         private string _videoFilePathRight;
         private float _videoDuration;
@@ -271,6 +272,7 @@ public class CustomIntroCinematic
             _monitorObjects = new GameObject[2];
             _movieSprites = new SpriteRenderer[2];
             _isVideoPrepared = new bool[2];
+            _isVideoPrepareError = false;
             _isAudioPrepared = false;
         }
 
@@ -376,11 +378,14 @@ public class CustomIntroCinematic
                         MelonLogger.Msg($"[CustomIntroCinematic] Failed to prepare audio: {audioBasePath}");
                     }
                 }
+
+                // 开始准备视频
+                StartVideoPreparation();
                 
                 // 通知淡入完成
                 container.processManager.NotificationFadeIn();
                 
-                // 开始等待1秒
+                // 进入StartWait阶段
                 _state = SimpleMovieState.StartWait;
                 _startWaitTimer = 0f;
                 _videoTimer = 0f;
@@ -447,8 +452,6 @@ public class CustomIntroCinematic
                         // 等待1秒确保淡入动画完成
                         if (_startWaitTimer > 1f)
                         {
-                            // 开始准备视频
-                            StartVideoPreparation();
                             _state = SimpleMovieState.VideoPrepare;
                             //MelonLogger.Msg("[CustomIntroCinematic] Fade in wait completed, starting video preparation");
                         }
@@ -460,9 +463,9 @@ public class CustomIntroCinematic
 
                     case SimpleMovieState.VideoPrepare:
                         // 等待视频准备就绪，最多等待5秒
-                        if (_isVideoPrepared[0] && _isVideoPrepared[1])
+                        if (_isVideoPrepared[0] && _isVideoPrepared[1] && !_isVideoPrepareError)
                         {
-                            // Enable the movie sprites and set them to normal color just before playback to avoid white flashes
+                            // Enable the movie sprites
                             try
                             {
                                 if (_movieSprites[0] != null)
@@ -478,7 +481,7 @@ public class CustomIntroCinematic
                             }
                             catch (Exception e)
                             {
-                                MelonLogger.Msg($"[CustomIntroCinematic] Error enabling movie sprites: {e}");
+                                MelonLogger.Msg($"[CustomIntroCinematic] OnUpdate.VideoPrepare: Error enabling movie sprites: {e}");
                             }
 
                             _state = SimpleMovieState.VideoPlay;
@@ -499,9 +502,9 @@ public class CustomIntroCinematic
                                 //MelonLogger.Msg("[CustomIntroCinematic] Both videos prepared, starting playback (no audio)");
                             }
                         }
-                        else if (_videoTimer > 5f) // 5秒超时
+                        else if (_videoTimer > 5f || _isVideoPrepareError) // 5秒超时
                         {
-                            MelonLogger.Msg("[CustomIntroCinematic] Video preparation timeout");
+                            MelonLogger.Msg("[CustomIntroCinematic] Video preparation failed");
                             FallbackToGameProcess();
                         }
                         else
@@ -512,7 +515,7 @@ public class CustomIntroCinematic
 
                     case SimpleMovieState.VideoPlay:
 
-                        // 视频结束了立即黑屏
+                        // 考虑到视频时长可能不一致，如果有视频提前结束了就禁用对应的Sprite以防止白屏
                         try
                         {   
                             if (!_videoPlayers[0].isPlaying)
@@ -522,7 +525,7 @@ public class CustomIntroCinematic
                         }
                         catch (Exception e)
                         {
-                            MelonLogger.Msg($"[CustomIntroCinematic] Error disabling movie sprites on end: {e}");
+                            MelonLogger.Msg($"[CustomIntroCinematic] OnUpdate.VideoPlay: Error disabling movie sprites on end: {e}");
                         }
 
                         // 检查视频是否结束（两个视频都结束了才认为全部结束）
@@ -621,14 +624,14 @@ public class CustomIntroCinematic
                 if (!System.IO.File.Exists(_videoFilePathLeft))
                 {
                     MelonLogger.Msg($"[CustomIntroCinematic] Left video file not found: {_videoFilePathLeft}");
-                    FallbackToGameProcess();
+                    _isVideoPrepareError = true;
                     return;
                 }
 
                 if (!System.IO.File.Exists(_videoFilePathRight))
                 {
                     MelonLogger.Msg($"[CustomIntroCinematic] Right video file not found: {_videoFilePathRight}");
-                    FallbackToGameProcess();
+                    _isVideoPrepareError = true;
                     return;
                 }
 
@@ -637,11 +640,11 @@ public class CustomIntroCinematic
                 if (prefs == null)
                 {
                     MelonLogger.Msg("[CustomIntroCinematic] Failed to load MovieTrackStartProcess prefab");
-                    FallbackToGameProcess();
+                    _isVideoPrepareError = true;
                     return;
                 }
 
-                var containerField = typeof(ProcessBase).GetField("container", 
+                var containerField = typeof(ProcessBase).GetField("container",
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 var container = (ProcessDataContainer)containerField.GetValue(this);
 
@@ -654,7 +657,8 @@ public class CustomIntroCinematic
                 _monitorObjects[1] = rightMonitor;
 
                 // Ensure instantiated monitors align exactly with their parent (reset local transform)
-                try {
+                try
+                {
                     leftMonitor.transform.localPosition = Vector3.zero;
                     leftMonitor.transform.localRotation = Quaternion.identity;
                     leftMonitor.transform.localScale = Vector3.one;
@@ -662,7 +666,13 @@ public class CustomIntroCinematic
                     rightMonitor.transform.localPosition = Vector3.zero;
                     rightMonitor.transform.localRotation = Quaternion.identity;
                     rightMonitor.transform.localScale = Vector3.one;
-                } catch (Exception e) { MelonLogger.Msg($"[CustomIntroCinematic] Error resetting monitor transforms: {e}"); }
+                }
+                catch (Exception e)
+                {
+                    MelonLogger.Msg($"[CustomIntroCinematic] Error resetting monitor transforms: {e}");
+                    _isVideoPrepareError = true;
+                    return;
+                }
 
                 // 获取MovieTrackStartMonitor组件
                 var leftMonitorComp = leftMonitor.GetComponent<Monitor.MovieTrackStart.MovieTrackStartMonitor>();
@@ -671,7 +681,7 @@ public class CustomIntroCinematic
                 if (leftMonitorComp == null || rightMonitorComp == null)
                 {
                     MelonLogger.Msg("[CustomIntroCinematic] Failed to get MovieTrackStartMonitor components");
-                    FallbackToGameProcess();
+                    _isVideoPrepareError = true;
                     return;
                 }
 
@@ -680,9 +690,9 @@ public class CustomIntroCinematic
                 rightMonitorComp.Initialize(1, true);
 
                 // 获取movieMaskObj
-                var leftMovieMaskField = typeof(Monitor.MovieTrackStart.MovieTrackStartMonitor).GetField("_movieMaskObj", 
+                var leftMovieMaskField = typeof(Monitor.MovieTrackStart.MovieTrackStartMonitor).GetField("_movieMaskObj",
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                var rightMovieMaskField = typeof(Monitor.MovieTrackStart.MovieTrackStartMonitor).GetField("_movieMaskObj", 
+                var rightMovieMaskField = typeof(Monitor.MovieTrackStart.MovieTrackStartMonitor).GetField("_movieMaskObj",
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
                 var leftMovieMaskObj = (GameObject)leftMovieMaskField.GetValue(leftMonitorComp);
@@ -691,7 +701,7 @@ public class CustomIntroCinematic
                 if (leftMovieMaskObj == null || rightMovieMaskObj == null)
                 {
                     MelonLogger.Msg("[CustomIntroCinematic] Failed to get movieMaskObj");
-                    FallbackToGameProcess();
+                    _isVideoPrepareError = true;
                     return;
                 }
 
@@ -717,9 +727,9 @@ public class CustomIntroCinematic
                 _videoPlayers[1].audioOutputMode = VideoAudioOutputMode.None;
 
                 // 获取movie sprite并设置材质
-                var leftMovieField = typeof(Monitor.MovieTrackStart.MovieTrackStartMonitor).GetField("_movieSprite", 
+                var leftMovieField = typeof(Monitor.MovieTrackStart.MovieTrackStartMonitor).GetField("_movieSprite",
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                var rightMovieField = typeof(Monitor.MovieTrackStart.MovieTrackStartMonitor).GetField("_movieSprite", 
+                var rightMovieField = typeof(Monitor.MovieTrackStart.MovieTrackStartMonitor).GetField("_movieSprite",
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
                 var leftMovieSprite = (SpriteRenderer)leftMovieField.GetValue(leftMonitorComp);
@@ -729,10 +739,9 @@ public class CustomIntroCinematic
                 {
                     leftMovieSprite.material = new Material(Shader.Find("Sprites/Default"));
                     rightMovieSprite.material = new Material(Shader.Find("Sprites/Default"));
-                    
+
                     _videoPlayers[0].targetMaterialRenderer = leftMovieSprite;
                     _videoPlayers[1].targetMaterialRenderer = rightMovieSprite;
-
                 }
 
                 // Store and initialize movie sprite renderers. Keep them disabled (black) until playback
@@ -753,18 +762,21 @@ public class CustomIntroCinematic
                 catch (Exception e)
                 {
                     MelonLogger.Msg($"[CustomIntroCinematic] Error initializing movie sprites: {e}");
+                    _isVideoPrepareError = true;
+                    return;
                 }
 
                 // 设置准备完成回调
                 int preparedCount = 0;
-                Action onVideoPrepared = () => {
+                Action onVideoPrepared = () =>
+                {
                     preparedCount++;
                     if (preparedCount == 2)
                     {
                         // 暂停视频，防止自动播放
                         _videoPlayers[0].Pause();
                         _videoPlayers[1].Pause();
-                        
+
                         _isVideoPrepared[0] = true;
                         _isVideoPrepared[1] = true;
                         _videoDuration = Mathf.Max((float)_videoPlayers[0].length, (float)_videoPlayers[1].length); // 取较长的时长
@@ -801,7 +813,7 @@ public class CustomIntroCinematic
                         }
 
                         // 调用SetMovieSize方法设置视频尺寸
-                        var setMovieSizeMethod = typeof(Monitor.MovieTrackStart.MovieTrackStartMonitor).GetMethod("SetMovieSize", 
+                        var setMovieSizeMethod = typeof(Monitor.MovieTrackStart.MovieTrackStartMonitor).GetMethod("SetMovieSize",
                             System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
 
                         if (setMovieSizeMethod != null)
@@ -815,23 +827,27 @@ public class CustomIntroCinematic
                     }
                 };
 
-                _videoPlayers[0].prepareCompleted += (source) => {
+                _videoPlayers[0].prepareCompleted += (source) =>
+                {
                     onVideoPrepared();
                 };
 
-                _videoPlayers[1].prepareCompleted += (source) => {
+                _videoPlayers[1].prepareCompleted += (source) =>
+                {
                     onVideoPrepared();
                 };
 
                 // 设置错误回调
-                _videoPlayers[0].errorReceived += (source, message) => {
+                _videoPlayers[0].errorReceived += (source, message) =>
+                {
                     MelonLogger.Msg($"[CustomIntroCinematic] Left video player error: {message}");
-                    FallbackToGameProcess();
+                    _isVideoPrepareError = true;
                 };
 
-                _videoPlayers[1].errorReceived += (source, message) => {
+                _videoPlayers[1].errorReceived += (source, message) =>
+                {
                     MelonLogger.Msg($"[CustomIntroCinematic] Right video player error: {message}");
-                    FallbackToGameProcess();
+                    _isVideoPrepareError = true;
                 };
 
                 // 开始准备视频
@@ -844,7 +860,7 @@ public class CustomIntroCinematic
             catch (Exception e)
             {
                 MelonLogger.Msg($"[CustomIntroCinematic] StartVideoPreparation error: {e}");
-                FallbackToGameProcess();
+                _isVideoPrepareError = true;
             }
         }
 
