@@ -6,14 +6,7 @@ namespace AquaMai.Config.Attributes;
 
 public record ConfigComment(string CommentEn, string CommentZh, string NameZh) : IConfigComment
 {
-    public string GetLocalized(string lang) => lang switch
-    {
-        "en" => CommentEn ?? "",
-        "zh" => CommentZh ?? "",
-        _ => throw new ArgumentException($"Unsupported language: {lang}")
-    };
-
-    public string GetLocalizedForComment(string lang)
+    public string GetLocalized(string lang)
     {
         switch (lang)
         {

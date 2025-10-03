@@ -156,7 +156,7 @@ public class ConfigSerializer(IConfigSerializer.Options Options) : IConfigSerial
     {
         if (comment != null)
         {
-            AppendComment(sb, comment.GetLocalizedForComment(Options.Lang));
+            AppendComment(sb, comment.GetLocalized(Options.Lang));
         }
     }
 
