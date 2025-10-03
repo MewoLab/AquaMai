@@ -5,6 +5,7 @@ using IO;
 namespace AquaMai.Mods.GameSystem;
 
 [ConfigSection(
+    name: "触摸屏串口",
     en: """
         Adjust the port of the touch screen serial port, default value is COM3 COM4.
         Requires configuration by Device Manager. If you are unsure, don't use it.

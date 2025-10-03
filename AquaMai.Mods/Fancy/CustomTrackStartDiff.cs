@@ -9,6 +9,7 @@ using UnityEngine.UI;
 namespace AquaMai.Mods.Fancy;
 
 [ConfigSection(
+    name: "自定义难度显示",
     en: """
         Custom track start difficulty image (not really custom difficulty).
         Requires CustomSkins to be enabled.

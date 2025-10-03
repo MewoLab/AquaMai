@@ -6,23 +6,24 @@ using System;
 namespace AquaMai.Mods.GameSystem;
 
 [ConfigSection(
+    name: "音频输出设置",
     zh: "音频独占与八声道设置",
     en: "Audio Exclusive and 8-Channel Settings")]
 public static class Sound
 {
     [ConfigEntry(
-        zh: "是否启用音频独占",
+        name: "音频独占",
         en: "Enable Audio Exclusive")]
     private readonly static bool enableExclusive = false;
 
     [ConfigEntry(
-        zh: "是否启用八声道",
+        name: "八声道",
         en: "Enable 8-Channel")]
     private readonly static bool enable8Channel = false;
 
     [ConfigEntry(
-        en: "Music Volume.",
-        zh: "乐曲音量")]
+        name: "乐曲音量",
+        en: "Music Volume.")]
     private readonly static float musicVolume = 1.0f;
 
     private static CriAtomUserExtension.AudioClientShareMode AudioShareMode => enableExclusive ? CriAtomUserExtension.AudioClientShareMode.Exclusive : CriAtomUserExtension.AudioClientShareMode.Shared;

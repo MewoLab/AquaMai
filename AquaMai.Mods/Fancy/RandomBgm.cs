@@ -12,6 +12,7 @@ using MelonLoader;
 namespace AquaMai.Mods.Fancy;
 
 [ConfigSection(
+    name: "随机 BGM",
     en: """
         Random BGM.
         Put Mai2Cue.{acb,awb} of old version of the game in the configured directory and rename them.
@@ -23,7 +24,7 @@ namespace AquaMai.Mods.Fancy;
         """)]
 public class RandomBgm
 {
-    [ConfigEntry]
+    [ConfigEntry(name: "Mai2Cue 目录")]
     private static readonly string mai2CueDir = "LocalAssets/Mai2Cue";
 
     private static List<string> _acbs = new List<string>();

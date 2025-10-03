@@ -6,4 +6,5 @@ public interface IConfigSectionAttribute
     bool ExampleHidden { get; }
     bool DefaultOn { get; }
     bool AlwaysEnabled { get; }
+    string Name { get; }
 }

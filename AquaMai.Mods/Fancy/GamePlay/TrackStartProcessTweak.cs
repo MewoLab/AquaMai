@@ -6,6 +6,7 @@ using UnityEngine;
 namespace AquaMai.Mods.Fancy.GamePlay;
 
 [ConfigSection(
+    name: "延迟开始动画",
     en: """
         Delayed the animation of the song start screen.
         For recording chart confirmation.

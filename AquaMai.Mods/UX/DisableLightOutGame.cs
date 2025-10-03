@@ -9,6 +9,7 @@ using Process;
 namespace AquaMai.Mods.UX;
 
 [ConfigSection(
+    name: "闲置时关闭灯光",
     en: "Disable button LED when not playing",
     zh: """
         在游戏闲置时关闭外键和框体的灯光
@@ -20,9 +21,6 @@ public static class DisableLightOutGame
     [HarmonyPatch(typeof(Bd15070_4IF), nameof(Bd15070_4IF.SetColorFetAutoFade))]
     public static bool SetColorFetAutoFadePrefix()
     {
-#if DEBUG
-        MelonLogger.Msg("[DisableLightOutGame] 拦截 Bd15070_4IF.SetColorFetAutoFade");
-#endif
         return false;
     }
 
@@ -30,9 +28,6 @@ public static class DisableLightOutGame
     [HarmonyPatch(typeof(AdvDemoMonitor), "BeatUpdate")]
     public static bool BeatUpdate()
     {
-#if DEBUG
-        MelonLogger.Msg("[DisableLightOutGame] 拦截 AdvDemoMonitor.BeatUpdate");
-#endif
         return false;
     }
 

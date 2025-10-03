@@ -23,6 +23,7 @@ namespace AquaMai.Mods.GameSystem;
 // Hides the 2p (right hand side) UI.
 // Note: this is not my original work. I simply interpreted the code and rewrote it as a mod.
 [ConfigSection(
+    name: "单人模式",
     en: """
         Single player: Show 1P only, at the center of the screen.
         """,
@@ -33,6 +34,7 @@ public partial class SinglePlayer
 {
 
     [ConfigEntry(
+        name: "隐藏副屏",
         en: "Only show the main area, without the sub-monitor.",
         zh: "只显示主区域，不显示副屏")]
     public static bool HideSubMonitor = false;
@@ -64,6 +66,7 @@ public partial class SinglePlayer
     }
 
     [ConfigEntry(
+        name: "自动跳过倒计时",
         en: "Automatically skip the countdown when logging in with a card in single-player mode.",
         zh: "单人模式下刷卡登录直接进入下一个界面，无需跳过倒计时")]
     public static bool autoSkip = false;
@@ -104,6 +107,7 @@ public partial class SinglePlayer
     }
 
     [ConfigEntry(
+        name: "修复烟花效果",
         en: "Fix hanabi effect under single-player mode (disabled automatically if HideHanabi is enabled).",
         zh: "修复单人模式下的烟花效果（如果启用了 HideHanabi，则会自动禁用）")]
     public static bool fixHanabi = true;

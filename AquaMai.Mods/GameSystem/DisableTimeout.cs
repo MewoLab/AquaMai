@@ -14,23 +14,26 @@ using UnityEngine.Playables;
 namespace AquaMai.Mods.GameSystem;
 
 [ConfigSection(
+    name: "去除倒计时",
     en: "Disable timers (hidden and set to 65535 seconds).",
     zh: "去除并隐藏游戏中的倒计时")]
 public class DisableTimeout
 {
     [ConfigEntry(
+        name: "游戏开始倒计时",
         en: "Disable game start timer.",
         zh: "也移除刷卡和选择模式界面的倒计时")]
     private static readonly bool inGameStart = true;
 
     [ConfigEntry(
+        name: "照片编辑倒计时",
         en: "Disable timer in PhotoEditProcess, not recommended.",
         zh: "也移除 可以看一看游戏成绩哦 界面的倒计时，不推荐启用，会导致无法点击上传照片按钮")]
     private static readonly bool inPhotoEditProcess = false;
 
     [ConfigEntry(
-        en: "Hide the timer display.",
-        zh: "隐藏计时器")]
+        name: "隐藏计时器",
+        en: "Hide the timer display.")]
     private static readonly bool hideTimer = true;
 
     private static bool ShouldNotEnable()

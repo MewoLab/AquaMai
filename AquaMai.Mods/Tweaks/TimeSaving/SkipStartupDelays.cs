@@ -6,6 +6,7 @@ using Process;
 namespace AquaMai.Mods.Tweaks.TimeSaving;
 
 [ConfigSection(
+    name: "跳过启动延迟",
     en: "Skip useless 2s delays to speed up the game boot process.",
     zh: """
         在自检界面，每个屏幕结束的时候都会等两秒才进入下一个屏幕，很浪费时间

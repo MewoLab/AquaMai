@@ -7,21 +7,24 @@ using UnityEngine;
 namespace AquaMai.Mods.GameSystem;
 
 [ConfigSection(
+    name: "图形设置",
     en: "Resolution Settings / Windowed Mode.",
     zh: "分辨率设置 / 窗口化")]
 public class Window
 {
     [ConfigEntry(
+        name: "窗口模式",
         en: "Window the game.",
         zh: "窗口化游戏")]
     private static readonly bool windowed = false;
 
     [ConfigEntry(
-        en: "Borderless window.",
-        zh: "无边框窗口")]
+        name: "无边框",
+        en: "Borderless window.")]
     private static readonly bool borderless = false;
 
     [ConfigEntry(
+        name: "宽度",
         en: """
             Window width (and height) for windowed mode, rendering resolution for fullscreen mode.
             If set to 0, windowed mode will remember the user-set size, fullscreen mode will use the current display resolution.
@@ -30,13 +33,13 @@ public class Window
         zh: """
             宽度（和高度）窗口化时为游戏窗口大小，全屏时为渲染分辨率
             如果设为 0，窗口化将记住用户设定的大小，全屏时将使用当前显示器分辨率
-            全屏时如果显示大小不正确，请改成屏幕的分辨率
+            全屏时如果显示大小不正确，请改成屏幕的分辨率（如 2160x3840）
             """)]
     private static readonly int width = 0;
 
     [ConfigEntry(
-        en: "Height, as above.",
-        zh: "高度，同上")]
+        name: "高度",
+        en: "Height, as above.")]
     private static readonly int height = 0;
 
     private const int GWL_STYLE = -16;

@@ -11,13 +11,15 @@ using MelonLoader;
 namespace AquaMai.Mods.Fancy;
 
 [ConfigSection(
+    name: "转场动画",
     en: "Set Fade Animation",
-    zh: "设置转场动画"
+    zh: "修改转场动画为其他变种"
 )]
 
 public class SetFade
 {
     [ConfigEntry(
+        name: "转场类型",
         en: "Type: Non-Plus 0, Plus 1. (If SDEZ 1.60 can choose Festa 2)",
         zh: "类型: Non-Plus 0, Plus 1. (SDEZ 1.60 限定可选 Festa 2)")]
     public static readonly int FadeType = 0;

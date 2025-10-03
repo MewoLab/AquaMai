@@ -15,10 +15,10 @@ namespace AquaMai.Mods.Tweaks;
     zh: "重置触摸面板")]
 public class ResetTouch
 {
-    [ConfigEntry(en: "Reset touch panel after playing track.", zh: "玩完一首歌自动重置")]
+    [ConfigEntry(en: "Reset touch panel after playing track.", name: "玩完一首歌自动重置")]
     private static bool afterTrack = false;
 
-    [ConfigEntry(en: "Reset manually.", zh: "按键重置")]
+    [ConfigEntry(en: "Reset manually.", name: "重置按键")]
     public static readonly KeyCodeOrName key = KeyCodeOrName.None;
 
     [ConfigEntry] private static readonly bool longPress = false;

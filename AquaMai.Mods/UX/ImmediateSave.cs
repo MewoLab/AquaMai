@@ -24,11 +24,15 @@ using UnityEngine;
 namespace AquaMai.Mods.UX;
 
 [ConfigSection(
+    name: "打一首存一首",
     en: "Save immediate after playing a song.",
     zh: "打完一首歌的时候立即向服务器保存成绩",
     defaultOn: true)]
 public class ImmediateSave
 {
+    [ConfigEntry(name: "显示保存中提示")]
+    public static readonly bool showTip = true;
+
     [HarmonyPatch]
     public static class RequestUploadUserPlayLogMaybeListData
     {
@@ -73,7 +77,7 @@ public class ImmediateSave
                 continue;
             }
 
-            if (ui == null)
+            if (ui == null && showTip)
             {
                 ui = SharedInstances.GameMainObject.gameObject.AddComponent<SavingUi>();
             }

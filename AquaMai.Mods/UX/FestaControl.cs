@@ -6,12 +6,14 @@ using Manager;
 namespace AquaMai.Mods.UX;
 
 [ConfigSection(
+    name: "Festa 开关",
     zh: "控制 “Festa” 模式 UI 的显示。如不开启，则不会更改设置，由 Event 或者服务器控制",
     en: "Control the display of “Festa” mode UI. If not enabled, the settings will not be changed, and Event or server will control it")]
 [EnableGameVersion(26000)]
 public static class FestaControl
 {
     [ConfigEntry(
+        name: "启用 Festa",
         zh: "是否显示 “Festa” 模式 UI",
         en: "Whether to display “Festa” mode UI")]
     public static readonly bool isFesta = false;

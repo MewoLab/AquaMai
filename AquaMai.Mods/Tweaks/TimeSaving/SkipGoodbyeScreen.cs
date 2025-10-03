@@ -6,6 +6,7 @@ using Process;
 namespace AquaMai.Mods.Tweaks.TimeSaving;
 
 [ConfigSection(
+    name: "跳过再见界面",
     en: "Skip the \"Goodbye\" screen at the end of the game.",
     zh: "跳过游戏结束的「再见」界面")]
 public class SkipGoodbyeScreen

@@ -7,11 +7,13 @@ using Process;
 namespace AquaMai.Mods.Fancy;
 
 [ConfigSection(
+    name: "触发器",
     en: "Triggers for executing commands at certain events.",
     zh: "在一定时机执行命令的触发器")]
 public class Triggers
 {
     [ConfigEntry(
+        name: "闲置时执行",
         en: "Execute some command on game idle.",
         zh: """
             在游戏闲置的时候执行指定的命令脚本
@@ -20,6 +22,7 @@ public class Triggers
     private static readonly string execOnIdle = "";
 
     [ConfigEntry(
+        name: "登录时执行",
         en: "Execute some command on game start.",
         zh: "在玩家登录的时候执行指定的命令脚本")]
     private static readonly string execOnEntry = "";

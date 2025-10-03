@@ -7,6 +7,7 @@ using Manager;
 namespace AquaMai.Mods.UX;
 
 [ConfigSection(
+    name: "隐藏乱码曲",
     en: "Hide glitch Xaleid◆scopiX in normal mode",
     zh: "在正常模式中，隐藏乱码曲 Xaleid◆scopiX",
     defaultOn: true

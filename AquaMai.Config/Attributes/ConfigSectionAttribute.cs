@@ -13,10 +13,13 @@ public class ConfigSectionAttribute(
     bool defaultOn = false,
     // NOTE: You probably shouldn't use this. Only the "General" section is using this.
     //       Implies defaultOn = true.
-    bool alwaysEnabled = false) : Attribute, IConfigSectionAttribute
+    bool alwaysEnabled = false,
+    // 用于在 MaiChartManager 中显示的名称，尽量控制在八个字以内吧
+    string name = null) : Attribute, IConfigSectionAttribute
 {
-    public IConfigComment Comment { get; } = new ConfigComment(en, zh);
+    public IConfigComment Comment { get; } = new ConfigComment(en, zh, name);
     public bool ExampleHidden { get; } = exampleHidden;
     public bool DefaultOn { get; } = defaultOn || alwaysEnabled;
     public bool AlwaysEnabled { get; } = alwaysEnabled;
+    public string Name { get; } = name;
 }

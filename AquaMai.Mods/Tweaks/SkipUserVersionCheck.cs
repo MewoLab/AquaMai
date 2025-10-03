@@ -5,6 +5,7 @@ using Process.Entry.State;
 namespace AquaMai.Mods.Tweaks;
 
 [ConfigSection(
+    name: "跳过版本检查",
     en: "Allow login with higher data version.",
     zh: """
         原先如果你的账号版本比当前游戏设定的版本高的话，就会不能登录

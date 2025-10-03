@@ -10,11 +10,13 @@ using UnityEngine;
 namespace AquaMai.Mods.UX;
 
 [ConfigSection(
+    name: "两位数曲目修复",
     en: "Make track number in top right corner display two digits",
     zh: "让右上角的当前曲目数字可以显示两位数")]
 public class FixTrackNumDisplay
 {
     [ConfigEntry(
+        name: "显示格式",
         en: "Track number display style: 0=Left-padded (_5), 1=Zero-padded (05), 2=Right-padded (5_)",
         zh: "曲目数字显示格式: 0=左侧补空格(_5), 1=左侧补零(05), 2=右侧补空格(5_)")]
     private static readonly int TrackNumDisplayStyle = 0; // Default 0

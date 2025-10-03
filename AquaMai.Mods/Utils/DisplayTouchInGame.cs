@@ -35,7 +35,7 @@ public static class DisplayTouchInGame
         zh: "默认显示。关了的话，可以用按键切换显示")]
     public static bool defaultOn = true;
 
-    [ConfigEntry(zh: "按键切换显示")]
+    [ConfigEntry(name: "切换显示按键")]
     public static readonly KeyCodeOrName key = KeyCodeOrName.None;
     [ConfigEntry] private static readonly bool longPress = false;
 

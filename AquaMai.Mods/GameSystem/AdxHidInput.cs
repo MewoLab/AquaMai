@@ -13,6 +13,7 @@ using UnityEngine;
 namespace AquaMai.Mods.GameSystem;
 
 [ConfigSection(
+    name: "ADX HID 输入",
     en: "Input using ADX HID firmware (do not enable if you are not using ADX's HID firmware, be sure to delete the existing HID related DLL when enabled)",
     zh: "使用 ADX HID 固件的自定义输入（如果你没有使用 ADX 的 HID 固件，请不要启用。启用时请务必删除现有 HID 相关 DLL）")]
 public class AdxHidInput
@@ -66,16 +67,16 @@ public class AdxHidInput
         }
     }
 
-    [ConfigEntry(zh: "按钮 1（向上的三角键）")]
+    [ConfigEntry(name: "按钮 1（向上的三角键）")]
     private static readonly AdxKeyMap button1 = AdxKeyMap.Select1P;
 
-    [ConfigEntry(zh: "按钮 2（三角键中间的圆形按键）")]
+    [ConfigEntry(name: "按钮 2（三角键中间的圆形按键）")]
     private static readonly AdxKeyMap button2 = AdxKeyMap.Service;
 
-    [ConfigEntry(zh: "按钮 3（向下的三角键）")]
+    [ConfigEntry(name: "按钮 3（向下的三角键）")]
     private static readonly AdxKeyMap button3 = AdxKeyMap.Select2P;
 
-    [ConfigEntry(zh: "按钮 4（最下方的圆形按键）")]
+    [ConfigEntry(name: "按钮 4（最下方的圆形按键）")]
     private static readonly AdxKeyMap button4 = AdxKeyMap.Test;
 
     private static bool GetPushedByButton(int playerNo, InputId inputId)

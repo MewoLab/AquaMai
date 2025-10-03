@@ -6,6 +6,7 @@ using Process;
 namespace AquaMai.Mods.Tweaks.TimeSaving;
 
 [ConfigSection(
+    name: "跳过乐曲开始",
     en: "Skip TrackStart screen.",
     zh: "跳过乐曲开始界面")]
 public class SkipTrackStart

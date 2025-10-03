@@ -12,6 +12,7 @@ using UnityEngine;
 namespace AquaMai.Mods.GameSystem;
 
 [ConfigSection(
+    name: "旧框灯板支持",
     en: "Skip BoardNo check to use the old cab light board 837-15070-02",
     zh: "跳过 BoardNo 检查以使用 837-15070-02（旧框灯板）")]
 public class SkipBoardNoCheck

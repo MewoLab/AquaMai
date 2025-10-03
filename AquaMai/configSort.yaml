@@ -9,7 +9,6 @@
   - GameSystem.TouchToButtonInput
   - GameSystem.TestProof
   - GameSettings.CreditConfig
-  - Fancy.GamePlay.ExtendNotesPool
   - Utils.MoveAnswerSound
 
 全解和跳过:
@@ -65,7 +64,6 @@
   - Utils.DisplayFrameRate
   - Utils.LogUserId
   - Utils.LogNetworkRequests
-  - Utils.ShowErrorLog
   - UX.HardwareAlert
 
 键位和灵敏度:
@@ -102,10 +100,12 @@
   - UX.DontRuinMyAccount
   - UX.Hide1879
   - UX.GrantFinalGateKey
+  - Fancy.GamePlay.ExtendNotesPool
   - Tweaks.TimeSaving.SkipStartupWarning
   - Tweaks.TimeSaving.SkipStartupDelays
   - Utils.ShowNetErrorDetail
   - Tweaks.IgnoreAimeServerError
   - UX.NoAmDaemonAlert
+  - Utils.ShowErrorLog
   - GameSettings.ForceAsServer
   - GameSystem.RemoveEncryption

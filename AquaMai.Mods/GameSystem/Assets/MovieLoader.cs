@@ -16,30 +16,35 @@ using UnityEngine.Video;
 namespace AquaMai.Mods.GameSystem.Assets;
 
 [ConfigSection(
+    name: "直读 PV",
     en: "Custom Play Song Background\nPriority: game source PV > local mp4 PV > jacket",
     zh: "自定义歌曲游玩界面背景\n优先级: 首先读游戏自带 PV, 然后读本地 mp4 格式 PV, 最后读封面",
     defaultOn: true)]
 public class MovieLoader
 {
     [ConfigEntry(
+        name: "游戏自带 PV",
         en: "Load Movie from game source",
         zh: "加载游戏自带的 PV")]
     private static bool loadSourceMovie = true;
 
 
     [ConfigEntry(
+        name: "本地 MP4",
         en: "Load Movie from LocalAssets mp4 files",
         zh: "从 LocalAssets 中加载 MP4 文件作为 PV")]
     private static bool loadMp4Movie = true;
 
 
     [ConfigEntry(
+        name: "MP4 路径",
         en: "MP4 files directory",
         zh: "加载 MP4 文件的路径")]
     private static readonly string movieAssetsDir = "LocalAssets";
 
 
     [ConfigEntry(
+        name: "封面作为背景",
         en: "Use jacket as movie\nUse together with `LoadLocalImages`.",
         zh: "用封面作为背景 PV\n请和 `LoadLocalImages` 一起用")]
     private static bool jacketAsMovie = true;

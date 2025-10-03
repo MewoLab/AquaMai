@@ -22,45 +22,47 @@ using UnityEngine;
 namespace AquaMai.Mods.UX;
 
 [ConfigSection(
+    name: "自定义自检警告",
     en: "Custom hardware alert, you can configure to display an error frame upon hardware failure. Toggle the switches below to define the required hardware.",
     zh: "自定义硬件警告，可配置在指定硬件自检失败时阻止游戏启动并显示报错画面，开启下方的错误类型以配置需要关注的错误。")]
 public class HardwareAlert
 {
     [ConfigEntry(
+        name: "原始语言显示",
         en: "If enabled, all the in-game hardware warnings will be displayed in game's original language, like Japanese for SDEZ. If you have used any translation pack, you should disable this setting.",
         zh: "如果启用，所有硬件警告将会使用游戏原本的语言显示，例如 SDEZ 就会用日文显示报错。如果你安装了任何汉化包，你应该关闭这个选项。")]
     private static readonly bool UseOriginalGameLanguage = true;
     [ConfigEntry(
         en: "1P Touch Sensor",
-        zh: "1P 触摸屏")]
+        name: "1P 触摸屏")]
     private static readonly bool TouchSensor_1P = false; // Error 3300, 3301
     [ConfigEntry(
         en: "2P Touch Sensor",
-        zh: "2P 触摸屏")]
+        name: "2P 触摸屏")]
     private static readonly bool TouchSensor_2P = false; // Error 3302, 3303
     [ConfigEntry(
         en: "1P LED",
-        zh: "1P LED")]
+        name: "1P LED")]
     private static readonly bool LED_1P = false; // custom 3400
     [ConfigEntry(
         en: "2P LED",
-        zh: "2P LED")]
+        name: "2P LED")]
     private static readonly bool LED_2P = false; // custom 3401
     [ConfigEntry(
         en: "Player Camera",
-        zh: "玩家摄像机")]
+        name: "玩家摄像机")]
     private static readonly bool PlayerCamera = false;  // 3102
     [ConfigEntry(
         en: "DX Pass 1P",
-        zh: "DX Pass 1P")]
+        name: "DX Pass 1P")]
     private static readonly bool CodeReader_1P = false; // 3101
     [ConfigEntry(
         en: "DX Pass 2P",
-        zh: "DX Pass 2P")]
+        name: "DX Pass 2P")]
     private static readonly bool CodeReader_2P = false; // 3101
     [ConfigEntry(
         en: "WeChat QRCode Camera",
-        zh: "二维码扫描摄像头")]
+        name: "二维码扫描摄像头")]
     public static readonly bool ChimeCamera = false; // 3100
 
     private static readonly List<string> CameraTypeList = ["QRLeft", "QRRight", "Photo", "Chime"];

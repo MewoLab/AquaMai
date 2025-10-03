@@ -9,6 +9,7 @@ using Net.VO.Mai2;
 namespace AquaMai.Mods.Utils;
 
 [ConfigSection(
+    name: "用户 ID 日志",
     en: "Log user ID on login.",
     zh: "登录时将 UserID 输出到日志")]
 public class LogUserId

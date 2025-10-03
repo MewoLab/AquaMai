@@ -5,6 +5,7 @@ using Process;
 namespace AquaMai.Mods.Tweaks.TimeSaving;
 
 [ConfigSection(
+    name: "游戏结束直接登出",
     en: "Skip uploading photos and collectibles after the game ends and log out directly.",
     zh: "游戏结束后跳过上传照片和收藏品直接登出")]
 public class ExitToSave

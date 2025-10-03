@@ -9,6 +9,7 @@ using Net.Packet;
 namespace AquaMai.Mods.GameSystem;
 
 [ConfigSection(
+    name: "移除加密",
     en: """
         If you are using an unmodified client, requests to the server will be encrypted by default, but requests to the private server should not be encrypted.
         With this option enabled, the connection will not be encrypted, and the suffix added by different versions of the client to the API names are also removed.

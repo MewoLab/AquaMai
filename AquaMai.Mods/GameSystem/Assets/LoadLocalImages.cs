@@ -15,12 +15,13 @@ using AquaMai.Core.Helpers;
 namespace AquaMai.Mods.GameSystem.Assets;
 
 [ConfigSection(
+    name: "直读图片",
     en: "Load asset images from the configured directory (for self-made charts).",
     zh: "从指定目录下加载资源图片（自制谱用）",
     defaultOn: true)]
 public class LoadLocalImages
 {
-    [ConfigEntry]
+    [ConfigEntry(name: "图片路径")]
     private static readonly string imageAssetsDir = "LocalAssets";
 
     private static readonly string[] imageExts = [".jpg", ".png", ".jpeg"];

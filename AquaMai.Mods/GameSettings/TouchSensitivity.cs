@@ -9,6 +9,7 @@ using MelonLoader;
 namespace AquaMai.Mods.GameSettings;
 
 [ConfigSection(
+    name: "触摸灵敏度",
     en: """
         Use custom touch sensitivity.
         When enabled, the settings in Test mode will not take effect.

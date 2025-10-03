@@ -5,12 +5,13 @@ namespace AquaMai.Mods;
 // This class is for settings only. Don't patch anything here.
 
 [ConfigSection(
+    name: "AquaMai 的通用设置",
     en: "AquaMai's general settings.",
-    zh: "AquaMai 的通用设置",
     alwaysEnabled: true)]
 public class General
 {
     [ConfigEntry(
+        name: "AquaMai 语言",
         en: """
             Language for mod UI (en and zh supported).
             If empty, the system language will be used.

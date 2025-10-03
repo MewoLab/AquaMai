@@ -7,6 +7,7 @@ using Manager;
 namespace AquaMai.Mods.Fancy.GamePlay;
 
 [ConfigSection(
+    name: "允许 1v1 星星",
     en: "Allow v-shaped slide with the same starting and ending point, such as \"1v1\" in Simai notation",
     zh: "允许形如 \"1v1\" 的，起点和终点相同的 v 型星星")]
 public static class ReviveFinaleVSlide

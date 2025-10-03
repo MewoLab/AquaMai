@@ -11,7 +11,8 @@ using Process;
 namespace AquaMai.Mods.Fix;
 
 [EnableGameVersion(25500)]
-[ConfigSection(zh: "修复 Long Music 重开时重复扣除 Track 数",
+[ConfigSection(name: "Long Music 重开修复",
+    zh: "修复 Long Music 重开时重复扣除 Track 数",
     exampleHidden: true, defaultOn: true)]
 public class FixLongMusicRestart
 {

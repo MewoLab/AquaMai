@@ -16,23 +16,25 @@ using AquaMai.Core.Helpers;
 namespace AquaMai.Mods.Utils;
 
 [ConfigSection(
+    name: "网络请求日志",
     en: "Log network requests to the MelonLoader console.",
     zh: "将网络请求输出到 MelonLoader 控制台")]
 public class LogNetworkRequests
 {
-    [ConfigEntry]
+    [ConfigEntry(name: "URL")]
     private static readonly bool url = true;
 
-    [ConfigEntry]
+    [ConfigEntry(name: "请求")]
     private static readonly bool request = true;
-    [ConfigEntry]
+    [ConfigEntry(name: "省略以下请求")]
     private static readonly string requestOmittedApis = "UploadUserPhotoApi,UploadUserPortraitApi";
 
-    [ConfigEntry]
+    [ConfigEntry(name: "响应")]
     private static readonly bool response = true;
-    [ConfigEntry]
+    [ConfigEntry(name: "省略以下响应")]
     private static readonly string responseOmittedApis = "GetGameEventApi";
     [ConfigEntry(
+        name: "仅输出错误",
         en: "Only print error responses, without the successful ones.",
         zh: "仅输出出错的响应，不输出成功的响应")]
     private static readonly bool responseErrorOnly = false;

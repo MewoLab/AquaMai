@@ -9,14 +9,15 @@ using UnityEngine;
 namespace AquaMai.Mods.Utils;
 
 [ConfigSection(
+    name: "狂暴引擎",
     en: "Some tricks to prevent the system from lagging",
-    zh: "狂暴引擎（可能缓解掉帧，但也可能把狂暴转移到用户身上）")]
+    zh: "可能缓解掉帧，但也可能把狂暴转移到用户身上")]
 public class AntiLag : MonoBehaviour
 {
-    [ConfigEntry(zh: "游戏未取得焦点时也运行")]
+    [ConfigEntry(name: "后台运行", zh: "游戏未取得焦点时也运行")]
     private static readonly bool activateWhileBackground = false;
 
-    [ConfigEntry(zh: "将游戏设为高优先级")]
+    [ConfigEntry(name: "高优先级", zh: "将游戏设为高优先级")]
     private static readonly bool setHighPriority = true;
 
     [HarmonyPostfix]

@@ -6,8 +6,8 @@ using UnityEngine;
 namespace AquaMai.Mods.Fancy;
 
 [ConfigSection(
-    en: "Remove the circle mask of the game screen.",
-    zh: "移除游戏画面的圆形遮罩")]
+    name: "移除圆形遮罩",
+    en: "Remove the circle mask of the game screen.")]
 public class HideMask
 {
     [HarmonyPrefix]

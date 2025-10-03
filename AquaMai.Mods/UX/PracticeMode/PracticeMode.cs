@@ -22,10 +22,11 @@ namespace AquaMai.Mods.UX.PracticeMode;
 [ConfigCollapseNamespace]
 [ConfigSection(
     en: "Practice Mode.",
-    zh: "练习模式")]
+    name: "练习模式")]
 public class PracticeMode
 {
     [ConfigEntry(
+        name: "按键",
         en: "Key to show Practice Mode UI.",
         zh: "显示练习模式 UI 的按键")]
     public static readonly KeyCodeOrName key = KeyCodeOrName.Test;

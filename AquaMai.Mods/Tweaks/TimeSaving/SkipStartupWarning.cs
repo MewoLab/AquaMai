@@ -5,6 +5,7 @@ using Monitor;
 namespace AquaMai.Mods.Tweaks.TimeSaving;
 
 [ConfigSection(
+    name: "跳过启动警告",
     en: "Skip SDEZ's warning screen and logo shown after the POST sequence.",
     zh: "跳过 SDEZ 启动时的 WARNING 界面",
     defaultOn: true)]

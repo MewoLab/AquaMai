@@ -6,6 +6,7 @@ using UnityEngine;
 namespace AquaMai.Mods.Fancy.GamePlay;
 
 [ConfigSection(
+    name: "精细判定显示",
     en: """
         More detailed judgment display.
         Requires CustomSkins to be enabled and the resource file to be downloaded.

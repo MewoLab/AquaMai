@@ -7,6 +7,7 @@ using UnityEngine;
 namespace AquaMai.Mods.Fancy.GamePlay;
 
 [ConfigSection(
+    name: "反转星星层级",
     en: """
         Invert the Slide hierarchy, so that the new Slide appears on top like Maimai classic.
         Enable to support color changing effects achieved by overlaying multiple stars.

@@ -18,6 +18,7 @@ using System.Runtime.CompilerServices;
 namespace AquaMai.Mods.GameSystem;
 
 [ConfigSection(
+    name: "全解",
     en: """
         Unlock normally locked (including normally non-unlockable) game content.
         Anything unlocked (except the characters you leveled-up) by this mod will not be uploaded your account.
@@ -36,6 +37,7 @@ public class Unlock
     }
 
     [ConfigEntry(
+        name: "区域",
         en: "Unlock maps that are not in this version.",
         zh: "解锁游戏里所有的区域，包括非当前版本的（并不会帮你跑完）")]
     private static readonly bool maps = true;
@@ -79,6 +81,7 @@ public class Unlock
     }
 
     [ConfigEntry(
+        name: "乐曲",
         en: "Unlock all songs, and skip the Master/ReMaster unlock screen (still save the unlock status).",
         zh: "解锁所有乐曲，并跳过紫/白解锁画面（会正常保存解锁状态）")]
     private static readonly bool songs = true;
@@ -190,6 +193,7 @@ public class Unlock
     }
 
     [ConfigEntry(
+        name: "跑图券",
         en: "Unlock normally event-only tickets.",
         zh: "解锁游戏里所有可能的跑图券")]
     private static readonly bool tickets = false;
@@ -228,6 +232,7 @@ public class Unlock
     }
 
     [ConfigEntry(
+        name: "段位",
         en: "Unlock all course-mode courses (no need to reach 10th dan to play \"real\" dan).",
         zh: "解锁所有段位模式的段位（不需要十段就可以打真段位）")]
     private static readonly bool courses = false;
@@ -264,6 +269,7 @@ public class Unlock
     }
 
     [ConfigEntry(
+        name: "宴会场",
         en: "Unlock Utage without the need of DXRating 10000.",
         zh: "不需要万分也可以进宴会场")]
     private static readonly bool utage = true;
@@ -298,42 +304,43 @@ public class Unlock
     ];
 
     [ConfigEntry(
-        en: "Unlock all titles.",
-        zh: "解锁所有称号"
+        name: "称号",
+        en: "Unlock all titles."
     )]
     private static readonly bool titles = false;
 
     [ConfigEntry(
-        en: "Unlock all icons.",
-        zh: "解锁所有头像"
+        name: "头像",
+        en: "Unlock all icons."
     )]
     private static readonly bool icons = false;
 
     [ConfigEntry(
-        en: "Unlock all plates.",
-        zh: "解锁所有姓名框"
+        name: "姓名框",
+        en: "Unlock all plates."
     )]
     private static readonly bool plates = false;
 
     [ConfigEntry(
-        en: "Unlock all frames.",
-        zh: "解锁所有背景"
+        name: "背景",
+        en: "Unlock all frames."
     )]
     private static readonly bool frames = false;
 
     [ConfigEntry(
-        en: "Unlock all partners.",
-        zh: "解锁所有搭档"
+        name: "搭档",
+        en: "Unlock all partners."
     )]
     private static readonly bool partners = false;
 
     [ConfigEntry(
-        en: "Enable all events.",
-        zh: "启用所有的 “Events”"
+        name: "Events",
+        en: "Enable all events."
     )]
     private static readonly bool events = false;
 
     [ConfigEntry(
+        name: "Event 黑名单",
         en: "Do not unlock the following events. Leave it enabled if you don't know what this is.",
         zh: "不解锁以下 Event。如果你不知道这是什么，请勿修改",
         hideWhenDefault: true
@@ -480,8 +487,8 @@ public class Unlock
     }
 
     [ConfigEntry(
-        en: "Unlock all characters.",
-        zh: "解锁所有旅行伙伴"
+        name: "旅行伙伴",
+        en: "Unlock all characters."
     )]
     private static readonly bool characters = false;
 

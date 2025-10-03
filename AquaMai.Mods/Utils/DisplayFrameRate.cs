@@ -7,8 +7,8 @@ using UnityEngine;
 namespace AquaMai.Mods.Utils;
 
 [ConfigSection(
-    en: "Display framerate.",
-    zh: "显示帧率")]
+    name: "显示帧率",
+    en: "Display framerate.")]
 public class DisplayFrameRate
 {
     [HarmonyPatch(typeof(GameMainObject), "Awake")]

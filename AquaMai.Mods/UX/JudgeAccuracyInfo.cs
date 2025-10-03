@@ -18,6 +18,7 @@ using Object = UnityEngine.Object;
 namespace AquaMai.Mods.UX;
 
 [ConfigSection(
+    name: "判定详情统计",
     zh: "在游戏总结的计分板中显示击打误差的详细信息（以帧为单位）",
     en: "Show detailed accuracy info in the score board.")]
 public class JudgeAccuracyInfo
