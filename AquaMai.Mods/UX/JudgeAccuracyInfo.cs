@@ -152,7 +152,9 @@ public class JudgeAccuracyInfo
             if (!____userData[idx].IsEntry) continue;
             
             var fileName = $"Acc_Track_{GameManager.MusicTrackNumber}_Player_{idx}.txt";
-            var filePath = Path.Combine(Environment.CurrentDirectory, fileName);
+            var directoryPath = Path.Combine(Environment.CurrentDirectory, "JudgeAccuracyInfo");
+            if (!Directory.Exists(directoryPath)) Directory.CreateDirectory(directoryPath);
+            var filePath = Path.Combine(directoryPath, fileName);
             
             using (var writer = new StreamWriter(filePath))
             {
