@@ -37,7 +37,7 @@ public class CustomIntroCinematic
             "xxx = 乐曲ID, 文件夹内可以包含多个乐曲的开场视频\n" +
             "简单一键生成 ACB/AWB 工具: https://github.com/ck2739046/MaiChartManager/tree/main/Audio_Convert\n" +
             "效果演示: https://www.bilibili.com/video/BV18QHjzMEyT")]
-    private static readonly string IntroMovieDir = "LocalAssets";
+    private static readonly string IntroMovieDir = "LocalAssets/IntroMovies";
 
     private static bool _isInitialized = false;
 
