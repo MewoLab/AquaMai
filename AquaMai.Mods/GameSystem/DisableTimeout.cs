@@ -57,7 +57,7 @@ public class DisableTimeout
         Traverse.Create(__instance).Property<bool>("IsInfinity").Value = true;
     }
 
-    private static MethodBase _updateFreedomModeCounter = typeof(TimerController).GetMethod("UpdateFreedomModeCounter", BindingFlags.NonPublic);
+    private static MethodBase _updateFreedomModeCounter = AccessTools.Method(typeof(TimerController), "UpdateFreedomModeCounter");
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(TimerController), nameof(TimerController.UpdateTimer))]
