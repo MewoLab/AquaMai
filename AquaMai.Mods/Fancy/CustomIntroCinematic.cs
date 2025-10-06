@@ -29,14 +29,14 @@ public class CustomIntroCinematic
             "Audio file naming: Enter_xxx.acb + Enter_xxx.awb (optional, video plays silently without audio files)\n" +
             "xxx = music ID, the folder can contain intro videos for multiple songs\n" +
             "Easy ACB/AWB generation tool: https://github.com/ck2739046/MaiChartManager/tree/main/Audio_Convert\n" +
-            "Demo video: https://www.bilibili.com/video/BV18QHjzMEyT",
+            "Demo video: https://www.bilibili.com/video/BV1jTxVzjETG",
         zh: "开场视频文件夹的路径\n" +
             "该文件夹应包含开场视频文件 (mp4/acb/awb)\n" +
             "视频文件命名: Enter_xxx.mp4 (左右屏播放同一视频) 或 Enter_xxx_L.mp4 + Enter_xxx_R.mp4 (左右屏播放不同的视频)\n" +
             "音频文件命名: Enter_xxx.acb + Enter_xxx.awb (可选, 无音频文件时静音播放)\n" +
             "xxx = 乐曲ID, 文件夹内可以包含多个乐曲的开场视频\n" +
             "简单一键生成 ACB/AWB 工具: https://github.com/ck2739046/MaiChartManager/tree/main/Audio_Convert\n" +
-            "效果演示: https://www.bilibili.com/video/BV18QHjzMEyT")]
+            "效果演示: https://www.bilibili.com/video/BV1jTxVzjETG")]
     private static readonly string IntroMovieDir = "LocalAssets/IntroMovies";
 
     private static bool _isInitialized = false;
@@ -240,7 +240,7 @@ public class CustomIntroCinematic
 
 
 
-    // TODO
+
 
 
     public class SimpleMovieTrackStartProcess : ProcessBase
