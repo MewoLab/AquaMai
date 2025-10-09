@@ -61,7 +61,7 @@ public class SelectionDetail
         var userData = Singleton<UserDataManager>.Instance.GetUserData(player);
         if (!userData.IsEntry) return;
 
-        if (____musicSelect.IsRandomIndex()) return;
+        if (____musicSelect.IsRandomIndex() && !____musicSelect.IsRandomSelected()) return;
 
         SelectData = ____musicSelect.GetMusic(0);
         if (SelectData == null) return;
@@ -70,6 +70,17 @@ public class SelectionDetail
         userGhost = Singleton<GhostManager>.Instance.GetGhostToEnum(ghostTarget);
 
         window[player] = player == 0 ? __instance.gameObject.AddComponent<P1Window>() : __instance.gameObject.AddComponent<P2Window>();
+    }
+
+    // 在随机选歌后， 不会调用 UpdateRivalScore，但是会调用 SetRivalScore
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(MusicSelectMonitor), "SetRivalScore")]
+    public static void AfterSetRivalScore(MusicSelectMonitor __instance, MusicSelectProcess ____musicSelect)
+    {
+        // 仅在随机选歌时生效
+        if (!____musicSelect.IsRandomSelected()) return;
+        // 手动触发窗口更新
+        ScrollUpdate(____musicSelect, __instance);
     }
 
     private class P1Window : Window
