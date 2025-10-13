@@ -20,7 +20,7 @@ namespace AquaMai.Mods.Fix;
 [ConfigSection(exampleHidden: true, defaultOn: true)]
 public class Common
 {
-    [ConfigEntry] private readonly static bool preventIniFileClear = true;
+    [ConfigEntry(name: "防止配置清空")] private readonly static bool preventIniFileClear = true;
 
     [EnableIf(nameof(preventIniFileClear))]
     [HarmonyPrefix]
@@ -30,7 +30,7 @@ public class Common
         return false;
     }
 
-    [ConfigEntry] private readonly static bool fixDebugInput = true;
+    [ConfigEntry(name: "修复调试输入")] private readonly static bool fixDebugInput = true;
 
     private static bool FixDebugKeyboardInput => fixDebugInput && !KeyMap.disableDebugInput;
 
@@ -70,7 +70,7 @@ public class Common
         return false;
     }
 
-    [ConfigEntry] private readonly static bool bypassCakeHashCheck = true;
+    [ConfigEntry(name: "绕过 Cake 检查")] private readonly static bool bypassCakeHashCheck = true;
 
     [EnableIf(nameof(bypassCakeHashCheck))]
     [HarmonyPostfix]
@@ -85,7 +85,7 @@ public class Common
         }
     }
 
-    [ConfigEntry] private readonly static bool restoreCertificateValidation = true;
+    [ConfigEntry(name: "恢复证书验证")] private readonly static bool restoreCertificateValidation = true;
 
     [EnableIf(nameof(restoreCertificateValidation))]
     [HarmonyPostfix]
@@ -96,7 +96,7 @@ public class Common
         ServicePointManager.ServerCertificateValidationCallback = null;
     }
 
-    [ConfigEntry] private readonly static bool forceNonTarget = true;
+    [ConfigEntry(name: "强制非目标模式")] private readonly static bool forceNonTarget = true;
 
     [EnableIf(nameof(forceNonTarget))]
     [HarmonyPrefix]
@@ -108,7 +108,7 @@ public class Common
         return false;
     }
 
-    [ConfigEntry] private readonly static bool forceNonReporting = true;
+    [ConfigEntry(name: "解决 Reporting 问题")] private readonly static bool forceNonReporting = true;
 
     [EnableIf(nameof(forceNonReporting))]
     [HarmonyPrefix]
@@ -128,7 +128,7 @@ public class Common
         return false;
     }
 
-    [ConfigEntry] private readonly static bool forceIgnoreError = true;
+    [ConfigEntry(name: "强制忽略错误")] private readonly static bool forceIgnoreError = true;
 
     [EnableIf(nameof(forceIgnoreError))]
     [HarmonyPrefix]
@@ -139,7 +139,7 @@ public class Common
         return false;
     }
 
-    [ConfigEntry] private readonly static bool bypassSpecialNumCheck = true;
+    [ConfigEntry(name: "SpecialNum")] private readonly static bool bypassSpecialNumCheck = true;
 
     public static void OnAfterPatch(HarmonyLib.Harmony h)
     {
@@ -182,7 +182,7 @@ public class Common
         return instList.Skip(onceDispIndex);
     }
 
-    [ConfigEntry] private static readonly bool disableDataUploader = true;
+    [ConfigEntry(name: "禁用无用上传")] private static readonly bool disableDataUploader = true;
 
     [EnableIf(nameof(disableDataUploader))]
     [HarmonyPrefix]
@@ -192,9 +192,10 @@ public class Common
         return false;
     }
 
-    [ConfigEntry] private static readonly bool fixGetMusicVersion = true;
+    [ConfigEntry(name: "修复 MusicVersion")] private static readonly bool fixGetMusicVersion = true;
 
     [EnableIf(nameof(fixGetMusicVersion))]
+    [EnableGameVersion(26000)]
     [HarmonyPostfix]
     [HarmonyPatch(typeof(DataManager), nameof(DataManager.GetMusicVersion))]
     private static void GetMusicVersion(int id, ref Manager.MaiStudio.MusicVersionData __result)

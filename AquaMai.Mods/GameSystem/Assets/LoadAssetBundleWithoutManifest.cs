@@ -9,11 +9,13 @@ using AquaMai.Config.Attributes;
 namespace AquaMai.Mods.GameSystem.Assets;
 
 [ConfigSection(
+    name: "无视 Manifest",
     en: "Load all existing \".ab\" image resources regardless of the AssetBundleImages manifest.",
     zh: """
         加载所有存在的 .ab 图片资源（无视 AssetBundleImages.manifest）
         导入了删除曲包之类的话，应该需要开启这个
-        """)]
+        """,
+    defaultOn: true)]
 public class LoadAssetBundleWithoutManifest
 {
     private static HashSet<string> abFiles = new HashSet<string>();

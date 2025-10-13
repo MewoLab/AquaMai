@@ -22,34 +22,44 @@ public class DebugFeature
     private static object _debugFeatureOriginal;
     private static System.Type _debugFeatureType;
 
+    private static MethodBase gameMoviePauseMethod;
+
     private static void GameMoviePause(bool pause)
     {
-        var method = _gameMovie.GetType().GetMethod("Pause");
-        if (method.GetParameters().Length == 1)
+        if (gameMoviePauseMethod == null)
         {
-            method.Invoke(_gameMovie, [pause]);
+            gameMoviePauseMethod = _gameMovie.GetType().GetMethod("Pause");
+        }
+        if (gameMoviePauseMethod.GetParameters().Length == 1)
+        {
+            gameMoviePauseMethod.Invoke(_gameMovie, [pause]);
         }
         else
         {
             for (int i = 0; i < 2; i++)
             {
-                method.Invoke(_gameMovie, [i, pause]);
+                gameMoviePauseMethod.Invoke(_gameMovie, [i, pause]);
             }
         }
     }
 
+    private static MethodBase gameMovieSetSeekFrameMethod;
+
     private static void GameMovieSetSeekFrame(double msec)
     {
-        var method = _gameMovie.GetType().GetMethod("SetSeekFrame");
-        if (method.GetParameters().Length == 1)
+        if (gameMovieSetSeekFrameMethod == null)
         {
-            method.Invoke(_gameMovie, [msec]);
+            gameMovieSetSeekFrameMethod = _gameMovie.GetType().GetMethod("SetSeekFrame");
+        }
+        if (gameMovieSetSeekFrameMethod.GetParameters().Length == 1)
+        {
+            gameMovieSetSeekFrameMethod.Invoke(_gameMovie, [msec]);
         }
         else
         {
             for (int i = 0; i < 2; i++)
             {
-                method.Invoke(_gameMovie, [i, msec]);
+                gameMovieSetSeekFrameMethod.Invoke(_gameMovie, [i, msec]);
             }
         }
     }

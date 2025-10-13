@@ -15,6 +15,7 @@ using Manager;
 namespace AquaMai.Mods.GameSystem;
 
 [ConfigSection(
+    name: "测试键长按",
     en: """
         When enabled, test button must be long pressed to enter game test mode.
         When test button is bound to other features, this option is enabled automatically.
@@ -52,6 +53,7 @@ public class TestProof
     }
 
     [ConfigEntry(
+        name: "测试模式按键",
         en: "Change it to a value other than Test to enable long pressing of a specific key to enter the game test mode, so that the Test key can be fully used to implement custom functions",
         zh: "修改为 Test 以外的值来实现长按特定的键进入游戏测试模式，这样 Test 键就可以完全用来实现自定义功能了")]
     private static readonly KeyCodeOrName testKey = KeyCodeOrName.Test;

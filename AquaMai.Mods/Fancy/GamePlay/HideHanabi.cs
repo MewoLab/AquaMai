@@ -7,8 +7,8 @@ using UnityEngine;
 namespace AquaMai.Mods.Fancy.GamePlay;
 
 [ConfigSection(
-    en: "Hide hanabi completely.",
-    zh: "完全隐藏烟花")]
+    name: "隐藏烟花",
+    en: "Hide hanabi completely.")]
 public class HideHanabi
 {
     [HarmonyPatch(typeof(TapCEffect), "SetUpParticle")]

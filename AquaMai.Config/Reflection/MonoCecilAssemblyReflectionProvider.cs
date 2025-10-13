@@ -165,6 +165,32 @@ public class MonoCecilReflectionProvider : IReflectionProvider
 
     private static object ParseConstantLoadOperand(Instruction instruction)
     {
+        // 处理类型转换指令，递归查找前一条指令
+        if (instruction.OpCode == OpCodes.Conv_I8 || 
+            instruction.OpCode == OpCodes.Conv_U8 ||
+            instruction.OpCode == OpCodes.Conv_I4 ||
+            instruction.OpCode == OpCodes.Conv_U4 ||
+            instruction.OpCode == OpCodes.Conv_I2 ||
+            instruction.OpCode == OpCodes.Conv_U2 ||
+            instruction.OpCode == OpCodes.Conv_I1 ||
+            instruction.OpCode == OpCodes.Conv_U1)
+        {
+            var value = ParseConstantLoadOperand(instruction.Previous);
+            // 根据转换类型进行相应的类型转换
+            return instruction.OpCode.Code switch
+            {
+                Code.Conv_I8 => Convert.ToInt64(value),
+                Code.Conv_U8 => Convert.ToUInt64(value),
+                Code.Conv_I4 => Convert.ToInt32(value),
+                Code.Conv_U4 => Convert.ToUInt32(value),
+                Code.Conv_I2 => Convert.ToInt16(value),
+                Code.Conv_U2 => Convert.ToUInt16(value),
+                Code.Conv_I1 => Convert.ToSByte(value),
+                Code.Conv_U1 => Convert.ToByte(value),
+                _ => value
+            };
+        }
+        
         if (instruction.OpCode == OpCodes.Ldc_I4_M1)
         {
             return -1;

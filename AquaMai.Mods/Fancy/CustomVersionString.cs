@@ -4,11 +4,12 @@ using HarmonyLib;
 namespace AquaMai.Mods.Fancy;
 
 [ConfigSection(
+    name: "自定义版本文本",
     en: "Set the version string displayed at the top-right corner of the screen.",
     zh: "把右上角的版本更改为自定义文本")]
 public class CustomVersionString
 {
-    [ConfigEntry]
+    [ConfigEntry(name: "版本文本")]
     private static readonly string versionString = "";
 
     /*

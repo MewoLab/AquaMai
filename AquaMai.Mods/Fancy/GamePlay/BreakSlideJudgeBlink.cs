@@ -6,6 +6,7 @@ using UnityEngine;
 namespace AquaMai.Mods.Fancy.GamePlay;
 
 [ConfigSection(
+    name: "Break 星星闪烁",
     en: """
         This Patch makes the Critical judgment of BreakSlide also flicker like BreakTap.
         Recommended to use with custom skins (otherwise the visual effect may not be good).

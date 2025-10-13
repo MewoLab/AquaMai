@@ -12,12 +12,14 @@ using Monitor.Entry.Parts;
 namespace AquaMai.Mods.Fancy;
 
 [ConfigSection(
+    name: "自定义按钮",
     en: "Custom button textures\nLoad button textures from specified directory",
-    zh: "自定义按钮贴图\n从指定目录加载按钮贴图")]
+    zh: "从指定目录加载按钮贴图")]
 
 public class CustomButton
 {
     [ConfigEntry(
+        name: "贴图目录",
         en: "path to button texture directory",
         zh: "按钮贴图的目录")]
     private static readonly string buttonDir = "LocalAssets/Buttons";

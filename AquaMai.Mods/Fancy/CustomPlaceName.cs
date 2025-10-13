@@ -5,6 +5,7 @@ using Manager;
 namespace AquaMai.Mods.Fancy;
 
 [ConfigSection(
+    name: "自定义店铺名",
     en: """
         Custom shop name in photo.
         Also enable shop name display in SDGA.
@@ -15,7 +16,7 @@ namespace AquaMai.Mods.Fancy;
         """)]
 public class CustomPlaceName
 {
-    [ConfigEntry]
+    [ConfigEntry(name: "店铺名称")]
     private static readonly string placeName = "";
 
     [HarmonyPostfix]

@@ -12,7 +12,8 @@ namespace AquaMai.Mods.UX;
 
 [ConfigSection(
     en: "Press Enter key to grant KLD Final Gate Key (DXPASS)",
-    zh: "按 Enter 键获得 KLD 里门的钥匙 (DXPASS)"
+    zh: "按 Enter 键获得 KLD 里门的钥匙 (DXPASS)",
+    defaultOn: true
 )]
 public class GrantFinalGateKey
 {

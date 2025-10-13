@@ -5,6 +5,7 @@ using Monitor;
 namespace AquaMai.Mods.Fancy.GamePlay;
 
 [ConfigSection(
+    name: "WiFi 判定翻转",
     en: """
         Make the judgment display of WiFi Slide different in up and down (originally all WiFi judgment displays are towards the center), just like in majdata.
         The reason for this bug is that SEGA forgot to assign EndButtonId to WiFi.

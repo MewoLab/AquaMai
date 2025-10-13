@@ -10,6 +10,7 @@ using AquaMai.Config.Attributes;
 using AquaMai.Core.Helpers;
 using AquaMai.Mods.Types;
 using HarmonyLib;
+using JetBrains.Annotations;
 using MelonLoader;
 using MelonLoader.TinyJSON;
 using Monitor;
@@ -36,8 +37,8 @@ public class ServerResources
 
     private class ServerResourcesEntry : ConditionalMessage
     {
-        public string url;
-        public string sign;
+        [CanBeNull] public string url = null;
+        [CanBeNull] public string sign = null;
     }
 
     private class ServerResourcesData

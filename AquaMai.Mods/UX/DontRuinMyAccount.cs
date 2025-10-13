@@ -17,7 +17,7 @@ using UnityEngine;
 namespace AquaMai.Mods.UX;
 
 [ConfigSection(
-    zh: "AutoPlay 时不保存成绩",
+    name: "AutoPlay 时不保存成绩",
     en: "Do not save scores when AutoPlay is used",
     defaultOn: true)]
 // 收编自 https://github.com/Starrah/DontRuinMyAccount/blob/master/Core.cs

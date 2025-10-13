@@ -5,6 +5,7 @@ using Manager;
 namespace AquaMai.Mods.Fancy.GamePlay;
 
 [ConfigSection(
+    name: "真随机判定",
     en: """
         Make the AutoPlay random judgment mode really randomize all judgments (down to sub-judgments).
         The original random judgment will only produce all 15 judgment results from Miss(TooFast) ~ Critical ~ Miss(TooLate).

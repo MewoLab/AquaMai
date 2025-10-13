@@ -8,6 +8,7 @@ using UnityEngine;
 namespace AquaMai.Mods.Fancy.GamePlay;
 
 [ConfigSection(
+    name: "隐藏曲目信息",
     en: """
         Disable the TRACK X text, DX/Standard display box, and the derakkuma at the bottom of the screen in the song start screen.
         For recording chart confirmation.

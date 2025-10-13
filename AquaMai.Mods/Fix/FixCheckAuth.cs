@@ -17,7 +17,7 @@ namespace AquaMai.Mods.Fix;
 [ConfigSection(exampleHidden: true, defaultOn: true)]
 public class FixCheckAuth
 {
-    [ConfigEntry]
+    [ConfigEntry(name: "允许 HTTPS 升级")]
     private static readonly bool allowHttpsUpgrade = true;
 
     private static OperationData operationData;

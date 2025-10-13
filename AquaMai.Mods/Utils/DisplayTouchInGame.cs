@@ -18,6 +18,7 @@ using Object = UnityEngine.Object;
 namespace AquaMai.Mods.Utils;
 
 [ConfigSection(
+    name: "实时触摸显示",
     zh: "在游戏过程中在副屏显示触摸输入，可用于调试吃和蹭的问题")]
 public static class DisplayTouchInGame
 {
@@ -27,15 +28,16 @@ public static class DisplayTouchInGame
     private static TextMeshProUGUI[] tmps = new TextMeshProUGUI[2];
 
     [ConfigEntry(
-        zh: "将上屏改成白底",
+        name: "将上屏改成白底",
         en: "Display white background on top screen")]
     public static bool whiteBackground = false;
 
     [ConfigEntry(
-        zh: "默认显示。关了的话，可以用按键切换显示")]
+        name: "默认显示",
+        zh: "关了的话，可以用按键切换显示")]
     public static bool defaultOn = true;
 
-    [ConfigEntry(zh: "按键切换显示")]
+    [ConfigEntry(name: "切换显示按键")]
     public static readonly KeyCodeOrName key = KeyCodeOrName.None;
     [ConfigEntry] private static readonly bool longPress = false;
 

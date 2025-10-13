@@ -8,6 +8,7 @@ using UnityEngine;
 namespace AquaMai.Mods.Fancy.GamePlay;
 
 [ConfigSection(
+    name: "圆弧判定对齐",
     en: """
         Make the judgment display of circular Slides align precisely with the judgment line (originally a bit off).
         Just like in majdata.

@@ -10,6 +10,7 @@ using MelonLoader;
 namespace AquaMai.Mods.GameSystem;
 
 [ConfigSection(
+    name: "重开计次",
     defaultOn: true,
     en: "Add play count when quick retry (regardless of trigger type).",
     zh: "在一键重开（无论何种触发方式）时，增加当前谱面的游玩次数")]

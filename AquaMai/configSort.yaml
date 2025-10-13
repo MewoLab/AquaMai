@@ -2,28 +2,24 @@
   - General
   - GameSystem.SinglePlayer
   - GameSystem.DisableTimeout
-  - UX.ImmediateSave
   - GameSystem.QuickRetry
   - UX.OneKeyEntryEnd
   - UX.OneKeyRetrySkip
+  - GameSystem.Window
   - GameSystem.TouchToButtonInput
   - GameSystem.TestProof
   - GameSettings.CreditConfig
-  - Fancy.GamePlay.ExtendNotesPool
   - Utils.MoveAnswerSound
 
-直读:
-  - GameSystem.Assets.LoadAssetBundleWithoutManifest
-  - GameSystem.Assets.IgnoreLoadFailedAssetBundle
-  - GameSystem.Assets.LoadLocalImages
-  - GameSystem.Assets.MovieLoader
+新功能！:
+  - Utils.FreedomTimer
+  - GameSystem.VolumeSync
+  - Fancy.CustomIntroCinematic
 
 全解和跳过:
   - GameSystem.Unlock
-  - Tweaks.TimeSaving.SkipStartupWarning
   - Tweaks.TimeSaving.EntryToMusicSelection
   - Tweaks.TimeSaving.ExitToSave
-  - Tweaks.TimeSaving.SkipStartupDelays
   - Tweaks.TimeSaving.SkipEventInfo
   - Tweaks.TimeSaving.SkipTrackStart
   - Tweaks.TimeSaving.SkipGoodbyeScreen
@@ -45,6 +41,7 @@
   - Fancy.GamePlay.SlideArrowAnimation
   - Fancy.GamePlay.SlideFadeInTweak
   - Fancy.GamePlay.SlideLayerReverse
+  - UX.FestaControl
 
 实用工具:
   - UX.HideSelfMadeCharts
@@ -55,48 +52,41 @@
   - Fancy.GamePlay.HideHanabi
   - Fancy.GamePlay.JudgeDisplay4B
   - Utils.DisplayTouchInGame
-  - UX.DontRuinMyAccount
+  - UX.FixTrackNumDisplay
 
 系统修改:
   - GameSystem.Window
   - Utils.ScreenPositionAdjust
   - GameSettings.JudgeAdjust
   - GameSystem.Sound
+  - GameSystem.VolumeSync
   - GameSystem.CustomCameraId
   - GameSystem.ExteraMouseInput
+  - Utils.FreedomTimer
 
 调试工具:
   - Utils.AntiLag
-  - Tweaks.IgnoreAimeServerError
-  - Utils.ShowNetErrorDetail
   - Tweaks.LockFrameRate
   - Tweaks.ResetTouch
   - Utils.DisplayFrameRate
   - Utils.LogUserId
   - Utils.LogNetworkRequests
-  - Utils.ShowErrorLog
-  - UX.NoAmDaemonAlert
   - UX.HardwareAlert
 
 键位和灵敏度:
-  - GameSystem.HidInput
   - GameSystem.AdxHidInput
   - GameSystem.KeyMap
   - GameSettings.TouchSensitivity
 
 高级设置:
   - Fancy.HideMask
-  - GameSettings.ForceAsServer
-  - GameSystem.RemoveEncryption
   - GameSystem.TouchPanelPort
   - GameSystem.TouchPanelBaudRate
-  - GameSystem.OptionLoadFix
   - GameSystem.SkipBoardNoCheck
-  - UX.ServerAnnouncement
-  - Tweaks.SkipUserVersionCheck
   - Fancy.Triggers
 
 过新过热:
+  - Fancy.SetFade
   - Fancy.CustomTrackStartDiff
   - Fancy.GamePlay.BreakSlideJudgeBlink
   - Fancy.GamePlay.CustomNoteTypes
@@ -105,4 +95,26 @@
   - Fancy.GamePlay.RealisticRandomJudge
   - Fancy.GamePlay.TrackStartProcessTweak
   - Fancy.GamePlay.FixJudgeTouchHoldInNormalArea
-  - Fix.FixTrackNumDisplay
+  - Fancy.GamePlay.ReviveFinaleVSlide
+
+不建议关闭:
+  - UX.ImmediateSave
+  - GameSystem.Assets.LoadAssetBundleWithoutManifest
+  - GameSystem.Assets.LoadLocalImages
+  - GameSystem.Assets.MovieLoader
+  - GameSystem.Assets.IgnoreLoadFailedAssetBundle
+  - GameSystem.OptionLoadFix
+  - Tweaks.SkipUserVersionCheck
+  - UX.DontRuinMyAccount
+  - UX.Hide1879
+  - UX.GrantFinalGateKey
+  - Fancy.GamePlay.ExtendNotesPool
+  - Tweaks.TimeSaving.SkipStartupWarning
+  - Tweaks.TimeSaving.SkipStartupDelays
+  - Fancy.IgnoreCommercialTimeout
+  - Utils.ShowNetErrorDetail
+  - Tweaks.IgnoreAimeServerError
+  - UX.NoAmDaemonAlert
+  - Utils.ShowErrorLog
+  - GameSettings.ForceAsServer
+  - GameSystem.RemoveEncryption

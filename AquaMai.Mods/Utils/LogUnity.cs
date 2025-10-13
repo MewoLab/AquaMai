@@ -5,6 +5,7 @@ using UnityEngine;
 namespace AquaMai.Mods.Utils;
 
 [ConfigSection(
+    name: "Unity 日志",
     en: "Output Unity logs (for debugging purposes)",
     zh: "输出 Unity 日志（调试用）",
     exampleHidden: true)]

@@ -17,8 +17,8 @@ namespace AquaMai.Mods.Fancy.GamePlay.CustomNoteTypes;
 
 [ConfigCollapseNamespace]
 [ConfigSection(
-    en: "Custom Note Types.",
-    zh: "自定义 Note 类型"
+    name: "自定义 Note 类型",
+    en: "Custom Note Types."
 )]
 public class CustomNoteTypes
 {

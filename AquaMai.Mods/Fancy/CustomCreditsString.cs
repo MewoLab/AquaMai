@@ -6,17 +6,20 @@ using Monitor;
 namespace AquaMai.Mods.Fancy;
 
 [ConfigSection(
+    name: "自定义点数文本",
     en: "Set the \"CREDIT(S)\" string displayed at the middle and top-right corner of the screen.",
     zh: "自定义中间和右上角的 \"CREDIT(S)\"（可用点数）文本")]
 public class CustomCreditsString
 {
     [ConfigEntry(
+        name: "点数文本",
         en: "Custom string to replace the \"CREDIT(S)\". Empty for a blank string.",
         zh: "用于替换 \"CREDIT(S)\" 的自定义文本，留空则为空白"
     )]
     private static readonly string creditsString = "";
 
     [ConfigEntry(
+        name: "隐藏点数",
         en: "Hide the number of credits after the \"CREDITS(S)\" string.",
         zh: "隐藏 \"CREDIT(S)\" 后的可用点数数量"
     )]

@@ -5,6 +5,7 @@ using HarmonyLib;
 namespace AquaMai.Mods.GameSettings;
 
 [ConfigSection(
+    name: "强制为服务器",
     en: "If you want to configure in-shop party-link, you should turn this off.",
     zh: "如果要配置店内招募的话，应该要把这个关闭",
     defaultOn: true)]

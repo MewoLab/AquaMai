@@ -12,6 +12,7 @@ using Monitor;
 namespace AquaMai.Mods.Fancy.GamePlay;
 
 [ConfigSection(
+    name: "修复非 C 区 Hold",
     en: "Enable the game to correctly judge Touch Hold outside the C zone. Experimental implementation, reported to be unstable",
     zh: "使游戏可以正常判定非 C 区的 Touch Hold。实验性实现，据反馈不稳定"
 )]

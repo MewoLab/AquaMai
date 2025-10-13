@@ -3,6 +3,7 @@ using AquaMai.Config.Attributes;
 namespace AquaMai.Mods;
 
 [ConfigSection(
+    name: "废弃配置项",
     en: """
         These options have been deprecated and no longer work in the current version.
         Remove them to get rid of the warning message at startup.

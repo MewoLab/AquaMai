@@ -18,6 +18,7 @@ using Object = UnityEngine.Object;
 namespace AquaMai.Mods.UX;
 
 [ConfigSection(
+    name: "判定详情统计",
     zh: "在游戏总结的计分板中显示击打误差的详细信息（以帧为单位）",
     en: "Show detailed accuracy info in the score board.")]
 public class JudgeAccuracyInfo
@@ -138,6 +139,9 @@ public class JudgeAccuracyInfo
         // MelonLogger.Msg($"{___JudgeType}: {___JudgeTimingDiffMsec}, {raw}");
     }
     
+    [ConfigEntry("保存路径")]
+    public static string savePath = "JudgeAccuracyInfo";
+    
     
     [HarmonyPostfix]
     [HarmonyPatch(typeof(ResultProcess), "OnStart")]
@@ -151,7 +155,9 @@ public class JudgeAccuracyInfo
             if (!____userData[idx].IsEntry) continue;
             
             var fileName = $"Acc_Track_{GameManager.MusicTrackNumber}_Player_{idx}.txt";
-            var filePath = Path.Combine(Environment.CurrentDirectory, fileName);
+            var directoryPath = Path.Combine(Environment.CurrentDirectory, savePath);
+            if (!Directory.Exists(directoryPath)) Directory.CreateDirectory(directoryPath);
+            var filePath = Path.Combine(directoryPath, fileName);
             
             using (var writer = new StreamWriter(filePath))
             {

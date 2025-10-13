@@ -5,6 +5,7 @@ using IO;
 namespace AquaMai.Mods.GameSystem;
 
 [ConfigSection(
+    name: "触摸屏波特率",
     en: """
         Adjust the baud rate of the touch screen serial port, default value is 9600.
         Requires hardware support. If you are unsure, don't use it.
@@ -15,9 +16,7 @@ namespace AquaMai.Mods.GameSystem;
         """)]
 public class TouchPanelBaudRate
 {
-    [ConfigEntry(
-        en: "Baud rate.",
-        zh: "波特率")]
+    [ConfigEntry("波特率")]
     private static readonly int baudRate = 9600;
 
     [HarmonyPatch(typeof(NewTouchPanel), "Open")]

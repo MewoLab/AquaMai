@@ -1,14 +1,18 @@
 using HarmonyLib;
 using AquaMai.Config.Attributes;
 using System;
+using System.Diagnostics;
+using System.Linq;
 using MelonLoader;
 using Manager;
 
 namespace AquaMai.Mods.UX;
 
 [ConfigSection(
+    name: "隐藏乱码曲",
     en: "Hide glitch Xaleid◆scopiX in normal mode",
-    zh: "在正常模式中，隐藏乱码曲 Xaleid◆scopiX"
+    zh: "在正常模式中，隐藏乱码曲 Xaleid◆scopiX",
+    defaultOn: true
 )]
 public class Hide1879
 {
@@ -18,7 +22,13 @@ public class Hide1879
     {
         try
         {
-            if (!GameManager.IsNormalMode) return; // 仅在 Normal 模式下生效
+            if (GameManager.IsKaleidxScopeMode) return;
+            var stackTrace = new StackTrace();
+            var stackFrames = stackTrace.GetFrames();
+            if (!stackFrames.Select(it => it.GetMethod().DeclaringType.Name).Contains("MusicSelectProcess"))
+            {
+                return;
+            }
 
             var dm = DataManager.Instance;
             if (dm == null) return;
@@ -31,7 +41,6 @@ public class Hide1879
             if (notesList != null && notesList.ContainsKey(011879))
             {
                 notesList.Remove(011879);
-                MelonLogger.Msg($"[Hide 1879] Hide glitch Xaleid◆scopiX in normal mode");
             }
         }
         catch (Exception ex)

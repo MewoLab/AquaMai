@@ -11,17 +11,20 @@ using UnityEngine.UI;
 namespace AquaMai.Mods.GameSystem;
 
 [ConfigSection(
+    name: "触屏优化",
     defaultOn: true,
     en: "Enable touch input with radius for a more realistic touchscreen experience.",
     zh: "启用触摸输入和半径，以获得更真实的触摸屏体验")]
 public partial class ExteraMouseInput
 {
     [ConfigEntry(
+        name: "触摸半径",
         en: "Touch area radius size. Adjust according to the size of your finger, you can test in Test Mode.",
         zh: "触摸区域半径大小。请根据手指大小调整，可以去 Test 中测试")]
     public readonly static float radius = 25;
 
     [ConfigEntry(
+        name: "显示触摸点",
         en: "Display touch points (only for touch input).",
         zh: "显示触摸点（仅限触屏输入）")]
     public readonly static bool displayArea = false;

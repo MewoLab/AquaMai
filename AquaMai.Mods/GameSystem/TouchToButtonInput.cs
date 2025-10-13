@@ -8,6 +8,7 @@ using static Manager.InputManager;
 namespace AquaMai.Mods.GameSystem;
 
 [ConfigSection(
+    name: "触摸转按键",
     en: "Map touch actions to buttons.",
     zh: "映射触摸操作至实体按键")]
 public class TouchToButtonInput

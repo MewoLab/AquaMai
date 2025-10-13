@@ -11,6 +11,7 @@ public enum SpecialConfigEntry
 
 [AttributeUsage(AttributeTargets.Field)]
 public class ConfigEntryAttribute(
+    string name = null,
     string en = null,
     string zh = null,
     // NOTE: Don't use this argument to hide any useful options.
@@ -19,7 +20,7 @@ public class ConfigEntryAttribute(
     // NOTE: Use this argument to mark special config entries that need special handling.
     SpecialConfigEntry specialConfigEntry = SpecialConfigEntry.None) : Attribute, IConfigEntryAttribute
 {
-    public IConfigComment Comment { get; } = new ConfigComment(en, zh);
+    public IConfigComment Comment { get; } = new ConfigComment(en, zh, name);
     public bool HideWhenDefault { get; } = hideWhenDefault;
     public SpecialConfigEntry SpecialConfigEntry { get; } = specialConfigEntry;
 }

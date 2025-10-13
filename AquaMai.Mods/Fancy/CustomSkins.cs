@@ -12,6 +12,7 @@ using UnityEngine;
 namespace AquaMai.Mods.Fancy;
 
 [ConfigSection(
+    name: "自定义皮肤",
     en: """
         Provide the ability to use custom skins (advanced feature).
         Load skin textures from custom paths.
@@ -22,7 +23,7 @@ namespace AquaMai.Mods.Fancy;
         """)]
 public class CustomSkins
 {
-    [ConfigEntry]
+    [ConfigEntry(name: "皮肤目录")]
     private static readonly string skinsDir = "LocalAssets/Skins";
 
     private static readonly List<string> ImageExts = [".png", ".jpg", ".jpeg"];

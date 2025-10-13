@@ -9,6 +9,7 @@ using UnityEngine;
 namespace AquaMai.Mods.GameSystem;
 
 [ConfigSection(
+    name: "按键映射",
     en: """
         Enable or disable IO4 and DebugInput. Configure the key mapping for DebugInput.
         DebugInput works independently of IO4 (IO4-compatible board / segatools IO4 emulation).
@@ -23,6 +24,7 @@ namespace AquaMai.Mods.GameSystem;
 public class KeyMap
 {
     [ConfigEntry(
+        name: "禁用 IO4",
         en: """
             Disable IO4 (IO4-compatible board / segatools IO4 emulation) input.
             With IO4 input disabled, your IO4-compatible board or segatools IO4 emulation is ignored.
@@ -34,6 +36,7 @@ public class KeyMap
     private static readonly bool disableIO4 = false;
 
     [ConfigEntry(
+        name: "禁用 DebugInput",
         en: """
             Disable DebugInput. The key mapping below will not work.
             With DebugInput disabled, you'll need a IO4-compatible board, segatools IO4 emulation or other custom input solutions to play.
@@ -47,6 +50,7 @@ public class KeyMap
     public static readonly bool disableDebugInput = false; // Implemented in AquaMai.Mods/Fix/Common.cs
 
     [ConfigEntry(
+        name: "禁用调试快捷键",
         en: """
             Disable DebugFeature Polyfill hotkeys, like Enter to pause, Left/Right to seek, etc.
             """,

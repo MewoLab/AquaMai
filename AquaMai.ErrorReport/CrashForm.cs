@@ -1,12 +1,6 @@
 using System.Diagnostics;
 using System.IO.Compression;
-using System.Reflection;
 using System.Security.Cryptography;
-using System.Text;
-using Matt.Encoding.Fountain;
-using Matt.Random.Adapters;
-using QRCoder;
-using Timer = System.Windows.Forms.Timer;
 
 namespace AquaMai.ErrorReport;
 
@@ -33,10 +27,6 @@ public partial class CrashForm : Form
     }
 
     private string? zipFile = null;
-    private IEnumerator<Slice>? fountain = null;
-    private Timer? timer = null;
-    private byte[]? dataBuf = null;
-    private uint chksum = 0;
 
     private async void CrashForm_Load(object sender, EventArgs e)
     {
@@ -137,7 +127,7 @@ public partial class CrashForm : Form
                 await fs.CopyToAsync(stream);
             }
 
-            labelStatus.Text = $"Open https://qrss.netlify.app/ or scan the QRCode to get error report\n{zipFile}";
+            labelStatus.Text = $"{zipFile}";
         }
         catch (Exception ex)
         {
@@ -151,25 +141,6 @@ public partial class CrashForm : Form
         {
             textLog.Select(0, 0);
         }
-
-        try
-        {
-            var zipBuf = File.ReadAllBytes(zipFile);
-            dataBuf = AppendFileHeaderMetaToBuffer(zipBuf, new FileHeaderMeta()
-            {
-                Filename = Path.GetFileName(zipFile),
-                ContentType = "application/zip"
-            });
-            fountain = SliceHelpers.CreateGenerator(dataBuf, 500, () => new RandomAdapter(new Random())).GetEnumerator();
-        }
-        catch
-        {
-            labelStatus.Text = "生成喷泉码失败 Failed to generate fountain code";
-        }
-
-        timer = new Timer { Interval = 50 };
-        timer.Tick += Tick;
-        timer.Start();
     }
 
     private static void AddFileToZipIfExist(ZipArchive zip, string file)
@@ -177,55 +148,6 @@ public partial class CrashForm : Form
         if (File.Exists(file))
         {
             zip.CreateEntryFromFile(file, Path.GetFileName(file));
-        }
-    }
-
-    private static byte[] AppendFileHeaderMetaToBuffer(byte[] data, FileHeaderMeta meta)
-    {
-        string json = $"{{\"filename\":\"{meta.Filename}\",\"contentType\":\"{meta.ContentType}\"}}";
-        byte[] metaBuffer = Encoding.UTF8.GetBytes(json);
-        return MergeByteArrays(metaBuffer, data);
-    }
-
-    QRCodeGenerator qrGenerator = new QRCodeGenerator();
-
-    private void Tick(object _, EventArgs _ea)
-    {
-        if (fountain == null)
-        {
-            return;
-        }
-
-        if (fountain.MoveNext())
-        {
-            var slice = fountain.Current;
-            int[] indices = slice.Coefficients
-                .Select((value, index) => (value, index)) // 生成 (值, 索引) 对
-                .Where(pair => pair.value) // 仅保留值为 true 的
-                .Select(pair => pair.index) // 提取索引
-                .ToArray();
-            using var data = new MemoryStream();
-            using var writer = new BinaryWriter(data);
-            writer.Write((uint)indices.Length);
-            foreach (var index in indices)
-            {
-                writer.Write((uint)index);
-            }
-
-            writer.Write((uint)slice.Coefficients.Count);
-            var sliceData = slice.Data.ToArray();
-            writer.Write((uint)dataBuf.Length);
-            if (chksum == 0)
-            {
-                chksum = ChecksumCalculator.GetChecksum(dataBuf, (uint)slice.Coefficients.Count);
-            }
-
-            writer.Write((uint)chksum);
-            writer.Write(sliceData);
-            writer.Flush();
-
-            using QRCodeData qrCodeData = qrGenerator.CreateQrCode($"https://qrss.netlify.app/#{Convert.ToBase64String(data.ToArray())}", QRCodeGenerator.ECCLevel.M);
-            pictureBox1.Image = new QRCode(qrCodeData).GetGraphic(20);
         }
     }
 
@@ -248,32 +170,6 @@ public partial class CrashForm : Form
         }
 
         await writer.FlushAsync();
-    }
-
-    public static byte[] MergeByteArrays(byte[] array1, byte[] array2)
-    {
-        byte[][] arrays = new byte[][] { array1, array2 };
-        int totalLength = arrays.Sum(arr => arr.Length + 4); // 4 bytes for each length (Uint32)
-
-        byte[] mergedArray = new byte[totalLength];
-        int offset = 0;
-
-        foreach (var arr in arrays)
-        {
-            int length = arr.Length;
-
-            // Store the length as a 4-byte Uint32
-            mergedArray[offset++] = (byte)((length >> 24) & 0xFF);
-            mergedArray[offset++] = (byte)((length >> 16) & 0xFF);
-            mergedArray[offset++] = (byte)((length >> 8) & 0xFF);
-            mergedArray[offset++] = (byte)(length & 0xFF);
-
-            // Copy data
-            Array.Copy(arr, 0, mergedArray, offset, length);
-            offset += length;
-        }
-
-        return mergedArray;
     }
 
     private static string GetFileMD5(string filePath)
