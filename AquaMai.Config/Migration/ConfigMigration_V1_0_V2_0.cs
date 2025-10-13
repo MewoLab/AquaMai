@@ -87,6 +87,7 @@ public class ConfigMigration_V1_0_V2_0 : IConfigMigration
         MapBooleanTrueToSectionEnable(src, dst, "UX.HideMask", "Fancy.HideMask");
         MapBooleanTrueToSectionEnable(src, dst, "UX.LoadAssetsPng", "GameSystem.Assets.LoadLocalImages");
         MapBooleanTrueToSectionEnable(src, dst, "UX.LoadAssetBundleWithoutManifest", "GameSystem.Assets.LoadAssetBundleWithoutManifest");
+        MapBooleanTrueToSectionEnable(src, dst, "UX.IgnoreLoadFailedAssetBundle", "GameSystem.Assets.IgnoreLoadFailedAssetBundle");
         MapBooleanTrueToSectionEnable(src, dst, "UX.RandomBgm", "Fancy.RandomBgm");
         MapBooleanTrueToSectionEnable(src, dst, "UX.DemoMaster", "Fancy.DemoMaster");
         MapBooleanTrueToSectionEnable(src, dst, "UX.ExtendTimer", "GameSystem.DisableTimeout");
