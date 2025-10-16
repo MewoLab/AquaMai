@@ -44,21 +44,21 @@ public class MaimollerInputReport
     }
 
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 5)]
-    public ButtonMask[] touches = new ButtonMask[5];
+    public byte[] touches = new byte[5];
 
-    public ButtonMask playerBtn;
-    public ButtonMask systemBtn;
+    public byte playerBtn;
+    public byte systemBtn;
 
     private static readonly uint[] _lookup32 = CreateLookup32();
 
-    public ButtonMask GetSwitchState(SwitchClass cat, ButtonMask mask)
+    public uint GetSwitchState(SwitchClass cat, ButtonMask mask)
     {
         return (cat switch
         {
             SwitchClass.SYSTEM => systemBtn,
             SwitchClass.BUTTON => playerBtn,
             _ => touches[(int)(cat - 2)],
-        }) & mask;
+        }) & (uint)mask;
     }
 
     public override string ToString()
@@ -88,14 +88,6 @@ public class MaimollerInputReport
             array[2 * i + 1] = (char)(num >> 16);
         }
         return new string(array);
-    }
-    
-    private static string ToHex(ButtonMask[] masks)
-    {
-        var bytes = new byte[masks.Length];
-        for (int i = 0; i < masks.Length; i++)
-            bytes[i] = (byte)masks[i];
-        return ToHex(bytes);
     }
 }
 

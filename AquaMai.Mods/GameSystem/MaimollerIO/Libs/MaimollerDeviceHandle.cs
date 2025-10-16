@@ -14,7 +14,6 @@ public sealed class MaimollerDeviceHandle : IDisposable
 
     private readonly HidDevice _hidDevice;
     private readonly int _playerIndex;
-    private readonly object _readLock = new();
     private readonly object _writeLock = new();
     private readonly AutoResetEvent _writeEvent = new(false);
 
@@ -22,9 +21,7 @@ public sealed class MaimollerDeviceHandle : IDisposable
     private Thread? _writeThread;
     private volatile bool _running;
 
-    private readonly byte[] _inputBuffer1 = new byte[HID_BUFFER_SIZE];
-    private readonly byte[] _inputBuffer2 = new byte[HID_BUFFER_SIZE];
-    private byte[] _currentInputBuffer;
+    private long _inputData;
 
     private readonly byte[] _outputBuffer = new byte[HID_BUFFER_SIZE];
     private volatile bool _outputPending;
@@ -37,7 +34,6 @@ public sealed class MaimollerDeviceHandle : IDisposable
         _hidDevice = hidDevice ?? throw new ArgumentNullException(nameof(hidDevice));
         _playerIndex = playerIndex;
         DevicePath = hidDevice.DevicePath;
-        _currentInputBuffer = _inputBuffer1;
     }
 
     public bool Open()
@@ -78,14 +74,9 @@ public sealed class MaimollerDeviceHandle : IDisposable
         }
     }
 
-    public byte[] GetLatestInputReport()
+    public long GetLatestInputReport()
     {
-        lock (_readLock)
-        {
-            var result = new byte[INPUT_REPORT_SIZE];
-            Array.Copy(_currentInputBuffer, 1, result, 0, INPUT_REPORT_SIZE);
-            return result;
-        }
+        return Interlocked.Read(ref _inputData);
     }
 
     public void QueueOutputReport(byte[] data)
@@ -113,16 +104,14 @@ public sealed class MaimollerDeviceHandle : IDisposable
                 var report = _hidDevice.ReadReport();
                 if (report?.Data is { Length: > 0 })
                 {
-                    lock (_readLock)
+                    long data = report.ReportId;
+                    int maxBytes = Math.Min(report.Data.Length, INPUT_REPORT_SIZE);
+                    for (int i = 0; i < maxBytes; i++)
                     {
-                        _currentInputBuffer = _currentInputBuffer == _inputBuffer1 
-                            ? _inputBuffer2 
-                            : _inputBuffer1;
-
-                        _currentInputBuffer[0] = report.ReportId;
-                        Array.Copy(report.Data, 0, _currentInputBuffer, 1, 
-                            Math.Min(report.Data.Length, HID_BUFFER_SIZE - 1));
+                        data |= ((long)report.Data[i]) << ((i + 1) * 8);
                     }
+                    
+                    Interlocked.Exchange(ref _inputData, data);
                 }
             }
             catch
