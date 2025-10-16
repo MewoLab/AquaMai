@@ -14,7 +14,6 @@ public sealed class MaimollerDeviceHandle : IDisposable
 
     private readonly HidDevice _hidDevice;
     private readonly int _playerIndex;
-    private readonly object _writeLock = new();
     private readonly AutoResetEvent _writeEvent = new(false);
 
     private Thread? _readThread;
@@ -22,9 +21,7 @@ public sealed class MaimollerDeviceHandle : IDisposable
     private volatile bool _running;
 
     private long _inputData;
-
-    private readonly byte[] _outputBuffer = new byte[HID_BUFFER_SIZE];
-    private volatile bool _outputPending;
+    public byte[] outputBuffer = new byte[HID_BUFFER_SIZE];
 
     public string DevicePath { get; }
     public bool IsConnected { get; private set; }
@@ -70,6 +67,7 @@ public sealed class MaimollerDeviceHandle : IDisposable
         catch
         {
             IsConnected = false;
+            MelonLogger.Warning($"[Maimoller] {_playerIndex + 1}P open failed");
             return false;
         }
     }
@@ -79,43 +77,42 @@ public sealed class MaimollerDeviceHandle : IDisposable
         return Interlocked.Read(ref _inputData);
     }
 
-    public void QueueOutputReport(byte[] data)
-    {
-        if (data.Length != 31)
-            return;
-
-        lock (_writeLock)
-        {
-            _outputBuffer[0] = 1;
-            Array.Copy(data, 0, _outputBuffer, 1, 31);
-            Array.Clear(_outputBuffer, 32, HID_BUFFER_SIZE - 32);
-            _outputPending = true;
-        }
-        
-        _writeEvent.Set();
-    }
+    public void SetOutputPending() => _writeEvent.Set();
 
     private void ReadThreadProc()
     {
+        MelonLogger.Msg($"[Maimoller] {_playerIndex + 1}P read thread started");
+
         while (_running && IsConnected)
         {
             try
             {
                 var report = _hidDevice.ReadReport();
-                if (report?.Data is { Length: > 0 })
+
+                if (report == null)
                 {
-                    long data = report.ReportId;
-                    int maxBytes = Math.Min(report.Data.Length, INPUT_REPORT_SIZE);
-                    for (int i = 0; i < maxBytes; i++)
-                    {
-                        data |= ((long)report.Data[i]) << ((i + 1) * 8);
-                    }
-                    
-                    Interlocked.Exchange(ref _inputData, data);
+                    MelonLogger.Warning($"[Maimoller] {_playerIndex + 1}P ReadReport returned null");
+                    continue;
                 }
+
+                if (report.Data == null || report.Data.Length == 0)
+                {
+                    MelonLogger.Warning($"[Maimoller] {_playerIndex + 1}P report.Data is null or empty");
+                    continue;
+                }
+
+                long newData = report.ReportId;
+                int maxBytes = Math.Min(report.Data.Length, INPUT_REPORT_SIZE);
+                for (int i = 0; i < maxBytes; i++)
+                {
+                    newData |= ((long)report.Data[i]) << ((i + 1) * 8);
+                }
+
+                Interlocked.Exchange(ref _inputData, newData);
             }
-            catch
+            catch (Exception ex)
             {
+                MelonLogger.Error($"[Maimoller] {_playerIndex + 1}P read error: {ex.Message}");
                 IsConnected = false;
                 break;
             }
@@ -124,7 +121,7 @@ public sealed class MaimollerDeviceHandle : IDisposable
 
     private void WriteThreadProc()
     {
-        var writeBuffer = new byte[HID_BUFFER_SIZE];
+        var writeBuffer = new byte[HID_BUFFER_SIZE]; // Double buffer
 
         while (_running && IsConnected)
         {
@@ -135,24 +132,18 @@ public sealed class MaimollerDeviceHandle : IDisposable
                 if (!_running || !IsConnected)
                     break;
 
-                lock (_writeLock)
-                {
-                    if (!_outputPending)
-                        continue;
-
-                    Array.Copy(_outputBuffer, writeBuffer, HID_BUFFER_SIZE);
-                    _outputPending = false;
-                }
-
+                writeBuffer = Interlocked.Exchange(ref outputBuffer, writeBuffer);
                 if (!_hidDevice.Write(writeBuffer))
                 {
                     IsConnected = false;
+                    MelonLogger.Error($"[Maimoller] {_playerIndex + 1}P write failed");
                     break;
                 }
             }
-            catch
+            catch (Exception ex)
             {
                 IsConnected = false;
+                MelonLogger.Error($"[Maimoller] {_playerIndex + 1}P write error: {ex.Message}");
                 break;
             }
         }
@@ -163,17 +154,17 @@ public sealed class MaimollerDeviceHandle : IDisposable
         _running = false;
         IsConnected = false;
         _writeEvent.Set();
-        
+
         _readThread?.Join(500);
         _writeThread?.Join(500);
-        
+
         try
         {
             _hidDevice?.CloseDevice();
             _hidDevice?.Dispose();
         }
         catch { }
-        
+
         _writeEvent.Dispose();
     }
 }
