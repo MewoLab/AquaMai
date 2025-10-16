@@ -7,11 +7,11 @@ using AMDaemon;
 using AquaMai.Config.Attributes;
 using AquaMai.Config.Types;
 using AquaMai.Core.Attributes;
+using AquaMai.Core.Helpers;
 using HarmonyLib;
 using HidLibrary;
 using MelonLoader;
 using UnityEngine;
-using EnableConditionOperator = AquaMai.Core.Attributes.EnableConditionOperator;
 
 namespace AquaMai.Mods.GameSystem;
 
@@ -105,9 +105,10 @@ public class AdxHidInput
             Thread hidThread = new Thread(() => HidInputThread(p));
             hidThread.Start();
         }
+
         if (inputEnabled)
         {
-            h.PatchAll(typeof(Hook));
+            JvsSwitchHook.AddKeyChecker(GetPushedByButton);
         }
     }
 
@@ -164,45 +165,6 @@ public class AdxHidInput
             "button_08" => inputBuf[playerNo, 6] == 1,
             _ => false,
         };
-    }
-
-    public static class Hook
-    {
-        public static IEnumerable<MethodBase> TargetMethods()
-        {
-            var jvsSwitch = typeof(IO.Jvs).GetNestedType("JvsSwitch", BindingFlags.NonPublic | BindingFlags.Public);
-            return [jvsSwitch.GetMethod("Execute")];
-        }
-
-        public static bool Prefix(
-            int ____playerNo,
-            InputId ____inputId,
-            ref bool ____isStateOnOld2,
-            ref bool ____isStateOnOld,
-            ref bool ____isStateOn,
-            ref bool ____isTriggerOn,
-            ref bool ____isTriggerOff,
-            KeyCode ____subKey)
-        {
-            var flag = GetPushedByButton(____playerNo, ____inputId);
-            // 不影响键盘
-            if (!flag) return true;
-
-            var isStateOnOld2 = ____isStateOnOld;
-            var isStateOnOld = ____isStateOn;
-
-            if (isStateOnOld2 && !isStateOnOld)
-            {
-                return true;
-            }
-
-            ____isStateOn = true;
-            ____isTriggerOn = !isStateOnOld;
-            ____isTriggerOff = false;
-            ____isStateOnOld2 = isStateOnOld2;
-            ____isStateOnOld = isStateOnOld;
-            return false;
-        }
     }
 
     private static readonly Dictionary<uint, Queue<TouchData>> _queue = new();
