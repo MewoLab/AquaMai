@@ -63,7 +63,7 @@ public class MaimollerInputReport
 
     public override string ToString()
     {
-        byte[] bytes = [(byte)playerBtn, (byte)systemBtn];
+        byte[] bytes = [playerBtn, systemBtn];
         return $"{ToHex(touches)} {ToHex(bytes)}";
     }
 
