@@ -10,7 +10,6 @@ namespace AquaMai.Mods.GameSystem.MaimollerIO.Libs;
 public sealed class MaimollerDeviceHandle(HidDevice hidDevice, int playerIndex) : IDisposable
 {
     private const int HID_BUFFER_SIZE = 64;
-    private const int INPUT_REPORT_SIZE = 7;
 
     private readonly HidDevice _hidDevice = hidDevice ?? throw new ArgumentNullException(nameof(hidDevice));
     private readonly int _playerIndex = playerIndex;
@@ -86,7 +85,7 @@ public sealed class MaimollerDeviceHandle(HidDevice hidDevice, int playerIndex) 
             }
 
             long newData = 0;
-            int maxBytes = Math.Min(readResult.Data.Length, INPUT_REPORT_SIZE);
+            int maxBytes = Math.Min(readResult.Data.Length, 8);
             for (int i = 0; i < maxBytes; i++)
             {
                 newData |= ((long)readResult.Data[i]) << ((i + 1) * 8);
