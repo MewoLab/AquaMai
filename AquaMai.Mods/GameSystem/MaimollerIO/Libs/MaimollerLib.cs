@@ -105,9 +105,6 @@ public static class Maimoller
 
     public static bool IsConnected(int player)
     {
-        if (player is < 0 or > 1)
-            return false;
-
         var device = _devices[player];
         return device is { IsConnected: true };
     }
