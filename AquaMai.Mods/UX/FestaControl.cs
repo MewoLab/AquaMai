@@ -2,6 +2,7 @@ using AquaMai.Config.Attributes;
 using AquaMai.Core.Attributes;
 using HarmonyLib;
 using Manager;
+using Process;
 
 namespace AquaMai.Mods.UX;
 
@@ -23,5 +24,20 @@ public static class FestaControl
     public static void Hook(FestaManager __instance)
     {
         Traverse.Create(__instance).Property<bool>("isOpenFesta").Value = isFesta;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(GetPresentProcess), "CreateFestaBorderRewardListOpenFesta")]
+    public static bool CreateFestaBorderRewardListOpenFesta()
+    {
+        return false;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(FestaManager), "CanAttendFesta")]
+    public static bool CanAttendFesta(ref bool __result)
+    {
+        __result = false;
+        return false;
     }
 }

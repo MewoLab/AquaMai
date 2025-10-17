@@ -1,31 +1,37 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using AMDaemon;
 using AquaMai.Config.Attributes;
 using AquaMai.Config.Types;
+using AquaMai.Core.Attributes;
 using HarmonyLib;
 using HidLibrary;
 using MelonLoader;
 using UnityEngine;
+using EnableConditionOperator = AquaMai.Core.Attributes.EnableConditionOperator;
 
 namespace AquaMai.Mods.GameSystem;
 
 [ConfigSection(
     name: "ADX HID 输入",
-    en: "Input using ADX HID firmware (do not enable if you are not using ADX's HID firmware, be sure to delete the existing HID related DLL when enabled)",
-    zh: "使用 ADX HID 固件的自定义输入（如果你没有使用 ADX 的 HID 固件，请不要启用。启用时请务必删除现有 HID 相关 DLL）")]
+    defaultOn: true,
+    en: "Input using ADX HID firmware (If you are not using ADX's HID firmware, enabling this won't do anything)",
+    zh: "使用 ADX HID 固件的自定义输入（没有 ADX 的话开了也不会加载，也没有坏处）")]
 public class AdxHidInput
 {
     private static HidDevice[] adxController = new HidDevice[2];
     private static byte[,] inputBuf = new byte[2, 32];
+    private static double[] td = [0, 0];
+    private static bool tdEnabled;
 
     private static void HidInputThread(int p)
     {
         while (true)
         {
-            if (adxController[p] == null) continue;
+            if (adxController[p] == null) return;
             var report1P = adxController[p].Read();
             if (report1P.Status != HidDeviceData.ReadStatus.Success || report1P.Data.Length <= 13) continue;
             for (int i = 0; i < 14; i++)
@@ -35,35 +41,73 @@ public class AdxHidInput
         }
     }
 
-    public static void OnBeforePatch()
+    private static void TdInit(int p)
     {
-        adxController[0] = HidDevices.Enumerate(0x2E3C, 0x5750).FirstOrDefault();
-        adxController[1] = HidDevices.Enumerate(0x2E4C, 0x5750).FirstOrDefault();
-
-        if (adxController[0] == null)
+        adxController[p].OpenDevice();
+        var arr = new byte[64];
+        arr[0] = 71;
+        adxController[p].WriteReportSync(new HidReport(64)
         {
-            MelonLogger.Msg("[HidInput] Open HID 1P Failed");
+            ReportId = 1,
+            Data = arr,
+        });
+        Thread.Sleep(100);
+        var rpt = adxController[p].ReadReportSync(1);
+        if (rpt.Data[0] != 71)
+        {
+            MelonLogger.Msg($"[HidInput] TD Init {p} Failed");
+            return;
         }
-        else
+        if (rpt.Data[5] < 110) return;
+        arr[0] = 0x73;
+        adxController[p].WriteReportSync(new HidReport(64)
+        {
+            ReportId = 1,
+            Data = arr,
+        });
+        Thread.Sleep(100);
+        rpt = adxController[p].ReadReportSync(1);
+        if (rpt.Data[0] != 0x73)
+        {
+            MelonLogger.Msg($"[HidInput] TD Init {p} Failed");
+            return;
+        }
+        if (rpt.Data[2] == 0) return;
+        td[p] = rpt.Data[2] * 0.25;
+        tdEnabled = true;
+        MelonLogger.Msg($"[HidInput] TD Init {p} OK, {td[p]} ms");
+    }
+
+    public static void OnBeforePatch(HarmonyLib.Harmony h)
+    {
+        adxController[0] = HidDevices.Enumerate(0x2E3C, [0x5750, 0x5767]).FirstOrDefault(it => !it.DevicePath.EndsWith("kbd"));
+        adxController[1] = HidDevices.Enumerate(0x2E4C, 0x5750).Concat(HidDevices.Enumerate(0x2E3C, 0x5768)).FirstOrDefault(it => !it.DevicePath.EndsWith("kbd"));
+
+        if (adxController[0] != null)
         {
             MelonLogger.Msg("[HidInput] Open HID 1P OK");
         }
 
-        if (adxController[1] == null)
-        {
-            MelonLogger.Msg("[HidInput] Open HID 2P Failed");
-        }
-        else
+        if (adxController[1] != null)
         {
             MelonLogger.Msg("[HidInput] Open HID 2P OK");
         }
 
+        var inputEnabled = false;
         for (int i = 0; i < 2; i++)
         {
             if (adxController[i] == null) continue;
+            TdInit(i);
+            if (adxController[i].Attributes.ProductId is 0x5767 or 0x5768) continue;
+            if (io4Compact) continue;
+            inputEnabled = true;
             var p = i;
             Thread hidThread = new Thread(() => HidInputThread(p));
             hidThread.Start();
+        }
+        if (inputEnabled)
+        {
+            h.PatchAll(typeof(Hook));
         }
     }
 
@@ -78,6 +122,9 @@ public class AdxHidInput
 
     [ConfigEntry(name: "按钮 4（最下方的圆形按键）")]
     private static readonly AdxKeyMap button4 = AdxKeyMap.Test;
+
+    [ConfigEntry("IO4 兼容模式", zh: "如果你不知道这是什么，请勿开启", hideWhenDefault: true)]
+    private static readonly bool io4Compact = false;
 
     private static bool GetPushedByButton(int playerNo, InputId inputId)
     {
@@ -119,7 +166,6 @@ public class AdxHidInput
         };
     }
 
-    [HarmonyPatch]
     public static class Hook
     {
         public static IEnumerable<MethodBase> TargetMethods()
@@ -156,6 +202,64 @@ public class AdxHidInput
             ____isStateOnOld2 = isStateOnOld2;
             ____isStateOnOld = isStateOnOld;
             return false;
+        }
+    }
+
+    private static readonly Dictionary<uint, Queue<TouchData>> _queue = new();
+    private static readonly object _lockObject = new object();
+
+    private struct TouchData
+    {
+        public ulong Data;
+        public uint Counter;
+        public DateTimeOffset Timestamp;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(Manager.InputManager), "SetNewTouchPanel")]
+    [EnableIf(nameof(tdEnabled))]
+    public static bool SetNewTouchPanel(uint index, ref ulong inputData, ref uint counter, ref bool __result)
+    {
+        var d = td[index];
+        if (d <= 0)
+        {
+            return true;
+        }
+
+        lock (_lockObject)
+        {
+            var currentTime = DateTimeOffset.UtcNow;
+            var dequeueCount = 0;
+
+            if (!_queue.ContainsKey(index))
+            {
+                _queue[index] = new Queue<TouchData>();
+            }
+
+            _queue[index].Enqueue(new TouchData
+            {
+                Data = inputData,
+                Counter = counter,
+                Timestamp = currentTime,
+            });
+
+            var ret = false;
+            foreach (var data in _queue[index])
+            {
+                if ((currentTime - data.Timestamp).TotalMilliseconds < d) break;
+                ret = true;
+                dequeueCount++;
+
+                inputData = data.Data;
+                counter = data.Counter;
+            }
+
+            for (var i = 0; i < dequeueCount; i++)
+            {
+                _queue[index].Dequeue();
+            }
+
+            return ret;
         }
     }
 }
