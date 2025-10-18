@@ -6,9 +6,11 @@ using AquaMai.Config.Attributes;
 using AquaMai.Core.Helpers;
 using AquaMai.Mods.GameSystem.MaimollerIO.Libs;
 using HarmonyLib;
+using IO;
 using Main;
 using Manager;
 using Mecha;
+using MelonLoader;
 using UnityEngine;
 
 namespace AquaMai.Mods.GameSystem.MaimollerIO;
@@ -78,26 +80,32 @@ public class MaimollerIO
         }
     }
 
-    private readonly static FieldInfo _tpNowField = typeof(InputManager).GetField("TpNow", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(NewTouchPanel), "Execute")]
+    public static bool PreNewTouchPanelExecute(uint ____monitorIndex, ref uint ____dataCounter)
+    {
+        int i = (int)____monitorIndex;
+        if (!ShouldEnableForPlayer(i)) return true;
+        Maimoller.Read(i, _inputReports[i]);
+        ulong s = 0;
+        s |= (ulong)_inputReports[i].GetSwitchState(MaimollerInputReport.SwitchClass.TOUCH_A, MaimollerInputReport.ButtonMask.ANY_PLAYER);
+        s |= (ulong)_inputReports[i].GetSwitchState(MaimollerInputReport.SwitchClass.TOUCH_B, MaimollerInputReport.ButtonMask.ANY_PLAYER) << 8;
+        s |= (ulong)_inputReports[i].GetSwitchState(MaimollerInputReport.SwitchClass.TOUCH_C, MaimollerInputReport.ButtonMask.ANY_TOUCH_C) << 16;
+        s |= (ulong)_inputReports[i].GetSwitchState(MaimollerInputReport.SwitchClass.TOUCH_D, MaimollerInputReport.ButtonMask.ANY_PLAYER) << 18;
+        s |= (ulong)_inputReports[i].GetSwitchState(MaimollerInputReport.SwitchClass.TOUCH_E, MaimollerInputReport.ButtonMask.ANY_PLAYER) << 26;
+        InputManager.SetNewTouchPanel(____monitorIndex, s, ++____dataCounter);
+        return false;
+    }
 
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(InputManager), "UpdateTouchPanel")]
-    public static void PreUpdateTouchPanel()
+    [HarmonyPatch(typeof(NewTouchPanel), "Start")]
+    public static bool PreNewTouchPanelStart(uint ____monitorIndex, ref NewTouchPanel.StatusEnum ___Status, ref bool ____isRunning)
     {
-        ulong[] tpNow = (ulong[])_tpNowField.GetValue(null);
-        for (int i = 0; i < 2; i++)
-        {
-            if (!ShouldEnableForPlayer(i)) continue;
-            Maimoller.Read(i, _inputReports[i]);
-            ulong s = 0uL;
-            s |= (ulong)_inputReports[i].GetSwitchState(MaimollerInputReport.SwitchClass.TOUCH_A, MaimollerInputReport.ButtonMask.ANY_PLAYER);
-            s |= (ulong)_inputReports[i].GetSwitchState(MaimollerInputReport.SwitchClass.TOUCH_B, MaimollerInputReport.ButtonMask.ANY_PLAYER) << 8;
-            s |= (ulong)_inputReports[i].GetSwitchState(MaimollerInputReport.SwitchClass.TOUCH_C, MaimollerInputReport.ButtonMask.ANY_TOUCH_C) << 16;
-            s |= (ulong)_inputReports[i].GetSwitchState(MaimollerInputReport.SwitchClass.TOUCH_D, MaimollerInputReport.ButtonMask.ANY_PLAYER) << 18;
-            s |= (ulong)_inputReports[i].GetSwitchState(MaimollerInputReport.SwitchClass.TOUCH_E, MaimollerInputReport.ButtonMask.ANY_PLAYER) << 26;
-            tpNow[i] |= s;
-        }
-        _tpNowField.SetValue(null, tpNow);
+        if (!ShouldEnableForPlayer((int)____monitorIndex)) return true;
+        ___Status = NewTouchPanel.StatusEnum.Drive;
+        ____isRunning = true;
+        MelonLogger.Msg($"[MaimollerIO] NewTouchPanel Start {____monitorIndex + 1}P");
+        return false;
     }
 
     [HarmonyPatch]
