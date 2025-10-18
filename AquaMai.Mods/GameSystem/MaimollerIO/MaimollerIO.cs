@@ -23,14 +23,31 @@ namespace AquaMai.Mods.GameSystem.MaimollerIO;
 public class MaimollerIO
 {
     [ConfigEntry(
-        name: "模式",
-        en: "Mode: P1P2, P1, P2 (Default: P1P2, i.e. try to read two devices, one for 1P and one for 2P)",
-        zh: "初始化模式：P1P2, P1, P2（默认为 P1P2，即尝试读取两个设备，分别作为 1P 和 2P）")]
-    private static readonly MaimollerInitMode mode = MaimollerInitMode.P1P2;
+        name: "启用 1P",
+        en: "Enable 1P (If you mix Maimoller with other protocols, please disable the side that is not Maimoller)",
+        zh: "启用 1P（如果混用 Maimoller 与其他协议，请对不是 Maimoller 的一侧禁用）")]
+    private static readonly bool p1 = true;
+
+    [ConfigEntry(
+        name: "启用 2P",
+        en: "Enable 2P (If you mix Maimoller with other protocols, please disable the side that is not Maimoller)",
+        zh: "启用 2P（如果混用 Maimoller 与其他协议，请对不是 Maimoller 的一侧禁用）")]
+    private static readonly bool p2 = true;
+
+    private static bool ShouldEnableForPlayer(int playerNo) => playerNo switch
+    {
+        0 => p1,
+        1 => p2,
+        _ => false,
+    };
+
+    private static readonly MaimollerDevice[] _devices = [.. Enumerable.Range(0, 2).Select(i => new MaimollerDevice(i))];
+    private static readonly MaimollerLedManager[] _ledManagers = [.. Enumerable.Range(0, 2).Select(i => new MaimollerLedManager(_devices[i].output))];
 
     public static void OnBeforePatch()
     {
-        Maimoller.Initialize(mode);
+        if (p1) _devices[0].Open();
+        if (p2) _devices[1].Open();
         JvsSwitchHook.AddKeyChecker(GetPushedByButton);
     }
 
@@ -38,45 +55,32 @@ public class MaimollerIO
     private static bool GetPushedByButton(int playerNo, InputId inputId)
     {
         if (!ShouldEnableForPlayer(playerNo)) return false;
-        Maimoller.Read(playerNo, _inputReports[playerNo]);
         return inputId.Value switch
         {
-            "test" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.SYSTEM, MaimollerInputReport.ButtonMask.TEST) != 0,
-            "service" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.SYSTEM, MaimollerInputReport.ButtonMask.SERVICE) != 0,
-            "select" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.SYSTEM, MaimollerInputReport.ButtonMask.SELECT) != 0,
-            "button_01" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_1) != 0,
-            "button_02" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_2) != 0,
-            "button_03" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_3) != 0,
-            "button_04" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_4) != 0,
-            "button_05" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_5) != 0,
-            "button_06" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_6) != 0,
-            "button_07" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_7) != 0,
-            "button_08" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_8) != 0,
+            "test" => _devices[playerNo].input.GetSwitchState(MaimollerInputReport.SwitchClass.SYSTEM, MaimollerInputReport.ButtonMask.TEST) != 0,
+            "service" => _devices[playerNo].input.GetSwitchState(MaimollerInputReport.SwitchClass.SYSTEM, MaimollerInputReport.ButtonMask.SERVICE) != 0,
+            "select" => _devices[playerNo].input.GetSwitchState(MaimollerInputReport.SwitchClass.SYSTEM, MaimollerInputReport.ButtonMask.SELECT) != 0,
+            "button_01" => _devices[playerNo].input.GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_1) != 0,
+            "button_02" => _devices[playerNo].input.GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_2) != 0,
+            "button_03" => _devices[playerNo].input.GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_3) != 0,
+            "button_04" => _devices[playerNo].input.GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_4) != 0,
+            "button_05" => _devices[playerNo].input.GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_5) != 0,
+            "button_06" => _devices[playerNo].input.GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_6) != 0,
+            "button_07" => _devices[playerNo].input.GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_7) != 0,
+            "button_08" => _devices[playerNo].input.GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_8) != 0,
             _ => false,
         };
     }
 
-    private static bool ShouldEnableForPlayer(int playerNo) => mode switch
-    {
-        MaimollerInitMode.P1P2 => playerNo == 0 || playerNo == 1,
-        MaimollerInitMode.P1 => playerNo == 0,
-        MaimollerInitMode.P2 => playerNo == 1,
-        _ => false,
-    };
-
-    private static readonly MaimollerInputReport[] _inputReports = [.. Enumerable.Range(0, 2).Select(_ => new MaimollerInputReport())];
-    private static readonly MaimollerOutputReport[] _outputReports = [.. Enumerable.Range(0, 2).Select(_ => new MaimollerOutputReport())];
-    private static readonly MaimollerLedManager[] _ledManagers = [.. Enumerable.Range(0, 2).Select(i => new MaimollerLedManager(_outputReports[i]))];
-
-    [HarmonyPostfix]
+    [HarmonyPrefix]
     [HarmonyPatch(typeof(GameMain), "Update")]
-    public static void PostGameMainUpdate(bool ____isInitialize)
+    public static void PreGameMainUpdate(bool ____isInitialize)
     {
         if (!____isInitialize) return;
         for (int i = 0; i < 2; i++)
         {
             if (!ShouldEnableForPlayer(i)) continue;
-            Maimoller.Write(i, _outputReports[i]);
+            _devices[i].Update();
         }
     }
 
@@ -86,13 +90,12 @@ public class MaimollerIO
     {
         int i = (int)____monitorIndex;
         if (!ShouldEnableForPlayer(i)) return true;
-        Maimoller.Read(i, _inputReports[i]);
         ulong s = 0;
-        s |= (ulong)_inputReports[i].GetSwitchState(MaimollerInputReport.SwitchClass.TOUCH_A, MaimollerInputReport.ButtonMask.ANY_PLAYER);
-        s |= (ulong)_inputReports[i].GetSwitchState(MaimollerInputReport.SwitchClass.TOUCH_B, MaimollerInputReport.ButtonMask.ANY_PLAYER) << 8;
-        s |= (ulong)_inputReports[i].GetSwitchState(MaimollerInputReport.SwitchClass.TOUCH_C, MaimollerInputReport.ButtonMask.ANY_TOUCH_C) << 16;
-        s |= (ulong)_inputReports[i].GetSwitchState(MaimollerInputReport.SwitchClass.TOUCH_D, MaimollerInputReport.ButtonMask.ANY_PLAYER) << 18;
-        s |= (ulong)_inputReports[i].GetSwitchState(MaimollerInputReport.SwitchClass.TOUCH_E, MaimollerInputReport.ButtonMask.ANY_PLAYER) << 26;
+        s |= (ulong)_devices[i].input.GetSwitchState(MaimollerInputReport.SwitchClass.TOUCH_A, MaimollerInputReport.ButtonMask.ANY_PLAYER);
+        s |= (ulong)_devices[i].input.GetSwitchState(MaimollerInputReport.SwitchClass.TOUCH_B, MaimollerInputReport.ButtonMask.ANY_PLAYER) << 8;
+        s |= (ulong)_devices[i].input.GetSwitchState(MaimollerInputReport.SwitchClass.TOUCH_C, MaimollerInputReport.ButtonMask.ANY_TOUCH_C) << 16;
+        s |= (ulong)_devices[i].input.GetSwitchState(MaimollerInputReport.SwitchClass.TOUCH_D, MaimollerInputReport.ButtonMask.ANY_PLAYER) << 18;
+        s |= (ulong)_devices[i].input.GetSwitchState(MaimollerInputReport.SwitchClass.TOUCH_E, MaimollerInputReport.ButtonMask.ANY_PLAYER) << 26;
         InputManager.SetNewTouchPanel(____monitorIndex, s, ++____dataCounter);
         return false;
     }
