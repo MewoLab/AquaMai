@@ -1,8 +1,8 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using AMDaemon;
 using AquaMai.Config.Attributes;
+using AquaMai.Config.Types;
 using AquaMai.Core.Helpers;
 using AquaMai.Mods.GameSystem.MaimollerIO.Libs;
 using HarmonyLib;
@@ -17,9 +17,17 @@ namespace AquaMai.Mods.GameSystem.MaimollerIO;
 
 [ConfigCollapseNamespace]
 [ConfigSection(
-    name: "Maimoller 的输入输出协议",
-    en: "Input (buttons and touch) and output (LEDs) using Maimoller IO firmware",
-    zh: "适配 Maimoller 的输入（按钮和触屏）和输出（LED）")]
+    name: "Maimoller IO 协议",
+    en: """
+        Input (buttons and touch) and output (LEDs) for Maimoller controllers, replacing the stock ADXHIDIOMod.dll.
+        Don't enable this if you're not using Maimoller controllers.
+        You must have libadxhid.dll and hidapi.dll in your Sinmai_Data/Plugins folder.
+        """,
+    zh: """
+        适配 Maimoller 控制器的输入（按钮和触屏）和输出（LED），替代厂商提供的 ADXHIDIOMod.dll。
+        如果你没有使用 Maimoller 控制器，请勿启用。
+        请在 Sinmai_Data/Plugins 文件夹下放置 libadxhid.dll 和 hidapi.dll。
+        """)]
 public class MaimollerIO
 {
     [ConfigEntry(
@@ -33,6 +41,26 @@ public class MaimollerIO
         en: "Enable 2P (If you mix Maimoller with other protocols, please disable the side that is not Maimoller)",
         zh: "启用 2P（如果混用 Maimoller 与其他协议，请对不是 Maimoller 的一侧禁用）")]
     private static readonly bool p2 = true;
+
+    [ConfigEntry(name: "按钮 1（三角形）")]
+    private static readonly AdxKeyMap button1 = AdxKeyMap.Select1P;
+
+    [ConfigEntry(name: "按钮 2（圆形）")]
+    private static readonly AdxKeyMap button2 = AdxKeyMap.Test;
+
+    [ConfigEntry(name: "按钮 3（圆形）")]
+    private static readonly AdxKeyMap button3 = AdxKeyMap.Service;
+
+    [ConfigEntry(name: "按钮 4（圆形）")]
+    private static readonly AdxKeyMap button4 = AdxKeyMap.Select2P;
+
+    private static readonly MaimollerInputReport.ButtonMask[] auxiliaryMaskMap =
+    [
+        /* button1 */ MaimollerInputReport.ButtonMask.SELECT,
+        /* button2 */ MaimollerInputReport.ButtonMask.SERVICE,
+        /* button3 */ MaimollerInputReport.ButtonMask.TEST,
+        /* button4 */ MaimollerInputReport.ButtonMask.COIN,
+    ];
 
     private static bool ShouldEnableForPlayer(int playerNo) => playerNo switch
     {
@@ -48,28 +76,53 @@ public class MaimollerIO
     {
         if (p1) _devices[0].Open();
         if (p2) _devices[1].Open();
-        JvsSwitchHook.AddKeyChecker(GetPushedByButton);
+        JvsSwitchHook.RegisterButtonChecker(IsButtonPushed);
+        JvsSwitchHook.RegisterAuxiliaryStateProvider(GetAuxiliaryState);
     }
 
-    // NOTE: Coin button is not supported yet. AquaMai recommands setting fixed number of credits directly in the configuration.
-    private static bool GetPushedByButton(int playerNo, InputId inputId)
+    private static bool IsButtonPushed(int playerNo, int buttonIndex1To8) => buttonIndex1To8 switch
     {
-        if (!ShouldEnableForPlayer(playerNo)) return false;
-        return inputId.Value switch
+        1 => _devices[playerNo].input.GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_1) != 0,
+        2 => _devices[playerNo].input.GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_2) != 0,
+        3 => _devices[playerNo].input.GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_3) != 0,
+        4 => _devices[playerNo].input.GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_4) != 0,
+        5 => _devices[playerNo].input.GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_5) != 0,
+        6 => _devices[playerNo].input.GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_6) != 0,
+        7 => _devices[playerNo].input.GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_7) != 0,
+        8 => _devices[playerNo].input.GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_8) != 0,
+        _ => false,
+    };
+
+    // NOTE: Coin button is not supported yet. AquaMai recommands setting fixed number of credits directly in the configuration.
+    private static AuxiliaryState GetAuxiliaryState()
+    {
+        var auxiliaryState = new AuxiliaryState();
+        Span<AdxKeyMap> keyMaps = stackalloc AdxKeyMap[4] { button1, button2, button3, button4 };
+        for (int i = 0; i < 4; i++)
         {
-            "test" => _devices[playerNo].input.GetSwitchState(MaimollerInputReport.SwitchClass.SYSTEM, MaimollerInputReport.ButtonMask.TEST) != 0,
-            "service" => _devices[playerNo].input.GetSwitchState(MaimollerInputReport.SwitchClass.SYSTEM, MaimollerInputReport.ButtonMask.SERVICE) != 0,
-            "select" => _devices[playerNo].input.GetSwitchState(MaimollerInputReport.SwitchClass.SYSTEM, MaimollerInputReport.ButtonMask.SELECT) != 0,
-            "button_01" => _devices[playerNo].input.GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_1) != 0,
-            "button_02" => _devices[playerNo].input.GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_2) != 0,
-            "button_03" => _devices[playerNo].input.GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_3) != 0,
-            "button_04" => _devices[playerNo].input.GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_4) != 0,
-            "button_05" => _devices[playerNo].input.GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_5) != 0,
-            "button_06" => _devices[playerNo].input.GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_6) != 0,
-            "button_07" => _devices[playerNo].input.GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_7) != 0,
-            "button_08" => _devices[playerNo].input.GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_8) != 0,
-            _ => false,
-        };
+            var is1PPushed = p1 && _devices[0].input.GetSwitchState(MaimollerInputReport.SwitchClass.SYSTEM, auxiliaryMaskMap[i]) != 0;
+            var is2PPushed = p2 && _devices[1].input.GetSwitchState(MaimollerInputReport.SwitchClass.SYSTEM, auxiliaryMaskMap[i]) != 0;
+            switch (keyMaps[i])
+            {
+            case AdxKeyMap.Select1P:
+                auxiliaryState.select1P |= is1PPushed || is2PPushed;
+                break;
+            case AdxKeyMap.Select2P:
+                auxiliaryState.select2P |= is1PPushed || is2PPushed;
+                break;
+            case AdxKeyMap.Select:
+                auxiliaryState.select1P |= is1PPushed;
+                auxiliaryState.select2P |= is2PPushed;
+                break;
+            case AdxKeyMap.Service:
+                auxiliaryState.service = is1PPushed || is2PPushed;
+                break;
+            case AdxKeyMap.Test:
+                auxiliaryState.test = is1PPushed || is2PPushed;
+                break;
+            }
+        }
+        return auxiliaryState;
     }
 
     [HarmonyPrefix]

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using AMDaemon;
 using AquaMai.Config.Attributes;
@@ -11,7 +10,6 @@ using AquaMai.Core.Helpers;
 using HarmonyLib;
 using HidLibrary;
 using MelonLoader;
-using UnityEngine;
 
 namespace AquaMai.Mods.GameSystem;
 
@@ -108,9 +106,23 @@ public class AdxHidInput
 
         if (inputEnabled)
         {
-            JvsSwitchHook.AddKeyChecker(GetPushedByButton);
+            JvsSwitchHook.RegisterButtonChecker(IsButtonPushed);
+            JvsSwitchHook.RegisterAuxiliaryStateProvider(GetAuxiliaryState);
         }
     }
+
+    private static bool IsButtonPushed(int playerNo, int buttonIndex1To8) => buttonIndex1To8 switch
+    {
+        1 => inputBuf[playerNo, 5] == 1,
+        2 => inputBuf[playerNo, 4] == 1,
+        3 => inputBuf[playerNo, 3] == 1,
+        4 => inputBuf[playerNo, 2] == 1,
+        5 => inputBuf[playerNo, 9] == 1,
+        6 => inputBuf[playerNo, 8] == 1,
+        7 => inputBuf[playerNo, 7] == 1,
+        8 => inputBuf[playerNo, 6] == 1,
+        _ => false,
+    };
 
     [ConfigEntry(name: "按钮 1（向上的三角键）")]
     private static readonly AdxKeyMap button1 = AdxKeyMap.Select1P;
@@ -127,44 +139,36 @@ public class AdxHidInput
     [ConfigEntry("IO4 兼容模式", zh: "如果你不知道这是什么，请勿开启", hideWhenDefault: true)]
     private static readonly bool io4Compact = false;
 
-    private static bool GetPushedByButton(int playerNo, InputId inputId)
+    private static AuxiliaryState GetAuxiliaryState()
     {
-        var current = inputId.Value switch
+        var auxiliaryState = new AuxiliaryState();
+        Span<AdxKeyMap> keyMaps = stackalloc AdxKeyMap[4] { button1, button2, button3, button4 };
+        for (int i = 0; i < 4; i++)
         {
-            "test" => AdxKeyMap.Test,
-            "service" => AdxKeyMap.Service,
-            "select" when playerNo == 0 => AdxKeyMap.Select1P,
-            "select" when playerNo == 1 => AdxKeyMap.Select2P,
-            _ => AdxKeyMap.None,
-        };
-
-        AdxKeyMap[] arr = [button1, button2, button3, button4];
-        if (current != AdxKeyMap.None)
-        {
-            for (int i = 0; i < 4; i++)
+            var keyIndex = 10 + i;
+            var is1PPushed = inputBuf[0, keyIndex] == 1;
+            var is2PPushed = inputBuf[1, keyIndex] == 1;
+            switch (keyMaps[i])
             {
-                if (arr[i] != current) continue;
-                var keyIndex = 10 + i;
-                if (inputBuf[0, keyIndex] == 1 || inputBuf[1, keyIndex] == 1)
-                {
-                    return true;
-                }
+            case AdxKeyMap.Select1P:
+                auxiliaryState.select1P |= is1PPushed || is2PPushed;
+                break;
+            case AdxKeyMap.Select2P:
+                auxiliaryState.select2P |= is1PPushed || is2PPushed;
+                break;
+            case AdxKeyMap.Select:
+                auxiliaryState.select1P |= is1PPushed;
+                auxiliaryState.select2P |= is2PPushed;
+                break;
+            case AdxKeyMap.Service:
+                auxiliaryState.service = is1PPushed || is2PPushed;
+                break;
+            case AdxKeyMap.Test:
+                auxiliaryState.test = is1PPushed || is2PPushed;
+                break;
             }
-            return false;
         }
-
-        return inputId.Value switch
-        {
-            "button_01" => inputBuf[playerNo, 5] == 1,
-            "button_02" => inputBuf[playerNo, 4] == 1,
-            "button_03" => inputBuf[playerNo, 3] == 1,
-            "button_04" => inputBuf[playerNo, 2] == 1,
-            "button_05" => inputBuf[playerNo, 9] == 1,
-            "button_06" => inputBuf[playerNo, 8] == 1,
-            "button_07" => inputBuf[playerNo, 7] == 1,
-            "button_08" => inputBuf[playerNo, 6] == 1,
-            _ => false,
-        };
+        return auxiliaryState;
     }
 
     private static readonly Dictionary<uint, Queue<TouchData>> _queue = new();

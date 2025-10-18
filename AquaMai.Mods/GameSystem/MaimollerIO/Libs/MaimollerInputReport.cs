@@ -31,8 +31,8 @@ public class MaimollerInputReport
         BTN_7 = 0x40,
         BTN_8 = 0x80,
         SELECT = 8,
-        TEST = 4,
-        SERVICE = 2,
+        TEST = 4, // This key is named "TEST" but triggers Service in stock MOD.
+        SERVICE = 2, // This key is named "SERVICE" but triggers Test in stock MOD.
         COIN = 1,
         ANY_PLAYER = byte.MaxValue,
         ANY_SYSTEM = 0xF,
