@@ -32,13 +32,13 @@ public class MaimollerIO
 {
     [ConfigEntry(
         name: "启用 1P",
-        en: "Enable 1P (If you mix Maimoller with other protocols, please disable the side that is not Maimoller)",
+        en: "Enable 1P (If you mix Maimoller with other protocols, please disable for the side that is not Maimoller)",
         zh: "启用 1P（如果混用 Maimoller 与其他协议，请对不是 Maimoller 的一侧禁用）")]
     private static readonly bool p1 = true;
 
     [ConfigEntry(
         name: "启用 2P",
-        en: "Enable 2P (If you mix Maimoller with other protocols, please disable the side that is not Maimoller)",
+        en: "Enable 2P (If you mix Maimoller with other protocols, please disable for the side that is not Maimoller)",
         zh: "启用 2P（如果混用 Maimoller 与其他协议，请对不是 Maimoller 的一侧禁用）")]
     private static readonly bool p2 = true;
 
