@@ -33,21 +33,26 @@ public class MaimollerIO
     }
 
     // NOTE: Coin button is not supported yet. AquaMai recommands setting fixed number of credits directly in the configuration.
-    private static bool GetPushedByButton(int playerNo, InputId inputId) => ShouldEnableForPlayer(playerNo) && inputId.Value switch
+    private static bool GetPushedByButton(int playerNo, InputId inputId)
     {
-        "test" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.SYSTEM, MaimollerInputReport.ButtonMask.TEST) != 0,
-        "service" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.SYSTEM, MaimollerInputReport.ButtonMask.SERVICE) != 0,
-        "select" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.SYSTEM, MaimollerInputReport.ButtonMask.SELECT) != 0,
-        "button_01" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_1) != 0,
-        "button_02" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_2) != 0,
-        "button_03" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_3) != 0,
-        "button_04" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_4) != 0,
-        "button_05" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_5) != 0,
-        "button_06" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_6) != 0,
-        "button_07" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_7) != 0,
-        "button_08" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_8) != 0,
-        _ => false,
-    };
+        if (!ShouldEnableForPlayer(playerNo)) return false;
+        Maimoller.Read(playerNo, _inputReports[playerNo]);
+        return inputId.Value switch
+        {
+            "test" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.SYSTEM, MaimollerInputReport.ButtonMask.TEST) != 0,
+            "service" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.SYSTEM, MaimollerInputReport.ButtonMask.SERVICE) != 0,
+            "select" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.SYSTEM, MaimollerInputReport.ButtonMask.SELECT) != 0,
+            "button_01" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_1) != 0,
+            "button_02" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_2) != 0,
+            "button_03" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_3) != 0,
+            "button_04" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_4) != 0,
+            "button_05" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_5) != 0,
+            "button_06" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_6) != 0,
+            "button_07" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_7) != 0,
+            "button_08" => _inputReports[playerNo].GetSwitchState(MaimollerInputReport.SwitchClass.BUTTON, MaimollerInputReport.ButtonMask.BTN_8) != 0,
+            _ => false,
+        };
+    }
 
     private static bool ShouldEnableForPlayer(int playerNo) => mode switch
     {
@@ -61,15 +66,14 @@ public class MaimollerIO
     private static readonly MaimollerOutputReport[] _outputReports = [.. Enumerable.Repeat(0, 2).Select(_ => new MaimollerOutputReport())];
     private static readonly MaimollerLedManager[] _ledManagers = [.. Enumerable.Repeat(0, 2).Select(i => new MaimollerLedManager(_outputReports[i]))];
 
-    [HarmonyPrefix]
+    [HarmonyPostfix]
     [HarmonyPatch(typeof(GameMain), "Update")]
-    public static void GameMainUpdatePrefix(bool ____isInitialize)
+    public static void PostGameMainUpdate(bool ____isInitialize)
     {
         if (!____isInitialize) return;
         for (int i = 0; i < 2; i++)
         {
             if (!ShouldEnableForPlayer(i)) continue;
-            Maimoller.Read(i, _inputReports[i]);
             Maimoller.Write(i, _outputReports[i]);
         }
     }
@@ -84,6 +88,7 @@ public class MaimollerIO
         for (int i = 0; i < 2; i++)
         {
             if (!ShouldEnableForPlayer(i)) continue;
+            Maimoller.Read(i, _inputReports[i]);
             ulong s = 0uL;
             s |= (ulong)_inputReports[i].GetSwitchState(MaimollerInputReport.SwitchClass.TOUCH_A, MaimollerInputReport.ButtonMask.ANY_PLAYER);
             s |= (ulong)_inputReports[i].GetSwitchState(MaimollerInputReport.SwitchClass.TOUCH_B, MaimollerInputReport.ButtonMask.ANY_PLAYER) << 8;

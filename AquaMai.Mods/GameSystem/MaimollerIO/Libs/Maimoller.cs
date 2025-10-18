@@ -69,7 +69,7 @@ public static class Maimoller
         var device = _devices[player];
         if (device is not { IsConnected: true }) return false;
 
-        long data = device.GetLatestInputReport();
+        long data = device.InputData;
 
         // byte 1-5: touches[0-4], byte 6: playerBtn, byte 7: systemBtn
         report.touches[0] = (byte)(data >> 8);
