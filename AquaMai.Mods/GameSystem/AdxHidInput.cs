@@ -125,16 +125,16 @@ public class AdxHidInput
     };
 
     [ConfigEntry(name: "按钮 1（向上的三角键）")]
-    private static readonly AdxKeyMap button1 = AdxKeyMap.Select1P;
+    private static readonly IOKeyMap button1 = IOKeyMap.Select1P;
 
     [ConfigEntry(name: "按钮 2（三角键中间的圆形按键）")]
-    private static readonly AdxKeyMap button2 = AdxKeyMap.Service;
+    private static readonly IOKeyMap button2 = IOKeyMap.Service;
 
     [ConfigEntry(name: "按钮 3（向下的三角键）")]
-    private static readonly AdxKeyMap button3 = AdxKeyMap.Select2P;
+    private static readonly IOKeyMap button3 = IOKeyMap.Select2P;
 
     [ConfigEntry(name: "按钮 4（最下方的圆形按键）")]
-    private static readonly AdxKeyMap button4 = AdxKeyMap.Test;
+    private static readonly IOKeyMap button4 = IOKeyMap.Test;
 
     [ConfigEntry("IO4 兼容模式", zh: "如果你不知道这是什么，请勿开启", hideWhenDefault: true)]
     private static readonly bool io4Compact = false;
@@ -142,7 +142,7 @@ public class AdxHidInput
     private static AuxiliaryState GetAuxiliaryState()
     {
         var auxiliaryState = new AuxiliaryState();
-        Span<AdxKeyMap> keyMaps = stackalloc AdxKeyMap[4] { button1, button2, button3, button4 };
+        Span<IOKeyMap> keyMaps = stackalloc IOKeyMap[4] { button1, button2, button3, button4 };
         for (int i = 0; i < 4; i++)
         {
             var keyIndex = 10 + i;
@@ -150,20 +150,20 @@ public class AdxHidInput
             var is2PPushed = inputBuf[1, keyIndex] == 1;
             switch (keyMaps[i])
             {
-            case AdxKeyMap.Select1P:
+            case IOKeyMap.Select1P:
                 auxiliaryState.select1P |= is1PPushed || is2PPushed;
                 break;
-            case AdxKeyMap.Select2P:
+            case IOKeyMap.Select2P:
                 auxiliaryState.select2P |= is1PPushed || is2PPushed;
                 break;
-            case AdxKeyMap.Select:
+            case IOKeyMap.Select:
                 auxiliaryState.select1P |= is1PPushed;
                 auxiliaryState.select2P |= is2PPushed;
                 break;
-            case AdxKeyMap.Service:
+            case IOKeyMap.Service:
                 auxiliaryState.service = is1PPushed || is2PPushed;
                 break;
-            case AdxKeyMap.Test:
+            case IOKeyMap.Test:
                 auxiliaryState.test = is1PPushed || is2PPushed;
                 break;
             }
