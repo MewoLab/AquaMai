@@ -3,6 +3,7 @@
 using System;
 using System.Linq;
 using HidLibrary;
+using MelonLoader;
 
 namespace AquaMai.Mods.GameSystem.MaimollerIO.Libs;
 

@@ -35,7 +35,7 @@ public sealed class MaimollerDeviceHandle(HidDevice hidDevice, int playerIndex) 
             if (!_hidDevice.IsOpen) return false;
 
             IsConnected = true;
-            MelonLogger.Msg($"[Maimoller] {_playerIndex + 1}P opened");
+            MelonLogger.Msg($"[MaimollerIO] {_playerIndex + 1}P opened");
 
             _readThread = new(_cts, $"Maimoller Read {_playerIndex + 1}P", ReadThreadProc, ThreadPriority.Highest);
             _writeThread = new(_cts, $"Maimoller Write {_playerIndex + 1}P", WriteThreadProc, ThreadPriority.Normal);
@@ -45,7 +45,7 @@ public sealed class MaimollerDeviceHandle(HidDevice hidDevice, int playerIndex) 
         catch (Exception e)
         {
             IsConnected = false;
-            MelonLogger.Error($"[Maimoller] {_playerIndex + 1}P open failed", e);
+            MelonLogger.Error($"[MaimollerIO] {_playerIndex + 1}P open failed", e);
             return false;
         }
     }
@@ -57,13 +57,13 @@ public sealed class MaimollerDeviceHandle(HidDevice hidDevice, int playerIndex) 
         var readResult = _hidDevice.Read();
         if (readResult.Status != HidDeviceData.ReadStatus.Success)
         {
-            MelonLogger.Error($"[Maimoller] {_playerIndex + 1}P read failed: {readResult.Status}");
+            MelonLogger.Error($"[MaimollerIO] {_playerIndex + 1}P read failed: {readResult.Status}");
             return false;
         }
 
         if (readResult.Data.Length == 0)
         {
-            MelonLogger.Error($"[Maimoller] {_playerIndex + 1}P read data empty");
+            MelonLogger.Error($"[MaimollerIO] {_playerIndex + 1}P read data empty");
             return false;
         }
 
@@ -71,7 +71,7 @@ public sealed class MaimollerDeviceHandle(HidDevice hidDevice, int playerIndex) 
         int maxBytes = Math.Min(readResult.Data.Length, 8);
         for (int i = 0; i < maxBytes; i++)
         {
-            newData |= ((long)readResult.Data[i]) << ((i + 1) * 8);
+            newData |= ((long)readResult.Data[i]) << (i * 8);
         }
 
         _inputData = newData;
@@ -91,7 +91,7 @@ public sealed class MaimollerDeviceHandle(HidDevice hidDevice, int playerIndex) 
         if (!_hidDevice.Write(_writeBuffer))
         {
             IsConnected = false;
-            MelonLogger.Error($"[Maimoller] {_playerIndex + 1}P write failed");
+            MelonLogger.Error($"[MaimollerIO] {_playerIndex + 1}P write failed");
             return false;
         }
 

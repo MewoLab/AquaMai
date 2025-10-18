@@ -64,9 +64,9 @@ public class MaimollerIO
         _ => false,
     };
 
-    private static readonly MaimollerInputReport[] _inputReports = [.. Enumerable.Repeat(0, 2).Select(_ => new MaimollerInputReport())];
-    private static readonly MaimollerOutputReport[] _outputReports = [.. Enumerable.Repeat(0, 2).Select(_ => new MaimollerOutputReport())];
-    private static readonly MaimollerLedManager[] _ledManagers = [.. Enumerable.Repeat(0, 2).Select(i => new MaimollerLedManager(_outputReports[i]))];
+    private static readonly MaimollerInputReport[] _inputReports = [.. Enumerable.Range(0, 2).Select(_ => new MaimollerInputReport())];
+    private static readonly MaimollerOutputReport[] _outputReports = [.. Enumerable.Range(0, 2).Select(_ => new MaimollerOutputReport())];
+    private static readonly MaimollerLedManager[] _ledManagers = [.. Enumerable.Range(0, 2).Select(i => new MaimollerLedManager(_outputReports[i]))];
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(GameMain), "Update")]
