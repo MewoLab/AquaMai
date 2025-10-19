@@ -13,12 +13,12 @@ namespace AquaMai.Mods.GameSystem;
     name: "8Ch 音频路由重映射",
     en: """
         Redirect each channel in 8Ch to specific channel.
-        Mixing is allowed. Use "None" to mute a channel.
+        Mixing is allowed. Use "None" to mute a channel. Volumes are applied on the source channels (> 1.0 won't work, to increase volume, use HeadphoneVolumeMultiply instead).
         (NOTE: For 2Ch setups, please route the channels you want to P1SpeakerLeft/Right and other channels to None.)
         """,
     zh: """
         将 8Ch 的各个声道重新映射到指定的声道
-        可进行混合，可使用 "None" 以禁用一个声道
+        可进行混合，可使用 "None" 以禁用一个声道，音量在源声道应用（> 1.0 不会生效，若要提高音量，请使用 HeadphoneVolumeMultiply）
         （注：对于 2Ch 用户，请将需要的声道路由到 P1SpeakerLeft/Right，其他声道路由到 None）
         """)]
 public static class SoundRouting
@@ -47,9 +47,28 @@ public static class SoundRouting
     [ConfigEntry]
     private static readonly SoundChannel routeP2HeadphoneRightTo = SoundChannel.P2HeadphoneRight;
 
+    [ConfigEntry]
+    private static readonly float volumeP1Speaker = 1.0f;
+    
+    [ConfigEntry]
+    private static readonly float volumeP1Headphone = 1.0f;
+    
+    [ConfigEntry]
+    private static readonly float volumeP2Speaker = 1.0f;
+    
+    [ConfigEntry]
+    private static readonly float volumeP2Headphone = 1.0f;
+
     private const int PARAMETER_MATRIX_SIZE = 8 * 8 * 4; // 8 input * 8 output * 4 sizeof(float BE)
 
-    private static byte[] GenerateParameterMatrix(SoundChannel routeLeftTo, SoundChannel routeRightTo)
+    private static void WriteFloatBigEndian(byte[] buffer, int index, float value)
+    {
+        var bytes = BitConverter.GetBytes(value);
+        if (BitConverter.IsLittleEndian) Array.Reverse(bytes);
+        Array.Copy(bytes, 0, buffer, index, 4);
+    }
+
+    private static byte[] GenerateParameterMatrix(SoundChannel routeLeftTo, SoundChannel routeRightTo, float volume)
     {
         var matrix8x8 = new byte[PARAMETER_MATRIX_SIZE];
         int index = 0;
@@ -59,20 +78,13 @@ public static class SoundRouting
             {
                 if (i == 0 && j == (int)routeLeftTo || i == 1 && j == (int)routeRightTo)
                 {
-                    // 1.0f in Big endian
-                    // TODO: anyone need to control the volume in routing?
-                    matrix8x8[index++] = 63;
-                    matrix8x8[index++] = 128;
-                    matrix8x8[index++] = 0;
-                    matrix8x8[index++] = 0;
+                    WriteFloatBigEndian(matrix8x8, index, volume);
                 }
                 else
                 {
-                    matrix8x8[index++] = 0;
-                    matrix8x8[index++] = 0;
-                    matrix8x8[index++] = 0;
-                    matrix8x8[index++] = 0;
+                    WriteFloatBigEndian(matrix8x8, index, 0.0f);
                 }
+                index += 4;
             }
         }
         return matrix8x8;
@@ -81,27 +93,27 @@ public static class SoundRouting
     private static byte[] GetOriginalParameters()
     {
         var memoryStream = new MemoryStream();
-        memoryStream.Write(GenerateParameterMatrix(SoundChannel.P1SpeakerLeft, SoundChannel.P1SpeakerRight), 0, PARAMETER_MATRIX_SIZE);
-        memoryStream.Write(GenerateParameterMatrix(SoundChannel.P2SpeakerLeft, SoundChannel.P2SpeakerRight), 0, PARAMETER_MATRIX_SIZE);
-        memoryStream.Write(GenerateParameterMatrix(SoundChannel.P1HeadphoneLeft, SoundChannel.P1HeadphoneRight), 0, PARAMETER_MATRIX_SIZE);
-        memoryStream.Write(GenerateParameterMatrix(SoundChannel.P2HeadphoneLeft, SoundChannel.P2HeadphoneRight), 0, PARAMETER_MATRIX_SIZE);
+        memoryStream.Write(GenerateParameterMatrix(SoundChannel.P1SpeakerLeft, SoundChannel.P1SpeakerRight, 1.0f), 0, PARAMETER_MATRIX_SIZE);
+        memoryStream.Write(GenerateParameterMatrix(SoundChannel.P2SpeakerLeft, SoundChannel.P2SpeakerRight, 1.0f), 0, PARAMETER_MATRIX_SIZE);
+        memoryStream.Write(GenerateParameterMatrix(SoundChannel.P1HeadphoneLeft, SoundChannel.P1HeadphoneRight, 1.0f), 0, PARAMETER_MATRIX_SIZE);
+        memoryStream.Write(GenerateParameterMatrix(SoundChannel.P2HeadphoneLeft, SoundChannel.P2HeadphoneRight, 1.0f), 0, PARAMETER_MATRIX_SIZE);
         return memoryStream.ToArray();
     }
 
     private static byte[] GenerateParameters()
     {
         var memoryStream = new MemoryStream();
-        memoryStream.Write(GenerateParameterMatrix(routeP1SpeakerLeftTo, routeP1SpeakerRightTo), 0, PARAMETER_MATRIX_SIZE);
-        memoryStream.Write(GenerateParameterMatrix(routeP2SpeakerLeftTo, routeP2SpeakerRightTo), 0, PARAMETER_MATRIX_SIZE);
-        memoryStream.Write(GenerateParameterMatrix(routeP1HeadphoneLeftTo, routeP1HeadphoneRightTo), 0, PARAMETER_MATRIX_SIZE);
-        memoryStream.Write(GenerateParameterMatrix(routeP2HeadphoneLeftTo, routeP2HeadphoneRightTo), 0, PARAMETER_MATRIX_SIZE);
+        memoryStream.Write(GenerateParameterMatrix(routeP1SpeakerLeftTo, routeP1SpeakerRightTo, volumeP1Speaker), 0, PARAMETER_MATRIX_SIZE);
+        memoryStream.Write(GenerateParameterMatrix(routeP2SpeakerLeftTo, routeP2SpeakerRightTo, volumeP2Speaker), 0, PARAMETER_MATRIX_SIZE);
+        memoryStream.Write(GenerateParameterMatrix(routeP1HeadphoneLeftTo, routeP1HeadphoneRightTo, volumeP1Headphone), 0, PARAMETER_MATRIX_SIZE);
+        memoryStream.Write(GenerateParameterMatrix(routeP2HeadphoneLeftTo, routeP2HeadphoneRightTo, volumeP2Headphone), 0, PARAMETER_MATRIX_SIZE);
         return memoryStream.ToArray();
     }
 
     // Naive O(n*m) search but enough
     private static int FindBytesInBytes(byte[] haystack, byte[] needle)
     {
-        for (int i = 0; i < haystack.Length; i++) if (haystack.Skip(i).Take(needle.Length).SequenceEqual(needle)) return i;
+        for (int i = 0; i < haystack.Length - needle.Length + 1; i++) if (haystack.Skip(i).Take(needle.Length).SequenceEqual(needle)) return i;
         return -1;
     }
 
