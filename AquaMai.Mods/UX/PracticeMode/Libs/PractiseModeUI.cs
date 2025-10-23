@@ -60,29 +60,29 @@ public class PracticeModeUI : MonoBehaviour
         GUI.Button(GetButtonRect(1, 0), Locale.Pause);
         GUI.Button(GetButtonRect(2, 0), Locale.SeekForward);
 
+        GUI.Button(GetButtonRect(0, 1), Locale.SpeedDown);
+        GUI.Label(GetButtonRect(1, 1), $"{Locale.Speed} {PracticeMode.speed * 100:000}%");
+        GUI.Button(GetButtonRect(2, 1), Locale.SpeedUp);
+
         if (PracticeMode.repeatStart == -1)
         {
-            GUI.Button(GetButtonRect(0, 1), Locale.MarkRepeatStart);
-            GUI.Label(GetButtonRect(1, 1), Locale.RepeatNotSet);
+            GUI.Button(GetButtonRect(0, 2), Locale.MarkRepeatStart);
+            GUI.Label(GetButtonRect(1, 2), Locale.RepeatNotSet);
         }
         else if (PracticeMode.repeatEnd == -1)
         {
-            GUI.Button(GetButtonRect(0, 1), Locale.MarkRepeatEnd);
-            GUI.Label(GetButtonRect(1, 1), Locale.RepeatStartSet);
-            GUI.Button(GetButtonRect(2, 1), Locale.RepeatReset);
+            GUI.Button(GetButtonRect(0, 2), Locale.MarkRepeatEnd);
+            GUI.Label(GetButtonRect(1, 2), Locale.RepeatStartSet);
+            GUI.Button(GetButtonRect(2, 2), Locale.RepeatReset);
         }
         else
         {
-            GUI.Label(GetButtonRect(1, 1), Locale.RepeatStartEndSet);
-            GUI.Button(GetButtonRect(2, 1), Locale.RepeatReset);
+            GUI.Label(GetButtonRect(1, 2), Locale.RepeatStartEndSet);
+            GUI.Button(GetButtonRect(2, 2), Locale.RepeatReset);
         }
 
-        GUI.Button(GetButtonRect(0, 2), Locale.SpeedDown);
-        GUI.Label(GetButtonRect(1, 2), $"{Locale.Speed} {PracticeMode.speed * 100:000}%");
-        GUI.Button(GetButtonRect(2, 2), Locale.SpeedUp);
-        GUI.Button(GetButtonRect(1, 3), Locale.SpeedReset);
-
         GUI.Label(GetButtonRect(0, 3), $"{TimeSpan.FromMilliseconds(PracticeMode.CurrentPlayMsec):mm\\:ss\\.fff}\n{TimeSpan.FromMilliseconds(NotesManager.Instance().getPlayFinalMsec()):mm\\:ss\\.fff}");
+        GUI.Button(GetButtonRect(1, 3), Locale.SpeedReset);
         GUI.Button(GetButtonRect(2, 3), $"保持流速\n{(PracticeMode.keepNoteSpeed ? "ON" : "OFF")}");
     }
 
@@ -104,6 +104,14 @@ public class PracticeModeUI : MonoBehaviour
                 PracticeMode.Seek(0);
             }
         }
+        else if (InputManager.GetTouchPanelAreaDown(InputManager.TouchPanelArea.B6))
+        {
+            PracticeMode.SpeedDown();
+        }
+        else if (InputManager.GetTouchPanelAreaDown(InputManager.TouchPanelArea.B3))
+        {
+            PracticeMode.SpeedUp();
+        }
         else if (InputManager.GetTouchPanelAreaDown(InputManager.TouchPanelArea.B7) && PracticeMode.repeatStart == -1)
         {
             PracticeMode.repeatStart = PracticeMode.CurrentPlayMsec;
@@ -115,14 +123,6 @@ public class PracticeModeUI : MonoBehaviour
         else if (InputManager.GetTouchPanelAreaDown(InputManager.TouchPanelArea.B2))
         {
             PracticeMode.ClearRepeat();
-        }
-        else if (InputManager.GetTouchPanelAreaDown(InputManager.TouchPanelArea.B6))
-        {
-            PracticeMode.SpeedDown();
-        }
-        else if (InputManager.GetTouchPanelAreaDown(InputManager.TouchPanelArea.B3))
-        {
-            PracticeMode.SpeedUp();
         }
         else if (InputManager.GetTouchPanelAreaDown(InputManager.TouchPanelArea.B5) || InputManager.GetTouchPanelAreaDown(InputManager.TouchPanelArea.B4))
         {
