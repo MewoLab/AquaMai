@@ -84,7 +84,17 @@ Camouflage jacket filename is ""<Music ID>_jacket"", jpg or png image are suppor
                 if (!AllowedImageExts.Contains(Path.GetExtension(jacketFilePath).ToLowerInvariant()))
                     continue;
 
-                parsedData.JacketFilename = jacketFilePath;
+                try
+                {
+                    var texture = new Texture2D(1, 1, TextureFormat.RGBA32, false);
+                    texture.LoadImage(File.ReadAllBytes(jacketFilePath));
+                    parsedData.JacketTexture = texture;
+                    break;
+                }
+                catch (Exception e)
+                {
+                    MelonLogger.Warning($"[TrackCamouflage] Failed to read jacket file {jacketFilePath}: {e}");
+                }
             }
 
             _camouflagesDict.Add(musicID, parsedData);
@@ -101,12 +111,14 @@ Camouflage jacket filename is ""<Music ID>_jacket"", jpg or png image are suppor
         if (!CamouflageCheck(musicSelectData.MusicData.GetID(), out CamouflageInfo info))
             return;
 
+        var jacketTexture = info.JacketTexture ?? assetManager.GetJacketThumbTexture2D("Jacket_S/UI_Jacket_000000_S.png");
+
         card.SetMusicData(
             info.Name,
             info.Artist,
             musicSelectData.ScoreData[difficulty].notesDesigner.str,
             musicSelectData.MusicData.bpm,
-            info.GetJacketTexture(assetManager),
+            jacketTexture,
             difficulty);
 
         // Hide the copyright information to reduce chance to get the clue
@@ -185,7 +197,7 @@ Camouflage jacket filename is ""<Music ID>_jacket"", jpg or png image are suppor
         if (!CamouflageCheck(musicSelectData.MusicData.GetID(), out CamouflageInfo info))
             return assetManager.GetJacketThumbTexture2D(origThumbnailName);
 
-        return info.GetJacketTexture(assetManager);
+        return info.JacketTexture ?? assetManager.GetJacketThumbTexture2D("Jacket_S/UI_Jacket_000000_S.png");
     }
 
     [HarmonyTranspiler]
@@ -290,7 +302,7 @@ Camouflage jacket filename is ""<Music ID>_jacket"", jpg or png image are suppor
 
         ____musicName.SetData(info.Name);
         ____artistName.SetData(info.Artist);
-        ____jacket.texture = info.GetJacketTexture(____assetManager);
+        ____jacket.texture = info.JacketTexture ?? ____assetManager.GetJacketTexture2D("Jacket/UI_Jacket_000000.png");
     }
     #endregion
 
@@ -331,17 +343,7 @@ Camouflage jacket filename is ""<Music ID>_jacket"", jpg or png image are suppor
         public string Artist { get; set; } = "???";
 
         [TomlNonSerialized]
-        public string JacketFilename;
-
-        public Texture2D GetJacketTexture(AssetManager assetManager)
-        {
-            if (string.IsNullOrEmpty(JacketFilename))
-                return assetManager.GetJacketTexture2D("Jacket/UI_Jacket_000000.png");
-
-            var texture = new Texture2D(1, 1, TextureFormat.RGBA32, false);
-            texture.LoadImage(File.ReadAllBytes(this.JacketFilename));
-            return texture;
-        }
+        public Texture2D JacketTexture = null;
     }
     #endregion
 }
