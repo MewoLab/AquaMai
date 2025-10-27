@@ -267,20 +267,15 @@ public class PracticeMode
         if (startGap != -1f)
         {
             ____curMSec = startGap;
-            ____curMSecPre = startGap;
-            ____stopwatch?.Reset();
             startGap = -1f;
         }
-        else
+        ____curMSecPre = ____curMSec;
+        if (____isPlaying && ____stopwatch != null && !DebugFeature.Pause)
         {
-            ____curMSecPre = ____curMSec;
-            if (____isPlaying && ____stopwatch != null && !DebugFeature.Pause)
-            {
-                var num = (double)____stopwatch.ElapsedTicks / Stopwatch.Frequency * 1000.0 * speed;
-                ____curMSec += (float)num;
-                ____stopwatch.Reset();
-                ____stopwatch.Start();
-            }
+            var num = (double)____stopwatch.ElapsedTicks / Stopwatch.Frequency * 1000.0 * speed;
+            ____curMSec += (float)num;
+            ____stopwatch.Reset();
+            ____stopwatch.Start();
         }
 
         return false;
