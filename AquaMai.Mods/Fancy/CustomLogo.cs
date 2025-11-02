@@ -29,6 +29,12 @@ public class CustomLogo
         zh: "从此目录中随机选择一张 PNG 图片用于「ALL.Net」标志")]
     private static readonly string allNetLogoDir = "LocalAssets/AllNetLogo";
 
+    [ConfigEntry(
+        name: "Logo 全屏幕",
+        en: "FullScreen the logo for the bottom screen.",
+        zh: "将标志全屏占满下屏幕")]
+    private static readonly bool logoFullScreen = false;
+
     private readonly static List<Sprite> segaLogo = [];
     private readonly static List<Sprite> allNetLogo = [];
 
@@ -65,6 +71,9 @@ public class CustomLogo
                 if (go == null)
                     go = monitor.transform.Find("Canvas/Main/UI_ADV_SegaAllNet/Null_all/SegaLogo");
                 go.GetComponent<Image>().sprite = logo;
+                if (!logoFullScreen) continue;
+                var rect = go.GetComponent<RectTransform>();
+                rect.sizeDelta = new Vector2(1080, 1080);
             }
         }
 
@@ -77,6 +86,9 @@ public class CustomLogo
                 if (go == null)
                     go = monitor.transform.Find("Canvas/Main/UI_ADV_SegaAllNet/Null_all/AllNetLogo");
                 go.GetComponent<Image>().sprite = logo;
+                if (!logoFullScreen) continue;
+                var rect = go.GetComponent<RectTransform>();
+                rect.sizeDelta = new Vector2(1080, 1080);
             }
         }
     }
