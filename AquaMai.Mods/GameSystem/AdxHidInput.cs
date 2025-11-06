@@ -7,6 +7,7 @@ using AMDaemon;
 using AquaMai.Config.Attributes;
 using AquaMai.Config.Types;
 using AquaMai.Core.Attributes;
+using AquaMai.Mods.Tweaks;
 using HarmonyLib;
 using HidLibrary;
 using MelonLoader;
@@ -25,7 +26,7 @@ public class AdxHidInput
     private static HidDevice[] adxController = new HidDevice[2];
     private static byte[,] inputBuf = new byte[2, 32];
     private static double[] td = [0, 0];
-    private static bool tdEnabled;
+    private static bool tdEnabled, keyEnabled;
 
     private static void HidInputThread(int p)
     {
@@ -59,6 +60,14 @@ public class AdxHidInput
             return;
         }
         if (rpt.Data[5] < 110) return;
+        if (!LedBrightnessControl.shouldEnableImplicitly)
+        {
+            LedBrightnessControl.shouldEnableImplicitly = true;
+            LedBrightnessControl.button1p *= 0.8f;
+            LedBrightnessControl.button2p *= 0.8f;
+            LedBrightnessControl.cabinet1p *= 0.8f;
+            LedBrightnessControl.cabinet2p *= 0.8f;
+        }
         arr[0] = 0x73;
         adxController[p].WriteReportSync(new HidReport(64)
         {
@@ -78,7 +87,7 @@ public class AdxHidInput
         MelonLogger.Msg($"[HidInput] TD Init {p} OK, {td[p]} ms");
     }
 
-    public static void OnBeforePatch(HarmonyLib.Harmony h)
+    public static void OnBeforeEnableCheck()
     {
         adxController[0] = HidDevices.Enumerate(0x2E3C, [0x5750, 0x5767]).FirstOrDefault(it => !it.DevicePath.EndsWith("kbd"));
         adxController[1] = HidDevices.Enumerate(0x2E4C, 0x5750).Concat(HidDevices.Enumerate(0x2E3C, 0x5768)).FirstOrDefault(it => !it.DevicePath.EndsWith("kbd"));
@@ -93,21 +102,16 @@ public class AdxHidInput
             MelonLogger.Msg("[HidInput] Open HID 2P OK");
         }
 
-        var inputEnabled = false;
         for (int i = 0; i < 2; i++)
         {
             if (adxController[i] == null) continue;
             TdInit(i);
             if (adxController[i].Attributes.ProductId is 0x5767 or 0x5768) continue;
             if (io4Compact) continue;
-            inputEnabled = true;
+            keyEnabled = true;
             var p = i;
             Thread hidThread = new Thread(() => HidInputThread(p));
             hidThread.Start();
-        }
-        if (inputEnabled)
-        {
-            h.PatchAll(typeof(Hook));
         }
     }
 
@@ -166,6 +170,8 @@ public class AdxHidInput
         };
     }
 
+    [HarmonyPatch]
+    [EnableIf(typeof(AdxHidInput), nameof(keyEnabled))]
     public static class Hook
     {
         public static IEnumerable<MethodBase> TargetMethods()

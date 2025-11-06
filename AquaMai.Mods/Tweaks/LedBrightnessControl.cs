@@ -1,4 +1,5 @@
 using AquaMai.Config.Attributes;
+using AquaMai.Core.Attributes;
 using HarmonyLib;
 using Mecha;
 using UnityEngine;
@@ -9,31 +10,33 @@ namespace AquaMai.Mods.Tweaks;
     name: "LED亮度控制",
     en: "Control LED brightness for button and cabinet lights",
     zh: "控制按键和框体灯的亮度")]
+[EnableImplicitlyIf(nameof(shouldEnableImplicitly))]
 public class LedBrightnessControl
 {
+    public static bool shouldEnableImplicitly = false;
     [ConfigEntry(
         name: "1P按键亮度",
         en: "Button Brightness 1P (0.0 - 1.0)",
         zh: "(0.0 - 1.0)")]
-    private static readonly float button1p = 1.0f;
+    public static float button1p = 1.0f;
 
     [ConfigEntry(
         name: "2P按键亮度",
         en: "Button Brightness 2P (0.0 - 1.0)",
         zh: "(0.0 - 1.0)")]
-    private static readonly float button2p = 1.0f;
+    public static float button2p = 1.0f;
 
     [ConfigEntry(
         name: "1P框体灯亮度",
         en: "Cabinet Brightness 1P (0.0 - 1.0)",
         zh: "(0.0 - 1.0)")]
-    private static readonly float cabinet1p = 1.0f;
+    public static float cabinet1p = 1.0f;
 
     [ConfigEntry(
         name: "2P框体灯亮度",
         en: "Cabinet Brightness 2P (0.0 - 1.0)",
         zh: "(0.0 - 1.0)")]
-    private static readonly float cabinet2p = 1.0f;
+    public static float cabinet2p = 1.0f;
 
     private static Color32 ApplyBrightness(Color32 originalColor, float brightness)
     {
