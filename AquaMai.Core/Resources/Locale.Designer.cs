@@ -281,20 +281,20 @@ namespace AquaMai.Core.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to SSS+ =&gt; DXRating += {0}.
-        /// </summary>
-        public static string RatingUpWhenSSSp {
-            get {
-                return ResourceManager.GetString("RatingUpWhenSSSp", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to AP =&gt; DXRating += {0}.
         /// </summary>
         public static string RatingUpWhenAP {
             get {
                 return ResourceManager.GetString("RatingUpWhenAP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SSS+ =&gt; DXRating += {0}.
+        /// </summary>
+        public static string RatingUpWhenSSSp {
+            get {
+                return ResourceManager.GetString("RatingUpWhenSSSp", resourceCulture);
             }
         }
         
@@ -470,6 +470,19 @@ namespace AquaMai.Core.Resources {
         public static string TouchPanelReset {
             get {
                 return ResourceManager.GetString("TouchPanelReset", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ==================================================================!!!
+        ///Unable to save configuration file. 
+        ///Maybe the configuration file directory is read-only or other problems
+        ///The local configuration file may not reflect the latest added options
+        ///=====================================================================.
+        /// </summary>
+        public static string UnableSaveConfig {
+            get {
+                return ResourceManager.GetString("UnableSaveConfig", resourceCulture);
             }
         }
         

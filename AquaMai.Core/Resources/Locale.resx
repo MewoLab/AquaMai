@@ -172,4 +172,11 @@ Press {2} to switch block or exit adjustment mode</value>
     <data name="AutoplayWasUsed" xml:space="preserve">
         <value>Autoplay was used, score will not be saved.</value>
     </data>
+    <data name="UnableSaveConfig" xml:space="preserve">
+        <value>==================================================================!!!
+Unable to save configuration file. 
+Maybe the configuration file directory is read-only or other problems
+The local configuration file may not reflect the latest added options
+=====================================================================</value>
+    </data>
 </root>
