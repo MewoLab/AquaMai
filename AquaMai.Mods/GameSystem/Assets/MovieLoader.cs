@@ -20,6 +20,7 @@ namespace AquaMai.Mods.GameSystem.Assets;
     en: "Custom Play Song Background\nPriority: game source PV > local mp4 PV > jacket",
     zh: "自定义歌曲游玩界面背景\n优先级: 首先读游戏自带 PV, 然后读本地 mp4 格式 PV, 最后读封面",
     defaultOn: true)]
+[EnableGameVersion(23000)]
 public class MovieLoader
 {
     [ConfigEntry(

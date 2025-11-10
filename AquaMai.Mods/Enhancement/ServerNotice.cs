@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using AquaMai.Config.Attributes;
+using AquaMai.Core.Attributes;
 using AquaMai.Core.Helpers;
 using AquaMai.Mods.Types;
 using JetBrains.Annotations;
@@ -19,6 +20,7 @@ namespace AquaMai.Mods.Enhancement;
         在用户登录之类的时候，显示来自兼容服务器的额外信息
         （对其他服务器无副作用，不会发出额外请求）
         """)]
+[EnableGameVersion(23000)]
 public class ServerNotice
 {
     private const string FieldName = "_aquaMaiServerNotice";

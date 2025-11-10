@@ -3,6 +3,7 @@ using AquaMai.Config.Attributes;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using AquaMai.Core.Attributes;
 using MelonLoader;
 using Manager;
 
@@ -14,6 +15,7 @@ namespace AquaMai.Mods.UX;
     zh: "在正常模式中，隐藏乱码曲 Xaleid◆scopiX",
     defaultOn: true
 )]
+[EnableGameVersion(25500)]
 public class Hide1879
 {
     [HarmonyPostfix]

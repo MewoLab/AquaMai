@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using AquaMai.Config.Attributes;
 using AquaMai.Config.Types;
+using AquaMai.Core.Attributes;
 using AquaMai.Core.Helpers;
 using AquaMai.Core.Resources;
 using AquaMai.Mods.UX.PracticeMode;
@@ -20,6 +21,7 @@ namespace AquaMai.Mods.Utils;
 [ConfigSection(
     name: "实时触摸显示",
     zh: "在游戏过程中在副屏显示触摸输入，可用于调试吃和蹭的问题")]
+[EnableGameVersion(23000)]
 public static class DisplayTouchInGame
 {
     private static GameObject prefab;

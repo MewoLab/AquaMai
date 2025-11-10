@@ -10,6 +10,7 @@ using Manager;
 using MelonLoader;
 using Monitor;
 using AquaMai.Config.Attributes;
+using AquaMai.Core;
 using AquaMai.Core.Helpers;
 
 namespace AquaMai.Mods.GameSystem.Assets;

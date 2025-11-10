@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using AquaMai.Config.Attributes;
+using AquaMai.Core.Attributes;
 using AquaMai.Core.Helpers;
 using AquaMai.Core.Resources;
 using AquaMai.Core.Types;
@@ -21,6 +22,7 @@ namespace AquaMai.Mods.Utils;
 [ConfigSection(
     name: "移动正解音",
     en: "Move answer sound")]
+[EnableGameVersion(23000)]
 public class MoveAnswerSound : IPlayerSettingsItem
 {
     [ConfigEntry(

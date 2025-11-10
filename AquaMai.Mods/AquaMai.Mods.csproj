@@ -37,7 +37,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="mscorlib" />
+    <Reference Include="mscorlib">
+      <HintPath>../Libs/mscorlib.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="0Harmony" />
     <Reference Include="AMDaemon.NET" />
     <Reference Include="Assembly-CSharp" />

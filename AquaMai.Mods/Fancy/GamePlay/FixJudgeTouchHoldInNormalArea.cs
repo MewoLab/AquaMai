@@ -16,7 +16,7 @@ namespace AquaMai.Mods.Fancy.GamePlay;
     en: "Enable the game to correctly judge Touch Hold outside the C zone. Experimental implementation, reported to be unstable",
     zh: "使游戏可以正常判定非 C 区的 Touch Hold。实验性实现，据反馈不稳定"
 )]
-[EnableGameVersion(maxVersion: 25699)]
+[EnableGameVersion(23000, 25699)]
 public class FixJudgeTouchHoldInNormalArea
 {
     // This patch fixes the issue in GameVersion <= 1.56 where Touch Hold could appear in any zone but were only judged in C zone

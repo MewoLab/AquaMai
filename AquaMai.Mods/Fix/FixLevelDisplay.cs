@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace AquaMai.Mods.Fix;
 
-[EnableGameVersion(24000)]
+[EnableGameVersion(25000)]
 [ConfigSection(exampleHidden: true, defaultOn: true)]
 public class FixLevelDisplay
 {
@@ -28,7 +28,7 @@ public class FixLevelDisplay
         GameObject ____difficultyUtageQuesionMarkDoubleDigit)
     {
         // 在 KLD 表门和里门不应用修改
-        if (GameInfo.GameVersion >= 25500 && GameManager.IsKaleidxScopeMode)
+        if (GameManager.IsKaleidxScopeMode)
         {
             if (Singleton<KaleidxScopeManager>.Instance.gateId == 8 ||
                 Singleton<KaleidxScopeManager>.Instance.gateId == 10)

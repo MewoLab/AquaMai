@@ -1,5 +1,6 @@
 using System;
 using AquaMai.Config.Attributes;
+using AquaMai.Core.Attributes;
 using HarmonyLib;
 using Manager;
 using MelonLoader;
@@ -13,6 +14,7 @@ namespace AquaMai.Mods.UX;
     name: "两位数曲目修复",
     en: "Make track number in top right corner display two digits (in Normal mode)",
     zh: "让右上角的当前曲目数字可以显示两位数（在普通模式中）")]
+[EnableGameVersion(25500)]
 public class FixTrackNumDisplay
 {
     private static Sprite[] customSprites;

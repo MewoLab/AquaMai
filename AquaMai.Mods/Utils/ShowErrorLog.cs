@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Text.RegularExpressions;
 using System.Threading;
 using AquaMai.Config.Attributes;
+using AquaMai.Core.Attributes;
 using AquaMai.Core.Helpers;
 using HarmonyLib;
 using Main;
@@ -20,6 +21,7 @@ namespace AquaMai.Mods.Utils;
     en: "Show error log in the game.",
     zh: "在游戏中显示错误日志窗口而不是关闭游戏进程",
     defaultOn: true)]
+[EnableGameVersion(23000)]
 public class ShowErrorLog
 {
     private static Ui _errorUi;

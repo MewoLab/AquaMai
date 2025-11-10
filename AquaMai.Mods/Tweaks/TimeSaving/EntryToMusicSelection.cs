@@ -19,6 +19,7 @@ namespace AquaMai.Mods.Tweaks.TimeSaving;
     name: "登录后直接选歌",
     en: "Directly enter the song selection screen after login.",
     zh: "登录完成后直接进入选歌界面")]
+[EnableGameVersion(23000)]
 public class EntryToMusicSelection
 {
     [ConfigEntry(name: "仅游客模式", zh: "仅在游客模式启用", en: "Enable only in Guest Mode")]

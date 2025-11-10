@@ -84,6 +84,11 @@ public class Startup
 
     private static void CollectWantedPatches(List<Type> wantedPatches, Type type)
     {
+        if (EnableConditionHelper.ShouldSkipClassByGameVersion(type))
+        {
+            return;
+        }
+
         InvokeLifecycleMethod(type, ModLifecycleMethod.OnBeforeEnableCheck);
 
         if (EnableConditionHelper.ShouldSkipClass(type))

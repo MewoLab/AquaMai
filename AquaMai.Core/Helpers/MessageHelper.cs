@@ -18,7 +18,16 @@ public class MessageHelper
         _genericManager = genericManager;
     }
 
-    public static void ShowMessage(string message, WindowSizeID size = WindowSizeID.Middle, string title = null, Sprite sprite = null, bool retain = false)
+    public delegate void ShowMessageDelegate(string message, WindowSizeID size = WindowSizeID.Middle, string title = null, Sprite sprite = null, bool retain = false);
+
+    public static ShowMessageDelegate ShowMessage = GameInfo.GameVersion > 22000
+        ? _ShowMessage
+        : (string message, WindowSizeID size = WindowSizeID.Middle, string title = null, Sprite sprite = null, bool retain = false) =>
+        {
+            MelonLogger.Warning($"[MessageHelper] ShowMessage is not supported in this game version. {title}: {message}");
+        };
+
+    private static void _ShowMessage(string message, WindowSizeID size = WindowSizeID.Middle, string title = null, Sprite sprite = null, bool retain = false)
     {
         if (_genericManager is null)
         {

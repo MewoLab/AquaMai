@@ -15,6 +15,7 @@ using Process;
 using UnityEngine;
 using AquaMai.Config.Attributes;
 using AquaMai.Config.Types;
+using AquaMai.Core.Attributes;
 using MelonLoader;
 
 namespace AquaMai.Mods.UX.PracticeMode;
@@ -23,6 +24,7 @@ namespace AquaMai.Mods.UX.PracticeMode;
 [ConfigSection(
     en: "Practice Mode.",
     name: "练习模式")]
+[EnableGameVersion(23000)]
 public class PracticeMode
 {
     [ConfigEntry(

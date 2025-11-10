@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using AquaMai.Config.Attributes;
+using AquaMai.Core.Attributes;
 using AquaMai.Core.Helpers;
 using HarmonyLib;
 using MelonLoader;
@@ -15,6 +16,7 @@ namespace AquaMai.Mods.GameSystem.Assets;
     en: "Use custom font(s) as fallback or fully replace the original game font.",
     zh: "使用自定义字体作为回退（解决中文字形缺失问题），或完全替换游戏原字体",
     defaultOn: true)]
+[EnableGameVersion(23000)]
 public class Fonts
 {
     [ConfigEntry(

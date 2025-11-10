@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Linq;
 using AquaMai.Config.Attributes;
+using AquaMai.Core.Attributes;
 using AquaMai.Core.Helpers;
 using AquaMai.Mods.Types;
 using DB;
@@ -25,6 +26,7 @@ namespace AquaMai.Mods.Enhancement;
         显示来自兼容服务端的公告
         （对其他服务器无副作用，不会发出额外请求）
         """)]
+[EnableGameVersion(23000)]
 public static class ServerAnnouncement
 {
     private class ServerAnnouncementEntry : ConditionalMessage

@@ -55,6 +55,17 @@ public class EnableConditionHelper
 # endif
             return true;
         }
+        return ShouldSkipMethodOrClassByGameVersion(getCustomAttribute, type, displayName);
+    }
+
+    public static bool ShouldSkipClassByGameVersion(Type type)
+    {
+        return ShouldSkipMethodOrClassByGameVersion(type.GetCustomAttribute, type);
+    }
+
+    private static bool ShouldSkipMethodOrClassByGameVersion(Func<Type, object> getCustomAttribute, Type type, string methodName = "")
+    {
+        var displayName = type.FullName + (string.IsNullOrEmpty(methodName) ? "" : $".{methodName}");
         var enableGameVersion = (EnableGameVersionAttribute)getCustomAttribute(typeof(EnableGameVersionAttribute));
         if (enableGameVersion != null && !enableGameVersion.ShouldEnable(GameInfo.GameVersion))
         {

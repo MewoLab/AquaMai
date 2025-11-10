@@ -15,6 +15,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using AquaMai.Core.Attributes;
 using Tomlet;
 using Tomlet.Attributes;
 using UI.DaisyChainList;
@@ -27,6 +28,7 @@ namespace AquaMai.Mods.Fancy;
     "曲目伪装术",
     en: "Mimicking KoP final song's hidden track information feature, better paired with custom intro cinematic feature",
     zh: "仿 KoP 决赛曲揭晓时的曲目信息隐藏特性，配合自定义乐曲开场视频功能使用效果更佳")]
+[EnableGameVersion(23000)]
 public class TrackCamouflage
 {
     [ConfigEntry(

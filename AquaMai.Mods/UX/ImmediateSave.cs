@@ -28,6 +28,7 @@ namespace AquaMai.Mods.UX;
     en: "Save immediate after playing a song.",
     zh: "打完一首歌的时候立即向服务器保存成绩",
     defaultOn: true)]
+[EnableGameVersion(23000)]
 public class ImmediateSave
 {
     [ConfigEntry(name: "显示保存中提示")]
