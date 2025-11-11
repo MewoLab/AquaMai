@@ -64,7 +64,13 @@ public static class Shim
 
     public static byte[] DecryptNetPacketBody(byte[] encrypted)
     {
-        var methods = AccessTools.TypeByName("Net.CipherAES").GetMethods();
+        var type = AccessTools.TypeByName("Net.CipherAES");
+        if (type == null)
+        {
+            MelonLogger.Warning("No matching Net.CipherAES class found");
+            return encrypted;
+        }
+        var methods = type.GetMethods();
         var method = methods.FirstOrDefault(it => it.Name == "Decrypt" && it.GetParameters().Length <= 2);
         if (method == null)
         {
