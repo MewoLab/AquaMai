@@ -15,6 +15,7 @@
   - Utils.FreedomTimer
   - GameSystem.VolumeSync
   - Fancy.CustomIntroCinematic
+  - Tweaks.LedBrightnessControl
 
 全解和跳过:
   - GameSystem.Unlock
@@ -59,10 +60,13 @@
   - Utils.ScreenPositionAdjust
   - GameSettings.JudgeAdjust
   - GameSystem.Sound
+  - GameSystem.SoundRouting
+  - GameSystem.HeadphoneVolumeMultiply
   - GameSystem.VolumeSync
   - GameSystem.CustomCameraId
   - GameSystem.ExteraMouseInput
   - Utils.FreedomTimer
+  - Tweaks.LedBrightnessControl
 
 调试工具:
   - Utils.AntiLag
@@ -102,6 +106,7 @@
   - GameSystem.Assets.LoadAssetBundleWithoutManifest
   - GameSystem.Assets.LoadLocalImages
   - GameSystem.Assets.MovieLoader
+  - GameSystem.Assets.IgnoreLoadFailedAssetBundle
   - GameSystem.OptionLoadFix
   - Tweaks.SkipUserVersionCheck
   - UX.DontRuinMyAccount

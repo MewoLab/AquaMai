@@ -44,16 +44,23 @@ jobs:
           mkdir Upload
           move AquaMai.dll Upload
           move AquaMai.*.toml Upload
-  
+
+      - name: Sign and Upload CI release
+        if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
+        shell: cmd
+        run: build-assets\Releaser\AquaMaiReleaser.exe "Output\Upload\AquaMai.dll" "${{ env.GIT_DESCRIBE }}"
+        env:
+          LEGACY_RELEASE_SIGN_PK: ${{ secrets.LEGACY_RELEASE_SIGN_PK }}
+          RELEASE_SIGN_V2_PK: ${{ secrets.RELEASE_SIGN_V2_PK }}
+          QCLOUD_SECRET_ID: ${{ secrets.QCLOUD_SECRET_ID }}
+          QCLOUD_SECRET_KEY: ${{ secrets.QCLOUD_SECRET_KEY }}
+          R2_ACCESS_KEY: ${{ secrets.R2_ACCESS_KEY }}
+          R2_SECRET_KEY: ${{ secrets.R2_SECRET_KEY }}
+
       - uses: actions/upload-artifact@v4
         with:
           name: AquaMai
           path: Output\Upload
-
-      - name: Upload CI release
-        if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
-        shell: cmd
-        run: build-assets\Releaser\AquaMaiReleaser.exe "Output\Upload\AquaMai.dll" "${{ env.GIT_DESCRIBE }}"
 
       - name: Send to Telegram
         if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'

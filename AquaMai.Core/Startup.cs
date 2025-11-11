@@ -84,6 +84,11 @@ public class Startup
 
     private static void CollectWantedPatches(List<Type> wantedPatches, Type type)
     {
+        if (EnableConditionHelper.ShouldSkipClassByGameVersion(type))
+        {
+            return;
+        }
+
         InvokeLifecycleMethod(type, ModLifecycleMethod.OnBeforeEnableCheck);
 
         if (EnableConditionHelper.ShouldSkipClass(type))
@@ -136,20 +141,45 @@ public class Startup
     public static void Initialize(Assembly modsAssembly, HarmonyLib.Harmony harmony)
     {
         MelonLogger.Msg("Loading mod settings...");
-
-        var configLoaded = ConfigLoader.LoadConfig(modsAssembly);
-        var lang = ResolveLocale();
-        if (configLoaded)
-        {
-            ConfigLoader.SaveConfig(lang); // Re-save the config as soon as possible
-        }
-
         _harmony = harmony;
 
+        bool configLoaded;
+        try
+        {
+            configLoaded = ConfigLoader.LoadConfig(modsAssembly);
+        }
+        catch (Exception ex)
+        {
+            MelonLogger.Error($"Failed to load config file: {ex}");
+            InvalidConfigAlert.message = InvalidConfigAlert.ConfigCorruptedMessage;
+            ApplyPatch(typeof(InvalidConfigAlert));
+            return;
+        }
+
+        var lang = ResolveLocale();
         // Init locale with patching C# runtime
         // https://stackoverflow.com/questions/1952638/single-assembly-multi-language-windows-forms-deployment-ilmerge-and-satellite-a
         ApplyPatch(typeof(I18nSingleAssemblyHook));
         Locale.Culture = CultureInfo.GetCultureInfo(lang); // Must be called after I18nSingleAssemblyHook patched
+
+        if (configLoaded)
+        {
+            try
+            {
+                ConfigLoader.SaveConfig(lang); // Re-save the config as soon as possible
+            }
+            catch (Exception ex)
+            {
+                MelonLogger.Warning(ex);
+                MelonLogger.Warning("\n" + Locale.UnableSaveConfig);
+            }
+        }
+        else
+        {
+            InvalidConfigAlert.message = InvalidConfigAlert.ConfigNotFoundMessage;
+            ApplyPatch(typeof(InvalidConfigAlert));
+            return;
+        }
 
         // The patch list is ordered
         List<Type> wantedPatches = [];

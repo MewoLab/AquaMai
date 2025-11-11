@@ -1,4 +1,5 @@
 ﻿using AquaMai.Config.Attributes;
+using AquaMai.Core.Attributes;
 using HarmonyLib;
 using Monitor;
 using TMPro;
@@ -17,6 +18,7 @@ namespace AquaMai.Mods.Fancy.GamePlay;
         在歌曲开始界面, 把 TRACK X 字样, DX/标准谱面的显示框, 以及画面下方的滴蜡熊隐藏掉
         录制谱面确认用
         """)]
+[EnableGameVersion(23000)]
 public class DisableTrackStartTabs
 {
     // 在歌曲开始界面, 把 TRACK X 字样, DX/标准谱面的显示框, 以及画面下方的滴蜡熊隐藏掉, 让他看起来不那么 sinmai, 更像是 majdata

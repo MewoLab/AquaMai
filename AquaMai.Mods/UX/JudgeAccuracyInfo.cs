@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using AquaMai.Config.Attributes;
+using AquaMai.Core.Attributes;
 using HarmonyLib;
 using MAI2.Util;
 using Manager;
@@ -21,6 +22,7 @@ namespace AquaMai.Mods.UX;
     name: "判定详情统计",
     zh: "在游戏总结的计分板中显示击打误差的详细信息（以帧为单位）",
     en: "Show detailed accuracy info in the score board.")]
+[EnableGameVersion(23000)]
 public class JudgeAccuracyInfo
 {
     public class AccuracyEntryList

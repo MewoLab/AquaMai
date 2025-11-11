@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using AquaMai.Config.Attributes;
+using AquaMai.Core.Attributes;
 using HarmonyLib;
 using Monitor;
 using UnityEngine;
@@ -16,6 +17,7 @@ namespace AquaMai.Mods.Fancy.GamePlay;
         反转 Slide 层级, 使新出现的 Slide 像旧框一样显示在上层
         启用以支持通过叠加多个星星达成的变色效果
         """)]
+[EnableGameVersion(23000)]
 public class SlideLayerReverse
 {
     [HarmonyPostfix]

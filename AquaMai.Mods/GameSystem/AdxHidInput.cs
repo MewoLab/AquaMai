@@ -7,6 +7,7 @@ using AquaMai.Config.Attributes;
 using AquaMai.Config.Types;
 using AquaMai.Core.Attributes;
 using AquaMai.Core.Helpers;
+using AquaMai.Mods.Tweaks;
 using HarmonyLib;
 using HidLibrary;
 using MelonLoader;
@@ -57,6 +58,14 @@ public class AdxHidInput
             return;
         }
         if (rpt.Data[5] < 110) return;
+        if (!LedBrightnessControl.shouldEnableImplicitly)
+        {
+            LedBrightnessControl.shouldEnableImplicitly = true;
+            LedBrightnessControl.button1p *= 0.8f;
+            LedBrightnessControl.button2p *= 0.8f;
+            LedBrightnessControl.cabinet1p *= 0.8f;
+            LedBrightnessControl.cabinet2p *= 0.8f;
+        }
         arr[0] = 0x73;
         adxController[p].WriteReportSync(new HidReport(64)
         {
@@ -76,7 +85,7 @@ public class AdxHidInput
         MelonLogger.Msg($"[HidInput] TD Init {p} OK, {td[p]} ms");
     }
 
-    public static void OnBeforePatch(HarmonyLib.Harmony h)
+    public static void OnBeforeEnableCheck()
     {
         adxController[0] = HidDevices.Enumerate(0x2E3C, [0x5750, 0x5767]).FirstOrDefault(it => !it.DevicePath.EndsWith("kbd"));
         adxController[1] = HidDevices.Enumerate(0x2E4C, 0x5750).Concat(HidDevices.Enumerate(0x2E3C, 0x5768)).FirstOrDefault(it => !it.DevicePath.EndsWith("kbd"));

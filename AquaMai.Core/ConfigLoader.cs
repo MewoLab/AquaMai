@@ -18,6 +18,8 @@ public static class ConfigLoader
 
     public static Config.Config Config => config;
 
+    private static string configText;
+
     public static bool LoadConfig(Assembly modsAssembly)
     {
         Utility.LogFunction = MelonLogger.Msg;
@@ -43,7 +45,7 @@ public static class ConfigLoader
             return false;
         }
 
-        var configText = File.ReadAllText(ConfigFile);
+        configText = File.ReadAllText(ConfigFile);
         var configView = new ConfigView(configText);
         var configVersion = ConfigMigrationManager.Instance.GetVersion(configView);
         if (configVersion != ConfigMigrationManager.Instance.LatestVersion)
@@ -60,6 +62,8 @@ public static class ConfigLoader
 
     public static void SaveConfig(string lang)
     {
+        var newText = SerailizeCurrentConfig(lang);
+        if (newText == configText) return;
         File.WriteAllText(ConfigFile, SerailizeCurrentConfig(lang));
     }
 
@@ -74,7 +78,7 @@ public static class ConfigLoader
     private static IDictionary<string, string> GenerateExamples()
     {
         var examples = new Dictionary<string, string>();
-        foreach (var lang in (string[]) ["en", "zh"])
+        foreach (var lang in (string[])["en", "zh"])
         {
             examples[lang] = SerailizeCurrentConfig(lang);
         }

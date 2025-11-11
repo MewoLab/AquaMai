@@ -1,5 +1,6 @@
 ﻿using AquaMai.Core.Attributes;
 using AquaMai.Config.Attributes;
+using AquaMai.Core.Helpers;
 using HarmonyLib;
 using MAI2.Util;
 using Manager;
@@ -9,7 +10,7 @@ using UnityEngine;
 
 namespace AquaMai.Mods.Fix;
 
-[EnableGameVersion(24000)]
+[EnableGameVersion(25000)]
 [ConfigSection(exampleHidden: true, defaultOn: true)]
 public class FixLevelDisplay
 {
@@ -18,7 +19,13 @@ public class FixLevelDisplay
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(MusicChainCardObejct), "SetLevel")]
-    private static void FixLevelShiftMusicChainCardObejct(MusicLevelID levelID, SpriteCounter ____digitLevel, SpriteCounter ____doubleDigitLevel, bool utage, GameObject ____difficultyUtageQuesionMarkSingleDigit, GameObject ____difficultyUtageQuesionMarkDoubleDigit)
+    private static void FixLevelShiftMusicChainCardObejct(
+        MusicLevelID levelID,
+        SpriteCounter ____digitLevel,
+        SpriteCounter ____doubleDigitLevel,
+        bool utage,
+        GameObject ____difficultyUtageQuesionMarkSingleDigit,
+        GameObject ____difficultyUtageQuesionMarkDoubleDigit)
     {
         // 在 KLD 表门和里门不应用修改
         if (GameManager.IsKaleidxScopeMode)
@@ -60,14 +67,26 @@ public class FixLevelDisplay
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(SingleResultCardController), "SetLevel")]
-    private static void FixLevelShiftSingleResultCardController(MusicLevelID levelID, bool isUtage, ref SpriteCounter ____difficultySingle, ref SpriteCounter ____difficultyDouble, GameObject ____utageQuestionMarkSingleDigit, GameObject ____utageQuestionMarkDoubleDigit)
+    private static void FixLevelShiftSingleResultCardController(
+        MusicLevelID levelID,
+        bool isUtage,
+        ref SpriteCounter ____difficultySingle,
+        ref SpriteCounter ____difficultyDouble,
+        GameObject ____utageQuestionMarkSingleDigit,
+        GameObject ____utageQuestionMarkDoubleDigit)
     {
         FixLevelShiftMusicChainCardObejct(levelID, ____difficultySingle, ____difficultyDouble, isUtage, ____utageQuestionMarkSingleDigit, ____utageQuestionMarkDoubleDigit);
     }
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(TotalResultPlayer), "SetLevel")]
-    private static void FixLevelShiftTotalResultPlayer(MusicLevelID levelID, bool isUtage, ref SpriteCounter ____difficultySingle, ref SpriteCounter ____difficultyDouble, GameObject ____utageQuestionMarkSingleDigit, GameObject ____utageQuestionMarkDoubleDigit)
+    private static void FixLevelShiftTotalResultPlayer(
+        MusicLevelID levelID,
+        bool isUtage,
+        ref SpriteCounter ____difficultySingle,
+        ref SpriteCounter ____difficultyDouble,
+        GameObject ____utageQuestionMarkSingleDigit,
+        GameObject ____utageQuestionMarkDoubleDigit)
     {
         FixLevelShiftMusicChainCardObejct(levelID, ____difficultySingle, ____difficultyDouble, isUtage, ____utageQuestionMarkSingleDigit, ____utageQuestionMarkDoubleDigit);
     }
@@ -81,7 +100,12 @@ public class FixLevelDisplay
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(TrackStartMonitor), "SetTrackStart")]
-    private static void FixLevelShiftTrackStartMonitor(int ___monitorIndex, ref SpriteCounter ____difficultySingle, ref SpriteCounter ____difficultyDouble, GameObject ____utageQuestionSingleDigit, GameObject ____utageQuestionDoubleDigit)
+    private static void FixLevelShiftTrackStartMonitor(
+        int ___monitorIndex,
+        ref SpriteCounter ____difficultySingle,
+        ref SpriteCounter ____difficultyDouble,
+        GameObject ____utageQuestionSingleDigit,
+        GameObject ____utageQuestionDoubleDigit)
     {
         var music = Singleton<DataManager>.Instance.GetMusic(GameManager.SelectMusicID[___monitorIndex]);
         var levelID = (MusicLevelID)music.notesData[GameManager.SelectDifficultyID[___monitorIndex]].musicLevelID;

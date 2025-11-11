@@ -19,6 +19,7 @@ namespace AquaMai.Mods.Tweaks.TimeSaving;
     name: "登录后直接选歌",
     en: "Directly enter the song selection screen after login.",
     zh: "登录完成后直接进入选歌界面")]
+[EnableGameVersion(23000)]
 public class EntryToMusicSelection
 {
     [ConfigEntry(name: "仅游客模式", zh: "仅在游客模式启用", en: "Enable only in Guest Mode")]
@@ -35,10 +36,10 @@ public class EntryToMusicSelection
     {
         if (enableOnlyInGuestMode)
         {
-            var userDatas = ((int[]) [0, 1]).Select(i => Singleton<UserDataManager>.Instance.GetUserData(i));
+            var userDatas = ((int[])[0, 1]).Select(i => Singleton<UserDataManager>.Instance.GetUserData(i));
             if (!userDatas.All(it => it.IsGuest())) return true;
         }
-        GameManager.IsNormalMode = true;
+        Shim.Set_GameManager_IsNormalMode(true);
         GameManager.SetMaxTrack();
         SharedInstances.GameMainObject.StartCoroutine(GraduallyIncreaseHeadphoneVolumeCoroutine());
         ___container.processManager.AddProcess(new MusicSelectProcess(___container));

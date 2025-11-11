@@ -16,6 +16,7 @@ namespace AquaMai.Mods.GameSystem;
     name: "去除倒计时",
     en: "Disable timers (hidden and set to 65535 seconds).",
     zh: "去除并隐藏游戏中的倒计时")]
+[EnableGameVersion(23000)]
 public class DisableTimeout
 {
     [ConfigEntry(

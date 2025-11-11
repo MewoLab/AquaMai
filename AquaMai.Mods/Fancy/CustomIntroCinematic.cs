@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using AquaMai.Config.Attributes;
+using AquaMai.Core.Attributes;
 using AquaMai.Core.Helpers;
 using HarmonyLib;
 using MAI2.Util;
@@ -21,6 +22,7 @@ namespace AquaMai.Mods.Fancy;
     "开场视频",
     en: "Play custom intro cinematic before track start",
     zh: "播放自定义乐曲开场视频")]
+[EnableGameVersion(25500)]
 public class CustomIntroCinematic
 {
     [ConfigEntry(

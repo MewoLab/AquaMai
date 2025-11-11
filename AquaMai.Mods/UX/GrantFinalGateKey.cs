@@ -4,6 +4,7 @@ using System;
 using MelonLoader;
 using Manager;
 using System.Reflection;
+using AquaMai.Core.Attributes;
 using MAI2.Util;
 using UnityEngine;
 
@@ -15,6 +16,7 @@ namespace AquaMai.Mods.UX;
     zh: "按 Enter 键获得 KLD 里门的钥匙 (DXPASS)",
     defaultOn: true
 )]
+[EnableGameVersion(25500)]
 public class GrantFinalGateKey
 {
     [HarmonyPostfix]

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using AquaMai.Config.Attributes;
+using AquaMai.Core.Attributes;
 using HarmonyLib;
 using MAI2.Util;
 using Manager;
@@ -13,6 +14,7 @@ namespace AquaMai.Mods.Fancy.GamePlay;
     name: "星星渐入",
     zh: "让星星在启动拍等待期间从 50% 透明度渐入为 100%，取代原本在击打星星头时就完成渐入",
     en: "Slides will fade in instead of instantly appearing.")]
+[EnableGameVersion(23000)]
 public class SlideFadeInTweak
 {
     [HarmonyPrefix]

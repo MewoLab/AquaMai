@@ -28,9 +28,11 @@ public static class Shim
                 .GetConstructors()
                 .First();
             return ((INetQuery)baseNetQueryConstructor.Invoke(
-                [.. baseNetQueryConstructor
+            [
+                .. baseNetQueryConstructor
                     .GetParameters()
-                    .Select((parameter, i) => i == 0 ? "" : parameter.DefaultValue)])).Api;
+                    .Select((parameter, i) => i == 0 ? "" : parameter.DefaultValue)
+            ])).Api;
         }
         catch (Exception e)
         {
@@ -46,11 +48,10 @@ public static class Shim
     public static IEnumerable<CodeInstruction> NetHttpClientReadCallbackTranspiler(IEnumerable<CodeInstruction> instructions)
     {
         var instList = instructions.ToList();
-        NetHttpClientDecryptsResponse = instList.Any(
-            inst =>
-                inst.opcode == OpCodes.Callvirt &&
-                inst.operand is MethodInfo method &&
-                method.Name == "Decrypt");
+        NetHttpClientDecryptsResponse = instList.Any(inst =>
+            inst.opcode == OpCodes.Callvirt &&
+            inst.operand is MethodInfo method &&
+            method.Name == "Decrypt");
         return instList; // No changes
     }
 
@@ -120,6 +121,7 @@ public static class Shim
     }
 
     public delegate string GetAccessTokenMethod(int index);
+
     public static readonly GetAccessTokenMethod GetAccessToken = Iife<GetAccessTokenMethod>(() =>
     {
         var tOperationManager = Traverse.Create(Singleton<OperationManager>.Instance);
@@ -132,6 +134,7 @@ public static class Shim
     });
 
     public delegate PacketUploadUserPlaylog PacketUploadUserPlaylogCreator(int index, UserData src, int trackNo, Action<int> onDone, Action<PacketStatus> onError = null);
+
     public static readonly PacketUploadUserPlaylogCreator CreatePacketUploadUserPlaylog = Iife<PacketUploadUserPlaylogCreator>(() =>
     {
         var type = typeof(PacketUploadUserPlaylog);
@@ -159,6 +162,7 @@ public static class Shim
     });
 
     public delegate PacketUpsertUserAll PacketUpsertUserAllCreator(int index, UserData src, Action<int> onDone, Action<PacketStatus> onError = null);
+
     public static readonly PacketUpsertUserAllCreator CreatePacketUpsertUserAll = Iife<PacketUpsertUserAllCreator>(() =>
     {
         var type = typeof(PacketUpsertUserAll);
@@ -218,4 +222,6 @@ public static class Shim
             return (UserRate)UserRateCtor.Invoke([musicId, level, achievement, romVersion]);
         }
     }
+
+    public static readonly Action<bool> Set_GameManager_IsNormalMode = GameInfo.GameVersion < 25500 ? (_) => { } : (value) => { GameManager.IsNormalMode = value; };
 }

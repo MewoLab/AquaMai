@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using AquaMai.Config.Attributes;
+using AquaMai.Core.Attributes;
 using DB;
 using HarmonyLib;
 using MAI2.Util;
@@ -20,6 +21,7 @@ namespace AquaMai.Mods.Fancy.GamePlay.CustomNoteTypes;
     name: "自定义 Note 类型",
     en: "Custom Note Types."
 )]
+[EnableGameVersion(23000)]
 public class CustomNoteTypes
 {
     /*

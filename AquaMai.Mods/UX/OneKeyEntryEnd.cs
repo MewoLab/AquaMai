@@ -1,13 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using AquaMai.Config.Attributes;
 using AquaMai.Config.Types;
 using AquaMai.Core;
+using AquaMai.Core.Attributes;
 using AquaMai.Core.Helpers;
 using AquaMai.Mods.Tweaks.TimeSaving;
 using HarmonyLib;
 using Mai2.Mai2Cue;
-using MAI2.Util;
-using MAI2System;
 using Main;
 using Manager;
 using MelonLoader;
@@ -19,6 +19,7 @@ namespace AquaMai.Mods.UX;
     name: "一键登录与登出",
     en: "One key to proceed to music select (during entry) or end current PC (during music select).",
     zh: "一键跳过登录过程直接进入选歌界面，或在选歌界面直接结束本局游戏")]
+[EnableGameVersion(23000)]
 public class OneKeyEntryEnd
 {
     [ConfigEntry(name: "按键")]
@@ -33,7 +34,14 @@ public class OneKeyEntryEnd
     {
         if (!KeyListener.GetKeyDownOrLongPress(key, longPress)) return;
         MelonLogger.Msg("[QuickSkip] Activated");
-        DoQuickSkip();
+        try
+        {
+            DoQuickSkip();
+        }
+        catch (Exception e)
+        {
+            MelonLogger.Error(e);
+        }
     }
 
     public static void DoQuickSkip()
@@ -58,7 +66,7 @@ public class OneKeyEntryEnd
                 // Typo in Assembly-CSharp
                 case "Process.CharacterSelectProces":
                 case "Process.TicketSelect.TicketSelectProcess":
-                    GameManager.IsNormalMode = true;
+                    Shim.Set_GameManager_IsNormalMode(true);
                     processToRelease = process.Process;
                     break;
 

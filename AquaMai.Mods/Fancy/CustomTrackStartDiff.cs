@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using AquaMai.Config.Attributes;
+using AquaMai.Core.Attributes;
 using HarmonyLib;
 using Monitor;
 using UI;
@@ -20,6 +21,7 @@ namespace AquaMai.Mods.Fancy;
         需要启用自定义皮肤功能
         会通过自定义皮肤加载四个图片资源: musicBase, musicTab, musicLvBase, musicLvText
         """)]
+[EnableGameVersion(23000)]
 public class CustomTrackStartDiff
 {
     // 自定义在歌曲开始界面上显示的难度 (并不是真的自定义难度)

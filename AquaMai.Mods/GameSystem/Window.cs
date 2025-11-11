@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using AquaMai.Config.Attributes;
+using AquaMai.Core.Attributes;
 using UnityEngine;
 
 namespace AquaMai.Mods.GameSystem;
@@ -10,6 +11,7 @@ namespace AquaMai.Mods.GameSystem;
     name: "图形设置",
     en: "Resolution Settings / Windowed Mode.",
     zh: "分辨率设置 / 窗口化")]
+[EnableGameVersion(23000)]
 public class Window
 {
     [ConfigEntry(

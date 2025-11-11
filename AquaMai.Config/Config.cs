@@ -35,7 +35,17 @@ public class Config : IConfig
 
         foreach (var section in reflectionManager.SectionValues)
         {
-            InitializeSection(section);
+            try
+            {
+                InitializeSection(section);
+            }
+            catch (Exception ex)
+            {
+                Utility.Log($"Failed to initialize config section {section.Path}");
+#if DEBUG
+                Utility.Log(ex.ToString());
+#endif
+            }
         }
     }
 

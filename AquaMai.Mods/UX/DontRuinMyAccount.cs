@@ -20,6 +20,7 @@ namespace AquaMai.Mods.UX;
     name: "AutoPlay 时不保存成绩",
     en: "Do not save scores when AutoPlay is used",
     defaultOn: true)]
+[EnableGameVersion(25500)]
 // 收编自 https://github.com/Starrah/DontRuinMyAccount/blob/master/Core.cs
 public class DontRuinMyAccount
 {

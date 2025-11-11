@@ -161,7 +161,7 @@ public class Common
         }
     }
 
-    [EnableGameVersion(25000)]
+    [EnableGameVersion(25000, noWarn: true)]
     [HarmonyTranspiler]
     [HarmonyPatch(typeof(WarningProcess), "OnStart")]
     private static IEnumerable<CodeInstruction> RemoveEnvironmentCheck(IEnumerable<CodeInstruction> instructions)
@@ -195,7 +195,7 @@ public class Common
     [ConfigEntry(name: "修复 MusicVersion")] private static readonly bool fixGetMusicVersion = true;
 
     [EnableIf(nameof(fixGetMusicVersion))]
-    [EnableGameVersion(26000)]
+    [EnableGameVersion(26000, noWarn: true)]
     [HarmonyPostfix]
     [HarmonyPatch(typeof(DataManager), nameof(DataManager.GetMusicVersion))]
     private static void GetMusicVersion(int id, ref Manager.MaiStudio.MusicVersionData __result)

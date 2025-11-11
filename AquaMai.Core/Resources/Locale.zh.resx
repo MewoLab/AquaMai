@@ -165,4 +165,10 @@
     <data name="AutoplayWasUsed" xml:space="preserve">
         <value>Autoplay曾开启过，本曲成绩不会被上传。</value>
     </data>
+    <data name="UnableSaveConfig" xml:space="preserve">
+        <value>=============================================!!!
+无法保存配置文件。或许是配置文件目录只读或者其他问题
+本地的配置文件可能无法反应最新添加的选项
+================================================</value>
+    </data>
 </root>
