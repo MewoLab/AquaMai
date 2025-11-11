@@ -1,5 +1,7 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Runtime.InteropServices;
+using AquaMai.Config.Types;
 using MelonLoader;
 
 namespace AquaMai;

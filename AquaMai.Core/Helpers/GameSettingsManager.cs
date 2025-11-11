@@ -37,9 +37,8 @@ public static class GameSettingsManager
         if (!isPatched)
         {
             isPatched = true;
-            var applyPatchMethod = typeof(Core.Startup).GetMethod("ApplyPatch", BindingFlags.Static | BindingFlags.NonPublic);
-            applyPatchMethod.Invoke(null, [typeof(GameSettingsManager)]);
-            applyPatchMethod.Invoke(null, [typeof(PatchOptionCategoryIDExtension)]);
+            Startup.ApplyPatch(typeof(GameSettingsManager));
+            Startup.ApplyPatch(typeof(PatchOptionCategoryIDExtension));
         }
     }
 

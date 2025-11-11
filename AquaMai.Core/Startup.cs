@@ -104,7 +104,7 @@ public class Startup
         }
     }
 
-    private static void ApplyPatch(Type type)
+    public static void ApplyPatch(Type type)
     {
         MelonLogger.Msg($"> Applying {type}");
         try
@@ -197,6 +197,7 @@ public class Startup
         CollectWantedPatches(wantedPatches, typeof(ErrorFrame));
         // 使用时才 patch！不要添加这个
         // CollectWantedPatches(wantedPatches, typeof(GameSettingsManager));
+        // CollectWantedPatches(wantedPatches, typeof(JvsSwitchHook));
 
         // Collect patches based on the config
         var config = ConfigLoader.Config;
