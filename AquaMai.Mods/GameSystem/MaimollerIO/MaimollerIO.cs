@@ -97,7 +97,7 @@ public class MaimollerIO
     private static AuxiliaryState GetAuxiliaryState()
     {
         var auxiliaryState = new AuxiliaryState();
-        Span<IOKeyMap> keyMaps = stackalloc IOKeyMap[4] { button1, button2, button3, button4 };
+        IOKeyMap[] keyMaps = [button1, button2, button3, button4];
         for (int i = 0; i < 4; i++)
         {
             var is1PPushed = p1 && _devices[0].input.GetSwitchState(MaimollerInputReport.SwitchClass.SYSTEM, auxiliaryMaskMap[i]) != 0;

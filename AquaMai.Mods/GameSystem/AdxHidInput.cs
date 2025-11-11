@@ -151,7 +151,7 @@ public class AdxHidInput
     private static AuxiliaryState GetAuxiliaryState()
     {
         var auxiliaryState = new AuxiliaryState();
-        Span<IOKeyMap> keyMaps = stackalloc IOKeyMap[4] { button1, button2, button3, button4 };
+        IOKeyMap[] keyMaps = [button1, button2, button3, button4];
         for (int i = 0; i < 4; i++)
         {
             var keyIndex = 10 + i;
@@ -159,22 +159,22 @@ public class AdxHidInput
             var is2PPushed = inputBuf[1, keyIndex] == 1;
             switch (keyMaps[i])
             {
-            case IOKeyMap.Select1P:
-                auxiliaryState.select1P |= is1PPushed || is2PPushed;
-                break;
-            case IOKeyMap.Select2P:
-                auxiliaryState.select2P |= is1PPushed || is2PPushed;
-                break;
-            case IOKeyMap.Select:
-                auxiliaryState.select1P |= is1PPushed;
-                auxiliaryState.select2P |= is2PPushed;
-                break;
-            case IOKeyMap.Service:
-                auxiliaryState.service = is1PPushed || is2PPushed;
-                break;
-            case IOKeyMap.Test:
-                auxiliaryState.test = is1PPushed || is2PPushed;
-                break;
+                case IOKeyMap.Select1P:
+                    auxiliaryState.select1P |= is1PPushed || is2PPushed;
+                    break;
+                case IOKeyMap.Select2P:
+                    auxiliaryState.select2P |= is1PPushed || is2PPushed;
+                    break;
+                case IOKeyMap.Select:
+                    auxiliaryState.select1P |= is1PPushed;
+                    auxiliaryState.select2P |= is2PPushed;
+                    break;
+                case IOKeyMap.Service:
+                    auxiliaryState.service = is1PPushed || is2PPushed;
+                    break;
+                case IOKeyMap.Test:
+                    auxiliaryState.test = is1PPushed || is2PPushed;
+                    break;
             }
         }
         return auxiliaryState;
