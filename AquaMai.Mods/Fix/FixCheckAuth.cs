@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using AMDaemon.Allnet;
 using AquaMai.Config.Attributes;
 using AquaMai.Core.Attributes;
+using AquaMai.Core.Helpers;
 using AquaMai.Core.Resources;
 using HarmonyLib;
 using Manager;
@@ -37,7 +38,7 @@ public class FixCheckAuth
             // So this can be used to transfer ambiguous data
             // we use this to notify that we can upgrade the link to https
             // as if we originally pass a https link to game, games without CheckServerHash will reject the link because ssl pinning
-            if (upgradePort.IsMatch(Auth.GameServerHost) && allowHttpsUpgrade && !tlsFailed)
+            if (upgradePort.IsMatch(Auth.GameServerHost) && allowHttpsUpgrade && !tlsFailed && GameInfo.GameVersion >= 22000)
             {
                 var match = upgradePort.Match(Auth.GameServerHost);
                 var builder = new UriBuilder(Auth.GameServerUri)

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AquaMai.Config.Attributes;
 using AquaMai.Core;
+using AquaMai.Core.Attributes;
 using HarmonyLib;
 using Manager;
 using Manager.MaiStudio;
@@ -16,6 +17,7 @@ namespace AquaMai.Mods.Fix.Stability;
  * Fix character selection crashing due to missing character data
  */
 [ConfigSection(exampleHidden: true, defaultOn: true)]
+[EnableGameVersion(22000)]
 public class FixMissingCharaCrash
 {
     // Check if the return is null. If it is, make up a color
