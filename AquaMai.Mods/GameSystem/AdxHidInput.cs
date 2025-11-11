@@ -24,7 +24,7 @@ public class AdxHidInput
     private static HidDevice[] adxController = new HidDevice[2];
     private static byte[,] inputBuf = new byte[2, 32];
     private static double[] td = [0, 0];
-    private static bool tdEnabled;
+    private static bool tdEnabled, keyEnabled;
 
     private static void HidInputThread(int p)
     {
@@ -100,24 +100,24 @@ public class AdxHidInput
             MelonLogger.Msg("[HidInput] Open HID 2P OK");
         }
 
-        var inputEnabled = false;
         for (int i = 0; i < 2; i++)
         {
             if (adxController[i] == null) continue;
             TdInit(i);
             if (adxController[i].Attributes.ProductId is 0x5767 or 0x5768) continue;
             if (io4Compact) continue;
-            inputEnabled = true;
+            keyEnabled = true;
             var p = i;
             Thread hidThread = new Thread(() => HidInputThread(p));
             hidThread.Start();
         }
+    }
 
-        if (inputEnabled)
-        {
-            JvsSwitchHook.RegisterButtonChecker(IsButtonPushed);
-            JvsSwitchHook.RegisterAuxiliaryStateProvider(GetAuxiliaryState);
-        }
+    public static void OnAfterPatch()
+    {
+        if (!keyEnabled) return;
+        JvsSwitchHook.RegisterButtonChecker(IsButtonPushed);
+        JvsSwitchHook.RegisterAuxiliaryStateProvider(GetAuxiliaryState);
     }
 
     private static bool IsButtonPushed(int playerNo, int buttonIndex1To8) => buttonIndex1To8 switch

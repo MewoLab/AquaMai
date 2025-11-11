@@ -13,24 +13,43 @@ public struct AuxiliaryState
     public bool service;
     public bool test;
 }
-
 public static class JvsSwitchHook
 {
     public delegate bool ButtonChecker(int playerNo, int buttonIndex1To8);
+
     public delegate AuxiliaryState AuxiliaryStateProvider();
 
     private static readonly List<ButtonChecker> _buttonCheckers = [];
     private static readonly List<AuxiliaryStateProvider> _auxiliaryStateProviders = [];
 
-    public static void RegisterButtonChecker(ButtonChecker buttonChecker) => _buttonCheckers.Add(buttonChecker);
-    public static void RegisterAuxiliaryStateProvider(AuxiliaryStateProvider auxiliaryStateProvider) => _auxiliaryStateProviders.Add(auxiliaryStateProvider);
+    public static void RegisterButtonChecker(ButtonChecker buttonChecker)
+    {
+        EnsurePatched();
+        _buttonCheckers.Add(buttonChecker);
+    }
+    public static void RegisterAuxiliaryStateProvider(AuxiliaryStateProvider auxiliaryStateProvider)
+    {
+        EnsurePatched();
+        _auxiliaryStateProviders.Add(auxiliaryStateProvider);
+    }
+
+    private static bool isPatched = false;
+    private static bool EnsurePatched()
+    {
+        if (isPatched) return false;
+        isPatched = true;
+        Startup.ApplyPatch(typeof(Hook));
+        return true;
+    }
 
     private static bool IsInputPushed(int playerNo, InputId inputId)
     {
         if (inputId.Value.StartsWith("button_"))
         {
             int buttonIndex = int.Parse(inputId.Value.Substring("button_0".Length));
-            foreach (var checker in _buttonCheckers) if (checker(playerNo, buttonIndex)) return true;
+            foreach (var checker in _buttonCheckers)
+                if (checker(playerNo, buttonIndex))
+                    return true;
             return false;
         }
         else
