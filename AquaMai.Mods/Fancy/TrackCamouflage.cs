@@ -65,6 +65,8 @@ Camouflage jacket filename is ""<Music ID>_jacket"", jpg or png image are suppor
             if (!int.TryParse(Path.GetFileNameWithoutExtension(defFilePath), out int musicID) || musicID <= 0)
                 continue;
 
+            MelonLogger.Msg($"[TrackCamouflage] Loading file {Path.GetFileName(defFilePath)} for music ID {musicID}");
+
             CamouflageInfo parsedData;
             try
             {
@@ -99,7 +101,7 @@ Camouflage jacket filename is ""<Music ID>_jacket"", jpg or png image are suppor
                 }
             }
 
-            _camouflagesDict.Add(musicID, parsedData);
+            _camouflagesDict[musicID] = parsedData;
         }
 
         MelonLogger.Msg($"[TrackCamouflage] Loaded {_camouflagesDict.Count} file(s)");
