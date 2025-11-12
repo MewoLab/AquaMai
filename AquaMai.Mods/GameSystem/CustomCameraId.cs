@@ -128,23 +128,28 @@ public class CustomCameraId
     private static CameraParameter _gameCameraParam;
     private static CameraParameter _qrCameraParam;
 
+    // 修复分辨率问题，比如说扫码扫不出来
     [HarmonyPostfix]
     [HarmonyPatch(typeof(CameraManager), "Initialize")]
     public static void SetCameraResolution(CameraManager __instance)
     {
-        WebCamDevice qrDevice = WebCamTexture.devices[Enum.TryParse<CameraManager.CameraTypeEnum>("Chime", out _) ? chimeCamera : leftQrCamera];
-        WebCamTexture qrTexture = new WebCamTexture(qrDevice.name);
-        qrTexture.Play();
-        _qrCameraParam = new CameraParameter(qrTexture.width, qrTexture.height, (int)qrTexture.requestedFPS);
-        AccessTools.Field(typeof(CameraManager), "QrCameraParam").SetValue(__instance, _qrCameraParam);
-        qrTexture.Stop();
+        if (WebCamTexture.devices.TryGetValue(Enum.TryParse<CameraManager.CameraTypeEnum>("Chime", out _) ? chimeCamera : leftQrCamera, out var qrDevice))
+        {
+            WebCamTexture qrTexture = new WebCamTexture(qrDevice.name);
+            qrTexture.Play();
+            _qrCameraParam = new CameraParameter(qrTexture.width, qrTexture.height, (int)qrTexture.requestedFPS);
+            AccessTools.Field(typeof(CameraManager), "QrCameraParam").SetValue(__instance, _qrCameraParam);
+            qrTexture.Stop();
+        }
 
-        WebCamDevice gameDevice = WebCamTexture.devices[photoCamera];
-        WebCamTexture gameTexture = new WebCamTexture(gameDevice.name);
-        gameTexture.Play();
-        _gameCameraParam = new CameraParameter(gameTexture.width, gameTexture.height, (int)gameTexture.requestedFPS);
-        AccessTools.Field(typeof(CameraManager), "GameCameraParam").SetValue(__instance, _gameCameraParam);
-        gameTexture.Stop();
+        if (WebCamTexture.devices.TryGetValue(photoCamera, out var gameDevice))
+        {
+            WebCamTexture gameTexture = new WebCamTexture(gameDevice.name);
+            gameTexture.Play();
+            _gameCameraParam = new CameraParameter(gameTexture.width, gameTexture.height, (int)gameTexture.requestedFPS);
+            AccessTools.Field(typeof(CameraManager), "GameCameraParam").SetValue(__instance, _gameCameraParam);
+            gameTexture.Stop();
+        }
     }
 
     public static void OnBeforePatch()

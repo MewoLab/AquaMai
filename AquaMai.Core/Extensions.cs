@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace AquaMai.Core;
@@ -14,5 +15,16 @@ public static class Extensions
     {
         key = kvp.Key;
         value = kvp.Value;
+    }
+
+    public static bool TryGetValue<T>(this T[] arr, int index, out T value)
+    {
+        if (index >= 0 && index < arr.Length)
+        {
+            value = arr[index];
+            return true;
+        }
+        value = default;
+        return false;
     }
 }
