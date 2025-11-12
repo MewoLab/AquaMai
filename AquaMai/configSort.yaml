@@ -12,10 +12,11 @@
   - Utils.MoveAnswerSound
 
 新功能！:
-  - Utils.FreedomTimer
-  - GameSystem.VolumeSync
-  - Fancy.CustomIntroCinematic
+  - GameSystem.MaimollerIO
   - Tweaks.LedBrightnessControl
+  - Fancy.TrackCamouflage
+  - GameSystem.SoundRouting
+  - GameSystem.HeadphoneVolumeMultiply
 
 全解和跳过:
   - GameSystem.Unlock
@@ -77,8 +78,9 @@
   - Utils.LogNetworkRequests
   - UX.HardwareAlert
 
-键位和灵敏度:
+输入和灵敏度:
   - GameSystem.AdxHidInput
+  - GameSystem.MaimollerIO
   - GameSystem.KeyMap
   - GameSettings.TouchSensitivity
 
@@ -87,6 +89,7 @@
   - GameSystem.TouchPanelPort
   - GameSystem.TouchPanelBaudRate
   - GameSystem.SkipBoardNoCheck
+  - Tweaks.TimeSaving.CheckSkip
   - Fancy.Triggers
 
 过新过热:
@@ -100,6 +103,8 @@
   - Fancy.GamePlay.TrackStartProcessTweak
   - Fancy.GamePlay.FixJudgeTouchHoldInNormalArea
   - Fancy.GamePlay.ReviveFinaleVSlide
+  - Fancy.GamePlay.TapInHoldFix
+  - Fancy.TrackCamouflage
 
 不建议关闭:
   - UX.ImmediateSave
@@ -122,3 +127,39 @@
   - Utils.ShowErrorLog
   - GameSettings.ForceAsServer
   - GameSystem.RemoveEncryption
+
+社区功能:
+  - GameSystem.VolumeSync
+  - Fancy.CustomIntroCinematic
+  - Fancy.CustomSkins
+  - Fancy.CustomButton
+  - Fancy.GamePlay.AlignCircleSlideJudgeDisplay
+  - Fancy.GamePlay.SlideArrowAnimation
+  - Fancy.GamePlay.SlideFadeInTweak
+  - Fancy.GamePlay.SlideLayerReverse
+  - UX.JudgeAccuracyInfo
+  - Fancy.GamePlay.JudgeDisplay4B
+  - UX.FixTrackNumDisplay
+  - GameSystem.SoundRouting
+  - GameSystem.HeadphoneVolumeMultiply
+  - GameSystem.ExteraMouseInput
+  - UX.HardwareAlert
+  - GameSystem.SkipBoardNoCheck
+  - Fancy.SetFade
+  - Fancy.CustomTrackStartDiff
+  - Fancy.GamePlay.BreakSlideJudgeBlink
+  - Fancy.GamePlay.CustomNoteTypes
+  - Fancy.GamePlay.DisableTrackStartTabs
+  - Fancy.GamePlay.FanJudgeFlip
+  - Fancy.GamePlay.RealisticRandomJudge
+  - Fancy.GamePlay.TrackStartProcessTweak
+  - Fancy.GamePlay.FixJudgeTouchHoldInNormalArea
+  - Fancy.GamePlay.ReviveFinaleVSlide
+  - UX.DontRuinMyAccount
+  - UX.Hide1879
+  - UX.GrantFinalGateKey
+  - GameSystem.MaimollerIO
+  - Fancy.GamePlay.TapInHoldFix
+  - Tweaks.TimeSaving.CheckSkip
+  - Fancy.TrackCamouflage
+
