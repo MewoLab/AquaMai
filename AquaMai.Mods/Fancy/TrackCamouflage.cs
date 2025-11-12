@@ -216,6 +216,22 @@ Camouflage jacket filename is ""<Music ID>_jacket"", jpg or png image are suppor
 
         try
         {
+            var methodBody = method.GetMethodBody();
+            LocalVariableInfo combineMusicSelectDataLocal = null;
+            foreach (var local in methodBody.LocalVariables)
+            {
+                if (local.LocalType.FullName.Contains("CombineMusicSelectData"))
+                    combineMusicSelectDataLocal = local;
+            }
+
+            if (combineMusicSelectDataLocal == null)
+            {
+                MelonLogger.Error($"[TrackCamouflage] Can't find CombineMusicSelectData local variable in MusicSelectProcess.{methodName}, skipping!");
+                if (_initialized)
+                    _initialized = false;
+                return inst;
+            }
+
             var matcher = new CodeMatcher(inst);
 
             switch (methodName)
@@ -226,7 +242,7 @@ Camouflage jacket filename is ""<Music ID>_jacket"", jpg or png image are suppor
                             new CodeMatch(OpCodes.Ldloc_0),
 
                             // index2
-                            new CodeMatch(i => i.opcode == OpCodes.Ldloc_S && ((LocalBuilder)i.operand).LocalIndex == 8),
+                            new CodeMatch(i => i.opcode == OpCodes.Ldloc_S && ((LocalBuilder)i.operand).LocalType.Equals(typeof(int))),
 
                             // this.container.assetManager
                             new CodeMatch(OpCodes.Ldarg_0),
@@ -234,22 +250,12 @@ Camouflage jacket filename is ""<Music ID>_jacket"", jpg or png image are suppor
                             new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name.Equals("assetManager")),
 
                             // thumbnailName
-                            new CodeMatch(i => i.opcode == OpCodes.Ldloc_S && ((LocalBuilder)i.operand).LocalIndex == 11),
+                            new CodeMatch(i => i.opcode == OpCodes.Ldloc_S && ((LocalBuilder)i.operand).LocalType.Equals(typeof(string))),
 
                             // (assetManager).GetJacketThumbTexture2D(thumbnailName)
                             new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name.Equals("GetJacketThumbTexture2D"))
                         )
-                        .Advance(6)
-                        .InsertAndAdvance(
-                            // Add new argument to the stack: combineMusicSelectData.musicSelectData[(int)this.ScoreType]
-                            new CodeInstruction(OpCodes.Ldloc_S, 9),
-                            new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(MusicSelectProcess.CombineMusicSelectData), "musicSelectData")),
-                            new CodeInstruction(OpCodes.Ldarg_0),
-                            new CodeInstruction(OpCodes.Call, AccessTools.PropertyGetter(typeof(MusicSelectProcess), "ScoreType")),
-                            new CodeInstruction(OpCodes.Callvirt, AccessTools.PropertyGetter(typeof(List<MusicSelectProcess.MusicSelectData>), "Item"))
-                        )
-                        // Hijack the jacket thumbnail call
-                        .Set(OpCodes.Call, AccessTools.Method(typeof(TrackCamouflage), nameof(HijackGenreTexture2D)));
+                        .Advance(6);
                     break;
                 case "GetGenreTexture":
                     matcher.MatchStartForward(
@@ -259,24 +265,25 @@ Camouflage jacket filename is ""<Music ID>_jacket"", jpg or png image are suppor
                             new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name.Equals("assetManager")),
 
                             // V_8 (thumbnailName)
-                            new CodeMatch(i => i.opcode == OpCodes.Ldloc_S && ((LocalBuilder)i.operand).LocalIndex == 8),
+                            new CodeMatch(i => i.opcode == OpCodes.Ldloc_S && ((LocalBuilder)i.operand).LocalType.Equals(typeof(string))),
 
                             // (assetManager).GetJacketThumbTexture2D(V_8)
                             new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name.Equals("GetJacketThumbTexture2D"))
                         )
-                        .Advance(4)
-                        .InsertAndAdvance(
-                            // Add new argument to the stack: combineMusicSelectData.musicSelectData[(int)this.ScoreType]
-                            new CodeInstruction(OpCodes.Ldloc_S, 6),
-                            new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(MusicSelectProcess.CombineMusicSelectData), "musicSelectData")),
-                            new CodeInstruction(OpCodes.Ldarg_0),
-                            new CodeInstruction(OpCodes.Call, AccessTools.PropertyGetter(typeof(MusicSelectProcess), "ScoreType")),
-                            new CodeInstruction(OpCodes.Callvirt, AccessTools.PropertyGetter(typeof(List<MusicSelectProcess.MusicSelectData>), "Item"))
-                        )
-                        // Hijack the jacket thumbnail call
-                        .Set(OpCodes.Call, AccessTools.Method(typeof(TrackCamouflage), nameof(HijackGenreTexture2D)));
+                        .Advance(4);
                     break;
             }
+
+            matcher.InsertAndAdvance(
+                    // Add new argument to the stack: combineMusicSelectData.musicSelectData[(int)this.ScoreType]
+                    new CodeInstruction(OpCodes.Ldloc_S, combineMusicSelectDataLocal.LocalIndex),
+                    new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(MusicSelectProcess.CombineMusicSelectData), "musicSelectData")),
+                    new CodeInstruction(OpCodes.Ldarg_0),
+                    new CodeInstruction(OpCodes.Call, AccessTools.PropertyGetter(typeof(MusicSelectProcess), "ScoreType")),
+                    new CodeInstruction(OpCodes.Callvirt, AccessTools.PropertyGetter(typeof(List<MusicSelectProcess.MusicSelectData>), "Item"))
+                )
+                // Hijack the jacket thumbnail call
+                .Set(OpCodes.Call, AccessTools.Method(typeof(TrackCamouflage), nameof(HijackGenreTexture2D)));
 
             MelonLogger.Msg($"[TrackCamouflage] Successfully injected method MusicSelectProcess.{methodName}");
             return matcher.Instructions();
