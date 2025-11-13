@@ -77,13 +77,15 @@ Camouflage jacket filename is ""<Music ID>_jacket"", jpg or png image are suppor
                 if (parsedDoc.ContainsKey("Name"))
                 {
                     var str = parsedDoc.GetString("Name");
-                    parsedData.Name = !string.IsNullOrWhiteSpace(str) ? str : "???";
+                    if (!string.IsNullOrWhiteSpace(str))
+                        parsedData.Name = str;
                 }
 
                 if (parsedDoc.ContainsKey("Artist"))
                 {
                     var str = parsedDoc.GetString("Artist");
-                    parsedData.Artist = !string.IsNullOrWhiteSpace(str) ? str : "???";
+                    if (!string.IsNullOrWhiteSpace(str))
+                        parsedData.Artist = str;
                 }
             }
             catch (Exception e)
@@ -363,8 +365,8 @@ Camouflage jacket filename is ""<Music ID>_jacket"", jpg or png image are suppor
 
     public class CamouflageInfo
     {
-        public string Name { get; set; }
-        public string Artist { get; set; }
+        public string Name { get; set; } = "???";
+        public string Artist { get; set; } = "???";
         public Texture2D JacketTexture { get; set; } = null;
     }
     #endregion
