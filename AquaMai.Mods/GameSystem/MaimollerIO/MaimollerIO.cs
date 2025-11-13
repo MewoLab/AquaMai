@@ -22,11 +22,13 @@ namespace AquaMai.Mods.GameSystem.MaimollerIO;
         Input (buttons and touch) and output (LEDs) for Maimoller controllers, replacing the stock ADXHIDIOMod.dll.
         Don't enable this if you're not using Maimoller controllers.
         You must have libadxhid.dll and hidapi.dll in your Sinmai_Data/Plugins folder.
+        Please remove ADXHIDIOMod.dll (if any) and disable DummyTouchpanel in mai2.ini.
         """,
     zh: """
         适配 Maimoller 控制器的输入（按钮和触屏）和输出（LED），替代厂商提供的 ADXHIDIOMod.dll。
         如果你没有使用 Maimoller 控制器，请勿启用。
         请在 Sinmai_Data/Plugins 文件夹下放置 libadxhid.dll 和 hidapi.dll。
+        请删除 ADXHIDIOMod.dll（如果有）并关闭 mai2.ini 中的 DummyTouchpanel
         """)]
 public class MaimollerIO
 {
