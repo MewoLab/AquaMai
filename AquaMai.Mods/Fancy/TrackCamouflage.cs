@@ -21,6 +21,7 @@ using Tomlet.Attributes;
 using UI.DaisyChainList;
 using UnityEngine;
 using UnityEngine.UI;
+using Tomlet.Models;
 
 namespace AquaMai.Mods.Fancy;
 
@@ -71,7 +72,19 @@ Camouflage jacket filename is ""<Music ID>_jacket"", jpg or png image are suppor
             try
             {
                 var parsedDoc = TomlParser.ParseFile(defFilePath);
-                parsedData = TomletMain.To<CamouflageInfo>(parsedDoc);
+                parsedData = new CamouflageInfo();
+
+                if (parsedDoc.ContainsKey("Name"))
+                {
+                    var str = parsedDoc.GetString("Name");
+                    parsedData.Name = !string.IsNullOrWhiteSpace(str) ? str : "???";
+                }
+
+                if (parsedDoc.ContainsKey("Artist"))
+                {
+                    var str = parsedDoc.GetString("Artist");
+                    parsedData.Artist = !string.IsNullOrWhiteSpace(str) ? str : "???";
+                }
             }
             catch (Exception e)
             {
@@ -350,11 +363,9 @@ Camouflage jacket filename is ""<Music ID>_jacket"", jpg or png image are suppor
 
     public class CamouflageInfo
     {
-        public string Name { get; set; } = "???";
-        public string Artist { get; set; } = "???";
-
-        [TomlNonSerialized]
-        public Texture2D JacketTexture = null;
+        public string Name { get; set; }
+        public string Artist { get; set; }
+        public Texture2D JacketTexture { get; set; } = null;
     }
     #endregion
 }
