@@ -17,11 +17,9 @@ using System.Reflection;
 using System.Reflection.Emit;
 using AquaMai.Core.Attributes;
 using Tomlet;
-using Tomlet.Attributes;
 using UI.DaisyChainList;
 using UnityEngine;
 using UnityEngine.UI;
-using Tomlet.Models;
 
 namespace AquaMai.Mods.Fancy;
 
