@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -10,7 +11,7 @@ namespace AquaMai.Core;
 
 public static class ConfigLoader
 {
-    private static string ConfigFile => "AquaMai.toml";
+    private static string ConfigFile => Environment.GetEnvironmentVariable("AQUAMAI_CONFIG") ?? "AquaMai.toml";
     private static string ConfigExampleFile(string lang) => $"AquaMai.{lang}.toml";
     private static string OldConfigFile(string version) => $"AquaMai.toml.old-v{version}.";
 
