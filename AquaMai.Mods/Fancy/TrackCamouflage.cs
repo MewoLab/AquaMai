@@ -330,6 +330,33 @@ Camouflage jacket filename is ""<Music ID>_jacket"", jpg or png image are suppor
     }
     #endregion
 
+    #region AssetManager Patch
+    // Most parts of the game using this method to get jackets except others mentioned from above so I think that'll do the rest
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(AssetManager), "GetJacketTexture2D", argumentTypes: [typeof(int)])]
+    public static bool PreGetJacketTexture2DFromID(ref Texture2D __result, int id, AssetManager __instance)
+    {
+        if (!CamouflageCheck(id, out CamouflageInfo info))
+            return true;
+
+        __result = info.JacketTexture ?? __instance.GetJacketTexture2D("Jacket/UI_Jacket_000000.png");
+        return false;
+    }
+
+    // Seems no one is using this method but just make sure...
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(AssetManager), "GetJacketThumbTexture2D", argumentTypes: [typeof(int)])]
+    public static bool PreGetJacketThumbTexture2DFromID(ref Texture2D __result, int id, AssetManager __instance)
+    {
+        if (!CamouflageCheck(id, out CamouflageInfo info))
+            return true;
+
+        __result = info.JacketTexture ?? __instance.GetJacketThumbTexture2D("Jacket_S/UI_Jacket_000000_S.png");
+        return false;
+    }
+    #endregion
+
     #region Utilities
     private static bool CamouflageCheck(int musicID, out CamouflageInfo info)
     {
