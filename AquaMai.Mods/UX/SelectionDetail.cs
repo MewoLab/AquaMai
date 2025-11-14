@@ -107,7 +107,16 @@ public class SelectionDetail
                 dataToShow.Add(Singleton<DataManager>.Instance.GetMusicGenre(SelectData.MusicData.genreName.id)?.genreName);
             if (SelectData.MusicData.AddVersion is not null)
                 dataToShow.Add(Singleton<DataManager>.Instance.GetMusicVersion(SelectData.MusicData.AddVersion.id)?.genreName);
-            var notesData = SelectData.MusicData.notesData[difficulty[player]];
+            
+            var difficulty = SelectionDetail.difficulty[player];
+            var notesData = SelectData.MusicData.notesData[difficulty];
+            // Fix for player choosing Re:master but the music doesn't have Re:master
+            if (!notesData.isEnable && difficulty == 4)
+            {
+                difficulty = 3;
+                notesData = SelectData.MusicData.notesData[difficulty];
+            }
+            
             dataToShow.Add($"{notesData?.level}.{notesData?.levelDecimal}");
 
             if (userGhost != null)
@@ -115,21 +124,21 @@ public class SelectionDetail
                 dataToShow.Add(string.Format(Locale.UserGhostAchievement, $"{userGhost.Achievement / 10000m:0.0000}"));
             }
 
-            var rate = CalcB50(SelectData.MusicData, difficulty[player]);
+            var rate = CalcB50(SelectData.MusicData, difficulty);
             if (rate > 0)
             {
                 dataToShow.Add(string.Format(Locale.RatingUpWhenSSSp, rate));
             }
             else
             {
-                rate = CalcB50(SelectData.MusicData, difficulty[player], true);
+                rate = CalcB50(SelectData.MusicData, difficulty, true);
                 if (rate > 0)
                 {
                     dataToShow.Add(string.Format(Locale.RatingUpWhenAP, rate));
                 }
             }
 
-            var playCount = Shim.GetUserScoreList(userData)[difficulty[player]].FirstOrDefault(it => it.id == SelectData.MusicData.name.id)?.playcount ?? 0;
+            var playCount = Shim.GetUserScoreList(userData)[difficulty].FirstOrDefault(it => it.id == SelectData.MusicData.name.id)?.playcount ?? 0;
             if (playCount > 0)
             {
                 dataToShow.Add(string.Format(Locale.PlayCount, playCount));
